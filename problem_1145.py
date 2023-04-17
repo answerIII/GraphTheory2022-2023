@@ -30,7 +30,6 @@ class Solution:
         leftTree = self.countV(redNode.left)
         rightTree = self.countV(redNode.right)
         parentTree = n - (leftTree + rightTree + 1)
-        print(leftTree, rightTree, parentTree, sep=':')
         mx = max(leftTree, rightTree, parentTree)
         if mx is leftTree:
             return mx > rightTree + 1 + parentTree
