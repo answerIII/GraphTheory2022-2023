@@ -16,7 +16,7 @@ class Solution:
         while array:
             size = len(array)
             for c in range(size):
-                i, j, height = array.popleft()
+                i, j, height = array.popleft() # удаляет и возвращает первый элемент очереди
                 for a, b in [(i + 1, j), (i, j + 1), (i - 1, j), (i, j - 1)]:
                     if 0 <= a < kor_1 and 0 <= b < kor_2 and (a, b) not in visited:
                         visited.add((a, b))
