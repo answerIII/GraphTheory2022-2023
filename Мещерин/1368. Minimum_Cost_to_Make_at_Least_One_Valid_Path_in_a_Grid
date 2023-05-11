@@ -1,0 +1,31 @@
+class Solution {
+public:
+	int minCost(vector<vector<int>>& grid) {
+		int dir[4][2] = { {0, 1}, {0, -1}, {1, 0}, {-1, 0} };
+		int n = grid.size();
+		int m = grid[0].size();
+		vector<vector<int>> sPath(n, vector<int>(m, INT_MAX));
+		sPath[0][0] = 0;
+		queue<pair<int, int>> q;
+		q.push({ 0, 0 });
+
+		while (!q.empty()) {
+			auto curr = q.front();
+			q.pop();
+			int x = curr.first, y = curr.second;
+
+			for (auto d : dir) {
+				int currX = x + d[0], currY = y + d[1];
+				if (currX >= n || currY >= m || currX < 0 || currY < 0)
+					continue;
+				int sup[2] = { dir[grid[x][y] - 1][0], dir[grid[x][y] - 1][1] };
+				bool cost = !(sup[0] == d[0] && sup[1] == d[1]);
+				if (sPath[currX][currY] > sPath[x][y] + cost) {
+					q.push({ currX, currY });
+					sPath[currX][currY] = sPath[x][y] + cost;
+				}
+			}
+		}
+		return sPath[n - 1][m - 1];
+	}
+};
