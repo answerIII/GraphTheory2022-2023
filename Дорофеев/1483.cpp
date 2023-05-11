@@ -6,7 +6,7 @@ public:
 
     TreeAncestor(int n, vector<int>& parent)
     {
-        //будем хранить дерево предков
+        //Р±СѓРґРµРј С…СЂР°РЅРёС‚СЊ РґРµСЂРµРІРѕ РїСЂРµРґРєРѕРІ
         dp = vector<vector<int>>(n, vector<int>(20));
 
         for (int i = 0; i < n; ++i)
