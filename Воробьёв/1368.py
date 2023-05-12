@@ -9,6 +9,7 @@ class Solution:
         dist = {(0, 0): 0}
         queue = SortedList([(0, 0, 0)])
 
+        
         while queue:
             c, i, j = queue.pop(0)
             if i == len(grid) - 1 and j == len(grid[0]) - 1:
