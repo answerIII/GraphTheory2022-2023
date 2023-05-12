@@ -1,15 +1,12 @@
 import pandas as pd
 import numpy as np
 import math
-file = '4.tsv'
+file = '6.tsv'
 data = pd.read_csv(file, sep = "\t", header= None, names=['in','out','weight','time'])
 if math.isnan(data.iloc[0]['out']):
     data = pd.read_csv(file, sep=" ", header=None, names=['in', 'out', 'weight', 'time'])
-dvudol = True
+dvudol = False
 AllVertex = {}
-#Вывести количество ребер
-print('Количество ребер в графе: ' + str(data.shape[0]))
-
 #Вывести количество вершин и разбить по долям, сохранив в виде списков смежности
 if dvudol:
     LeftVertex = {}
@@ -60,7 +57,12 @@ else:
     countVertex = len(AllVertex)
 
 print('Количество вершин в графе: ' + str(countVertex))
-
+#Вывести количество ребер
+count = 0
+for vertex in AllVertex.items():
+    count += len(vertex[1])
+M = count/2
+print('Количество ребер в графе: ' + str(M))
 #Считаем плотность графа
 if dvudol:
     print("Плотность графа: " + str(data.shape[0]/(len(RightVertex)*len(LeftVertex))))
@@ -184,13 +186,14 @@ else:
     print('Средний кластерный коэффициент: ' + str(Cl_calc()))
 
 #Cчитаем коэффициент ассортативности
-M = data.shape[0]
 multiply_m = 0
 summary_m=0
 square_summary_m=0
 cube_summary_m = 0
-# visited = set([])
+visited = set([])
 for index, row in data.iterrows():
+    if ((row['in'], row['out']) in visited) or ((row['out'], row['in']) in visited):
+        continue
     j = len(AllVertex.get(row['in']))
     if dvudol:
         k = len(AllVertex.get(str(row['out'])+'r'))
@@ -199,19 +202,14 @@ for index, row in data.iterrows():
     multiply_m += j * k
     summary_m += j + k
     square_summary_m += j*j + k*k
-    # if row['in'] not in visited:
-    #     visited.add(row['in'])
-    #     summary_m += j
-    #     square_summary_m += j * j
-    #     cube_summary_m += j ** 3
-    # if row['out'] not in visited:
-    #     visited.add(row['out'])
-    #     summary_m += k
-    #     square_summary_m += k*k
-    #     cube_summary_m += k**3
-M_reverse = 1/data.shape[0]
+    visited.add((row['in'], row['out']))
+
+M_reverse = 1/(M)
 r = (multiply_m - M_reverse * ((0.5 * summary_m)**2))/(0.5 * square_summary_m - M_reverse * ((0.5 * summary_m)**2))
 print('Коэффициент ассортативности: ' + str(r))
+
+
+
 
 
 
