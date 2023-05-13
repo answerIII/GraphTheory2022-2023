@@ -1,0 +1,32 @@
+from math import inf
+import heapq
+class Solution:
+    def countPaths(self, n: int, roads: List[List[int]]) -> int:
+        #инициализируем граф
+        weighted_graph = defaultdict(list)
+        for i,j,k in roads:
+            weighted_graph[i].append((j,k))
+            weighted_graph[j].append((i,k))
+        #массив кратчайших дистанций до вершин из исходной
+        distance = [inf for _ in range(n)]
+        #массив количества кратчайших путей из исходной вершины
+        path = [0 for _ in range(n)]
+        distance[0] = 0
+        path[0] = 1
+        
+        #(dist,node)
+        minheap = [(0,0)]
+        #алгоритм дейкстры дополнительно суммирующий пути
+        while len(minheap) != 0:
+            curr_dist,node = heapq.heappop(minheap)
+            for child, weight in weighted_graph[node]:
+                if distance[child] < curr_dist+weight:
+                    continue
+                elif distance[child] > curr_dist+weight:
+                    distance[child] = curr_dist+weight
+                    path[child] = path[node]
+                    heapq.heappush(minheap, (curr_dist+weight,child))
+                else:
+                    path[child] += path[node]
+
+        return path[n-1] % (10**9 + 7)
