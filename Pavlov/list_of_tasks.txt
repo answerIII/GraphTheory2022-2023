@@ -1,1 +1,10 @@
-2385, 1993, 1514, 1786, 1261, 1976, 1559, 753, 685, 2577
+2385(medium) - done
+1993(medium) - done
+1514(medium) - done
+1786(medium) - none
+1261(medium) - done
+1976
+1559
+753
+685
+2577(hard) - done
