@@ -1,0 +1,33 @@
+class Solution:
+    def findRotateSteps(self, ring: str, key: str) -> int:
+        #запоминаем все позиции букв
+        char_pos = defaultdict(list)
+        for i, char in enumerate(ring):
+            char_pos[char].append(i)
+
+        if len(ring) == 1:
+            return 1
+        #массив для запоминания вычесленных в дфс значений
+        dp = [[20000 for _ in range(len(ring))] for _ in range(len(key))]
+        
+        #высчитывает кратчайшее расстояние между 2мя буквами на кольце
+        def distance(kindex, nindex):
+            forward_dist = abs(kindex-nindex)
+            return min(forward_dist, abs(len(ring) - forward_dist))
+
+        #дфс вычисляющий минимальное количество шагов для набора буквы на позиции n 
+        #на основании шагов для набора буквы находящийся на позиции n+1 с учетом одинаковых букв на кольце
+        def steps(kindex, rindex):
+            if (kindex == len(key) - 1):
+                return 0
+            if kindex >= 0 and dp[kindex][rindex] < 20000:
+                return dp[kindex][rindex]
+
+            next_rindexes = char_pos[key[kindex+1]]
+            mind = min([steps(kindex+1, next_rindexes[i]) + distance(rindex, next_rindexes[i]) for i in range(len(next_rindexes))])
+
+            if kindex >= 0:
+                dp[kindex][rindex] = mind
+            return mind
+
+        return steps(-1,0) + len(key)
