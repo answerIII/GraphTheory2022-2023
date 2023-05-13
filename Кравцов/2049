@@ -1,0 +1,23 @@
+class Solution:
+    def countHighestScoreNodes(self, parents: List[int]) -> int:
+        #инициализируем дерево и словарь для подсчета очков
+        bintree = defaultdict(list)
+        counter = Counter()
+        for i in range (len(parents)):
+             bintree[parents[i]].append(i)
+        #в дфс суммируем и умножаем количество врешин для нахождения очков
+        #суммирование производится для нахождения количества вершин выше текущий как (все вершины - вершины в левом и правом поддереве - 1)
+        def bintree_dfs(value: int):
+            product = 1
+            summ = 0
+            for i in bintree[value]:
+                amount = bintree_dfs(i)
+                summ+=amount
+                product*=amount
+            product *= max(1,len(parents) - summ - 1)
+            counter[product] +=1
+            return summ+1
+
+        bintree_dfs(0)
+
+        return counter[max(counter.keys())]
