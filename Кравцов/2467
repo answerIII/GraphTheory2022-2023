@@ -1,0 +1,60 @@
+class Solution:
+    def mostProfitablePath(self, edges: List[List[int]], bob: int, amount: List[int]) -> int:
+    #инициализация дерева
+    #путь Боба выполнен в качестве словаря тк позже нужно знать время захода Боба в некоторые вершины
+        tree = defaultdict(list)
+        path = dict()
+
+        for e,v in edges:
+            tree[e].append(v)
+            tree[v].append(e)
+            
+        #когда Боб дошел до корня дфс должен прекратиться и раскручивая стек вызова занести путь и время посещения вершин
+        self.stop_condition = False
+        def bob_dfs(node: int, path: Dict, distance: int) -> List[int]:
+            if node == 0:
+                path[node] = distance
+                self.stop_condition = True
+                return path
+
+            visited[node] = True
+            for i in tree[node]:
+                if self.stop_condition:
+                    break
+                if not visited[i]:
+                    bob_dfs(i, path, distance+1)
+            if self.stop_condition:
+                path[node]=distance
+            return path
+            
+        #для запоминания посещенных вершин при дфс
+        visited = [False] * len(tree.keys())
+        bob_dfs(bob, path, 0)
+        #посещенные Бобом вершины отдельно преобразуем в сет для быстрого сравнения с текущими вершинами Алисы 
+        path_set = set(path.keys())
+        #для запоминания посещенных вершин при дфс
+        visited = [False] * len(tree.keys())
+        
+        #функция вычисляющая цену с учетом данных о пути Боба
+        def amount_wbob(node: int, distance: int) -> int:
+            if node in path_set:
+                if path[node] < distance:
+                    return 0
+                if path[node] == distance:
+                    return amount[node]/2
+            return amount[node]
+        
+        #дфс для нахождения максимальной выручки Алисы. При раскручивании стека вызова находим максимум по всем путям из корня в листья дерева
+        def alice_dfs(node: int, amount: int, distance: int) -> int:
+            if len(tree[node]) == 1 and node != 0:
+                return amount_wbob(node,distance)
+            current_profit = []
+            visited[node] = True
+
+            for i in tree[node]:
+                if not visited[i]:
+                    current_profit.append(alice_dfs(i, amount, distance+1))
+
+            return max(current_profit) + amount_wbob(node,distance)
+
+        return int(alice_dfs(0,0,0))
