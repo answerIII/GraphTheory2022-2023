@@ -1,0 +1,55 @@
+class LockingTree:
+    def __init__(self, parent: List[int]):
+    #инициализируем дерево, обратное дерево, словарь замков
+        self.tree = defaultdict(list)
+        self.reversetree = dict()
+        self.lockdict = dict()
+
+        for i,parent1 in enumerate(parent):
+            self.tree[parent1].append(i)
+            self.reversetree[i] = parent1
+        
+    
+    def lock(self, num: int, user: int) -> bool:
+        value = self.lockdict.get(num)
+        if self.lockdict.get(num) == None:
+            self.lockdict[num] = user
+            return True
+        else:
+            return False
+
+    def unlock(self, num: int, user: int) -> bool:
+        lockuser = self.lockdict.get(num)
+        if lockuser == user:
+            self.lockdict.pop(num)
+            return True
+        else:
+            return False
+
+    def upgrade(self, num: int, user: int) -> bool:
+    #проверка 1-го условия выполнения ф-ии
+        if self.lockdict.get(num) != None:
+            return False
+            
+    #проверка 2-го условия выполнения ф-ии 
+        temp = num
+        while temp != 0:
+            temp = self.reversetree[temp]
+            if self.lockdict.get(temp) != None:
+                return False
+                
+    #проверка 3-го условия выполнения ф-ии 
+        locking_condition = False
+        stack = []
+        stack.append(num)
+        while len(stack) != 0:
+            temp = stack.pop()
+            if self.lockdict.get(temp) != None:
+                locking_condition = True
+                self.lockdict.pop(temp)
+            stack.extend(self.tree.get(temp, []))
+
+        if locking_condition:
+            self.lockdict[num] = user
+            return True
+        return False
