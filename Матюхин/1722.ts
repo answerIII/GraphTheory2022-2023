@@ -1,10 +1,10 @@
 function dfs(
-    numberVertices: number,
+    reachArray: boolean[],
     vertex: number,
     edges: number[][],
     globalReachArray: boolean[],
-): boolean[] {
-    const reachArray = new Array(numberVertices).fill(false);
+): void {
+    reachArray = reachArray.fill(false);
     const dfsStack = [vertex];
     globalReachArray[vertex] = true;
     reachArray[vertex] = true;
@@ -26,8 +26,6 @@ function dfs(
             }
         })
     }
-
-    return reachArray;
 }
 
 function minimumHammingDistance(
@@ -37,14 +35,15 @@ function minimumHammingDistance(
 ): number {
     let distance = source.length;
     const globalReachArray = new Array(source.length).fill(false);
+    const reachArray = new Array(source.length);
 
     for (let i = 0; i < source.length; ++i) {
         if (globalReachArray[i]) {
             continue;
         }
 
-        const reachArray = dfs(
-            source.length,
+        dfs(
+            reachArray,
             i,
             allowedSwaps,
             globalReachArray,
