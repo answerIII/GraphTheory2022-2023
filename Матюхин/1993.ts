@@ -8,21 +8,17 @@ class LockingTree {
     private nodes: LockingTreeNode[];
 
     constructor(parentNumbers: number[]) {
-        this.nodes = parentNumbers.reduce((
-            nodes: LockingTreeNode[],
-            parentNumber: number,
-            nodeNumber: number,
-        ) => {
-            if (parentNumber !== -1) {
-                nodes[parentNumber].childNumbers.push(nodeNumber);
-            }
+        this.nodes = parentNumbers.map((parentNumber: number) => ({
+            parentNumber,
+            childNumbers: [],
+            lockedBy: null,
+        }));
 
-            return [...nodes, {
-                parentNumber,
-                childNumbers: [],
-                lockedBy: null,
-            }];
-        }, []);
+        parentNumbers.forEach((parentNumber: number, nodeNumber: number) => {
+            if (parentNumber !== -1) {
+                this.nodes[parentNumber].childNumbers.push(nodeNumber);
+            }
+        });
     }
 
     lock(nodeNumber: number, user: number): boolean {
