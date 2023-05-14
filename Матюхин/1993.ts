@@ -27,7 +27,7 @@ class LockingTree {
         if (node.lockedBy !== null) {
             return false;
         }
-    
+
         node.lockedBy = user;
         return true;
     }
@@ -38,7 +38,7 @@ class LockingTree {
         if (node.lockedBy !== user) {
             return false;
         }
-        
+
         node.lockedBy = null;
         return true;
     }
