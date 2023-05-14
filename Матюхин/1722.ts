@@ -1,8 +1,8 @@
 function dfs(
+    globalReachArray: boolean[],
     reachArray: boolean[],
     vertex: number,
     edges: number[][],
-    globalReachArray: boolean[],
 ): void {
     reachArray = reachArray.fill(false);
     const dfsStack = [vertex];
@@ -36,6 +36,8 @@ function minimumHammingDistance(
     let distance = source.length;
     const globalReachArray = new Array(source.length).fill(false);
     const reachArray = new Array(source.length);
+    const reachedSource = new Array(source.length);
+    const reachedTarget = new Array(target.length);
 
     for (let i = 0; i < source.length; ++i) {
         if (globalReachArray[i]) {
@@ -43,23 +45,27 @@ function minimumHammingDistance(
         }
 
         dfs(
+            globalReachArray,
             reachArray,
             i,
             allowedSwaps,
-            globalReachArray,
         );
-
-        const reachedSource = source
-            .filter((_, index) => reachArray[index])
-            .sort((x, y) => x - y);
-
-        const reachedTarget = target
-            .filter((_, index) => reachArray[index])
-            .sort((x, y) => x - y);
 
         let reachedSourceIndex = 0;
         let reachedTargetIndex = 0;
         let sameElementsNumber = 0;
+        reachedSource.length = 0;
+        reachedTarget.length = 0;
+
+        for (let j = 0; j < source.length; ++j) {
+            if (reachArray[j]) {
+                reachedSource[reachedSource.length] = source[j];
+                reachedTarget[reachedTarget.length] = target[j];
+            }
+        }
+
+        reachedSource.sort((x, y) => x - y);
+        reachedTarget.sort((x, y) => x - y);
 
         while (
             reachedSourceIndex < reachedSource.length &&
