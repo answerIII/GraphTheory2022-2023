@@ -50,11 +50,40 @@ function minimumHammingDistance(
             globalReachArray,
         );
 
-        let targetSet = new Set(target.filter((_, index) => reachArray[index]));
+        const reachedSource = source
+            .filter((_, index) => reachArray[index])
+            .sort((x, y) => x - y);
 
-        distance -= source.reduce((sum, value, index) => {
-            return reachArray[index] && targetSet.has(value) ? sum + 1 : sum;
-        }, 0);
+        const reachedTarget = target
+            .filter((_, index) => reachArray[index])
+            .sort((x, y) => x - y);
+
+        let reachedSourceIndex = 0;
+        let reachedTargetIndex = 0;
+        let sameElementsNumber = 0;
+
+        while (
+            reachedSourceIndex < reachedSource.length &&
+            reachedTargetIndex < reachedTarget.length
+        ) {
+            if (
+                reachedSource[reachedSourceIndex] <
+                reachedTarget[reachedTargetIndex]
+            ) {
+                ++reachedSourceIndex;
+            } else if (
+                reachedSource[reachedSourceIndex] >
+                reachedTarget[reachedTargetIndex]
+            ) {
+                ++reachedTargetIndex;
+            } else {
+                ++sameElementsNumber;
+                ++reachedSourceIndex;
+                ++reachedTargetIndex;
+            }
+        }
+
+        distance -= sameElementsNumber;
     }
 
     return distance;
