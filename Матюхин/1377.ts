@@ -1,3 +1,34 @@
+interface FrogDFSStackElement {
+    currentTime: number,
+    currentVertex: number,
+}
+
+function frogDFSPushEdge(
+    edge: number[],
+    dfsStack: FrogDFSStackElement[],
+    currentTime: number,
+    currentVertex: number,
+    currentVertexChildren: number,
+    vertexProbability: number[],
+) {
+    const edgeIndex = [edge[0] - 1, edge[1] - 1];
+    const nextTime = currentTime + 1;
+
+    if (
+        edge[0] === currentVertex &&
+        vertexProbability[edgeIndex[1]] === null
+    ) {
+        vertexProbability[edgeIndex[1]] =
+            vertexProbability[edgeIndex[0]] *
+            (1 / currentVertexChildren);
+
+        dfsStack.push({
+            currentTime: nextTime,
+            currentVertex: edge[1],
+        });
+    }
+}
+
 function frogPosition(
     numberVertices: number,
     edges: number[][],
@@ -10,11 +41,15 @@ function frogPosition(
 
     while (dfsStack.length !== 0) {
         const { currentTime, currentVertex } = dfsStack.pop()!;
-        const nextTime = currentTime + 1;
         let currentVertexChildren = 0;
 
         edges.forEach((edge) => {
-            if (edge[0] === currentVertex) {
+            if (
+                edge[0] === currentVertex &&
+                vertexProbability[edge[1] - 1] === null ||
+                edge[1] === currentVertex &&
+                vertexProbability[edge[0] - 1] === null
+            ) {
                 ++currentVertexChildren;
             }
         });
@@ -28,24 +63,25 @@ function frogPosition(
         ) {
             return vertexProbability[currentVertex - 1];
         }
-    
+
         edges.forEach((edge) => {
-            const fromVertexIndex = edge[0] - 1;
-            const toVertexIndex = edge[1] - 1;
+            frogDFSPushEdge(
+                edge,
+                dfsStack,
+                currentTime,
+                currentVertex,
+                currentVertexChildren,
+                vertexProbability,
+            );
 
-            if (
-                edge[0] === currentVertex &&
-                vertexProbability[toVertexIndex] === null
-            ) {
-                vertexProbability[toVertexIndex] =
-                    vertexProbability[fromVertexIndex] *
-                    (1 / currentVertexChildren);
-
-                dfsStack.push({
-                    currentTime: nextTime,
-                    currentVertex: edge[1],
-                });
-            }
+            frogDFSPushEdge(
+                [edge[1], edge[0]],
+                dfsStack,
+                currentTime,
+                currentVertex,
+                currentVertexChildren,
+                vertexProbability,
+            );
         });
     }
 
