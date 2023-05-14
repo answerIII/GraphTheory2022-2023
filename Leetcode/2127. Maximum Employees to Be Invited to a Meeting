@@ -1,0 +1,70 @@
+class Solution {
+
+public:
+     int maximumInvitations(vector<int>& favorite) {
+        int n=favorite.size();
+        vector<bool> curr(n);
+        vector<bool> temp(n);
+        vector<bool> Rtemp(n);
+        vector<int> vverx(n,-1);
+        vector<vector<int>> graph(n);
+        vector<vector<int>> cur(n);
+        for(int i=0;i<n;i++){
+            graph[i].push_back(favorite[i]);
+            cur[favorite[i]].push_back(i);
+        }
+        int ans=0;
+        int cicle=0;
+        for(int i=0;i<n;i++){
+            if(temp[i]==false){
+                dfs(i,temp,curr,vverx,ans,graph,cur);
+            }
+            if(i<favorite[i] && favorite[favorite[i]]==i){
+                cicle=cicle+leng(i,favorite[i],Rtemp,graph,cur);
+                cicle=cicle+leng(favorite[i],i,Rtemp,graph,cur);  
+            }
+        }
+        if (ans<cicle) 
+            ans=cicle;
+        return ans;
+    }
+    void dfs(int i, vector<bool> &temp, vector<bool> &curr, vector<int> &vverx, int &ans,vector<vector<int>>& graph,vector<vector<int>>& cur){
+        curr[i]=true;
+        temp[i]=true;
+        for(int t: graph[i]){
+            if(temp[t]==false){
+                vverx[t]=i;
+                dfs(t,temp,curr,vverx,ans,graph,cur);
+            }
+            else if(curr[t]==true){ 
+                int u=i;
+                int len=1;
+                while(u!=t){  
+                    len++;
+                    u=vverx[u];
+                }
+                if (ans<len)  
+                    ans=len;
+            }
+        }
+        curr[i]=false;
+    }
+    
+    int leng(int i, int vverx, vector<bool> &temp,vector<vector<int>> &graph,vector<vector<int>> &cur){
+        temp[i]=true;
+        int ans=1;
+        for(int t: cur[i]){
+            if(vverx==t){
+                continue;
+            }
+            if(temp[t]==true){
+                continue;
+            }
+            int tleng=leng(t,i,temp,graph,cur)+1;
+            if(ans<tleng)
+                ans=tleng;
+           
+        }
+        return ans;
+    }
+};

@@ -1,0 +1,103 @@
+class Solution {
+public:
+    bool hasValidPath(vector<vector<int>>& grid) {
+        int m=grid.size();
+        int n=grid[0].size();
+        vector<vector<bool>> temp(m,vector<bool>(n));
+         if(grid[0][0]==1){
+            temp[0][0]=true;
+            dfs(grid,temp,0,1,'L',m,n);
+        }else
+        if(grid[0][0]==2){
+            temp[0][0]=true;
+            dfs(grid,temp,1,0,'U',m,n);
+        }else
+        if(grid[0][0]==3){
+            temp[0][0]=true;
+            dfs(grid,temp,1,0,'U',m,n);
+        }else
+        if(grid[0][0]==4){
+            temp[0][0]=true;
+            dfs(grid,temp,1,0,'U',m,n);
+            dfs(grid,temp,0,1,'L',m,n);
+        }else
+        if(grid[0][0]==6){
+            temp[0][0]=true;
+            dfs(grid,temp,0,1,'L',m,n);
+        }
+        if (temp[m-1][n-1])
+        return true;
+        else
+        return false;
+    }
+    bool ptemp(vector<vector<bool>>& temp,int x, int y){
+        if (temp[x][y]) return true;
+        else return false;
+    }
+    void dfs(vector<vector<int>>& graph, vector<vector<bool>>& temp, int x,int y,char turn,int m,int n){
+        if (temp[m-1][n-1]||x<0||y<0||x>=m||y>=n) { return;}
+       if(ptemp(temp,x,y)) return; 
+        if(graph[x][y]==1){
+            if(turn=='R'){
+                
+            temp[x][y]=true;
+            dfs(graph,temp,x,y-1,'R',m,n);}
+            else
+            if(turn=='L'){
+                temp[x][y]=true;
+                dfs(graph,temp,x,y+1,'L',m,n);
+            }
+        }else
+        if(graph[x][y]==2){
+              if(turn=='U'){
+            temp[x][y]=true;
+            dfs(graph,temp,x+1,y,'U',m,n);}
+            else
+            if(turn=='D'){
+                temp[x][y]=true;
+                dfs(graph,temp,x-1,y,'D',m,n);
+            }
+        }else
+        if(graph[x][y]==3){
+              if(turn=='L'){
+            temp[x][y]=true;
+            dfs(graph,temp,x+1,y,'U',m,n);}
+            else
+            if(turn=='D'){
+                temp[x][y]=true;
+                dfs(graph,temp,x,y-1,'R',m,n);
+            }
+        }else
+        if(graph[x][y]==4){
+             if(turn=='D'){
+            temp[x][y]=true;
+            dfs(graph,temp,x,y+1,'L',m,n);}
+            else
+            if(turn=='R'){
+                temp[x][y]=true;
+                dfs(graph,temp,x+1,y,'U',m,n);
+            }
+        }else
+        if(graph[x][y]==5){
+              if(turn=='L'){
+            temp[x][y]=true;
+            dfs(graph,temp,x-1,y,'D',m,n);}
+            else
+            if(turn=='U'){
+                temp[x][y]=true;
+                dfs(graph,temp,x,y-1,'R',m,n);
+            }
+        }else
+        if(graph[x][y]==6){
+             if(turn=='U'){
+            temp[x][y]=true;
+            dfs(graph,temp,x,y+1,'L',m,n);}
+            else
+            if(turn=='R'){
+                temp[x][y]=true;
+                dfs(graph,temp,x-1,y,'D',m,n);
+            }
+        }
+
+    }
+};

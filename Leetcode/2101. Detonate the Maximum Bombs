@@ -1,0 +1,44 @@
+class Solution {
+public:
+    int maximumDetonation(vector<vector<int>>& bombs) {
+        int s=bombs.size();
+        vector<vector<int>> graph(s);
+      
+        int max_b=0;
+        for (int i=0;i<s;++i){
+            for (int j=0;j<s;++j){
+                 long long rad=((long long)bombs[i][0] - (long long)bombs[j][0]) * ((long long)bombs[i][0] - (long long)bombs[j][0]) + ((long long)bombs[i][1] - (long long)bombs[j][1]) * ((long long)bombs[i][1] - (long long)bombs[j][1]);
+                if (rad<=(long long)bombs[i][2]*(long long)bombs[i][2]){
+                    graph[i].push_back(j);
+                }
+               
+            }
+        }
+
+        for (int i=0;i<s;++i){
+            vector<int> temp{i};
+            dfs(graph,i,temp);
+            if (temp.size()>max_b)
+                max_b=temp.size();
+        }
+        return max_b;
+    }
+private:
+  void dfs ( vector<vector<int>>& graph, int i,vector<int>& temp){
+            for(int j:graph[i]){
+                int c=0;
+                for(int t:temp){
+                    if (t==j) {
+                        c=1;
+                        break;}
+                }
+                if(c==1)continue;
+                temp.push_back(j);
+                dfs(graph,j,temp);
+                    
+            }
+
+        }
+
+
+};

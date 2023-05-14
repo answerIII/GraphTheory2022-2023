@@ -1,0 +1,59 @@
+class Solution {
+public:
+    bool validateBinaryTreeNodes(int n, vector<int>& leftChild, vector<int>& rightChild) {
+        vector<int> temp;
+        vector<int> beg;
+        bool ans=false;
+        for(int i=0;i<n;++i){
+            beg.push_back(i);
+        }
+        for (int i=0;i<n;++i){
+            if (leftChild[i]!=-1){
+                int c=0;
+                for (int j=0;j<beg.size();++j){
+                
+                    if(beg[j]==leftChild[i]) {
+                   c=1;
+                    beg.erase(beg.begin()+j);
+                    break;
+                    }}
+                if (c==0)  return false;
+            }
+
+            if (rightChild[i]!=-1){  int c=0;
+                for (int j=0;j<beg.size();++j){
+              
+                    if(beg[j]==rightChild[i]) {
+                   c=1;
+                    beg.erase(beg.begin()+j);
+                    break;}}
+                    if (c==0)  return false;
+            }
+        }
+        if (beg.size()==1){
+                int k=beg[0];
+            dfs(leftChild,rightChild,k,temp);
+            if (temp.size()==n) ans=true;
+        }else return false;
+        
+        return ans;
+    }
+private:
+ void dfs(vector<int>& leftChild, vector<int>& rightChild,int i,vector<int>& temp){
+    int c=0;
+    
+    for(int t:temp){
+         if (t==i) {
+            c=1;
+            break;}}
+    if(c==1)return ;
+    temp.push_back(i);
+    if(leftChild[i]!=-1){
+        dfs(leftChild,rightChild,leftChild[i],temp);
+    }
+    if(rightChild[i]!=-1){
+       dfs(leftChild,rightChild,rightChild[i],temp);
+    }
+
+ }
+};

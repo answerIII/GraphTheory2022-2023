@@ -1,0 +1,42 @@
+class Solution {
+public:
+    vector<bool> checkIfPrerequisite(int numCourses, vector<vector<int>>& prerequisites, vector<vector<int>>& queries) {
+        vector<bool>ans;
+        vector<vector<int>> graph(numCourses);
+       
+        for(vector<int> p: prerequisites){
+            graph[p[0]].push_back(p[1]);
+        }
+ vector<vector<bool>> temp(numCourses,vector<bool>(numCourses));
+
+        for (int i=0;i<numCourses;++i)
+            dfs(graph,i,temp[i]);
+
+        for( vector<int> q:queries){
+           
+               if(temp[q[0]][q[1]])
+               ans.push_back(true);
+               else
+               ans.push_back(false);
+               
+        }
+        return ans;
+    }
+    void dfs(vector<vector<int>>& graph, int i, vector<bool>& temp){
+            for(int j:graph[i]){
+               int c=0;
+                
+                    if (temp[j]) {
+                        c=1;
+                        }
+                
+                if(c==1)continue;
+                temp[j]=true;
+                
+                dfs(graph,j,temp);
+                    
+            }
+
+        }
+
+};
