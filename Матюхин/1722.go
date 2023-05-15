@@ -1,10 +1,8 @@
-package main
-
 import "sort"
 
 func dfs(
     globalReachArray []bool,
-    reachArray []bool,
+    reached *[]int,
     dfsStack []int,
     vertex int,
     edges [][]int,
@@ -13,27 +11,24 @@ func dfs(
     dfsStack[0] = vertex
     globalReachArray[vertex] = true
 
-    for i := range reachArray {
-        reachArray[i] = false
-    }
-
-    reachArray[vertex] = true
+    *reached = (*reached)[:0]
+    *reached = append(*reached, vertex)
 
     for dfsStackLength > 0 {
         currentVertex := dfsStack[dfsStackLength - 1]
         dfsStackLength--
 
         for _, edge := range edges {
-            if edge[0] == currentVertex && !reachArray[edge[1]] {
+            if edge[0] == currentVertex && !globalReachArray[edge[1]] {
                 globalReachArray[edge[1]] = true
-                reachArray[edge[1]] = true
+                *reached = append(*reached, edge[1])
                 dfsStack[dfsStackLength] = edge[1]
                 dfsStackLength++
             }
 
-            if edge[1] == currentVertex && !reachArray[edge[0]] {
+            if edge[1] == currentVertex && !globalReachArray[edge[0]] {
                 globalReachArray[edge[0]] = true
-                reachArray[edge[0]] = true
+                *reached = append(*reached, edge[0])
                 dfsStack[dfsStackLength] = edge[0]
                 dfsStackLength++
             }
@@ -49,7 +44,7 @@ func minimumHammingDistance(
     distance := len(source)
     dfsStack := make([]int, len(source))
     globalReachArray := make([]bool, len(source))
-    reachArray := make([]bool, len(source))
+    reached := make([]int, len(source))
     reachedSource := make([]int, len(source))
     reachedTarget := make([]int, len(source))
 
@@ -58,19 +53,17 @@ func minimumHammingDistance(
             continue
         }
 
-        dfs(globalReachArray, reachArray, dfsStack, i, allowedSwaps)
+        dfs(globalReachArray, &reached, dfsStack, i, allowedSwaps)
 
         reachedSourceIndex := 0
         reachedTargetIndex := 0
         sameElementsNumber := 0
         reachedLength := 0
 
-        for j := 0; j < len(source); j++ {
-            if reachArray[j] {
-                reachedSource[reachedLength] = source[j]
-                reachedTarget[reachedLength] = target[j]
-                reachedLength++
-            }
+        for _, j := range reached {
+            reachedSource[reachedLength] = source[j]
+            reachedTarget[reachedLength] = target[j]
+            reachedLength++
         }
 
         sort.Ints(reachedSource[:reachedLength])
