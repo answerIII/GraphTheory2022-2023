@@ -5,7 +5,7 @@ func dfs(
     reached *[]int,
     dfsStack []int,
     vertex int,
-    edges [][]int,
+    adjacentVertices []map[int]bool,
 ) {
     dfsStackLength := 1
     dfsStack[0] = vertex
@@ -18,18 +18,11 @@ func dfs(
         currentVertex := dfsStack[dfsStackLength - 1]
         dfsStackLength--
 
-        for _, edge := range edges {
-            if edge[0] == currentVertex && !globalReachArray[edge[1]] {
-                globalReachArray[edge[1]] = true
-                *reached = append(*reached, edge[1])
-                dfsStack[dfsStackLength] = edge[1]
-                dfsStackLength++
-            }
-
-            if edge[1] == currentVertex && !globalReachArray[edge[0]] {
-                globalReachArray[edge[0]] = true
-                *reached = append(*reached, edge[0])
-                dfsStack[dfsStackLength] = edge[0]
+        for adjacentVertex := range adjacentVertices[currentVertex] {
+            if !globalReachArray[adjacentVertex] {
+                globalReachArray[adjacentVertex] = true
+                *reached = append(*reached, adjacentVertex)
+                dfsStack[dfsStackLength] = adjacentVertex
                 dfsStackLength++
             }
         }
@@ -42,18 +35,28 @@ func minimumHammingDistance(
     allowedSwaps [][]int,
 ) int {
     distance := len(source)
+    adjacentVertices := make([]map[int]bool, len(source))
     dfsStack := make([]int, len(source))
     globalReachArray := make([]bool, len(source))
     reached := make([]int, len(source))
     reachedSource := make([]int, len(source))
     reachedTarget := make([]int, len(source))
 
+    for mapKey := range adjacentVertices {
+        adjacentVertices[mapKey] = make(map[int]bool)
+    }
+
+    for _, allowedSwap := range allowedSwaps {
+        adjacentVertices[allowedSwap[0]][allowedSwap[1]] = true
+        adjacentVertices[allowedSwap[1]][allowedSwap[0]] = true
+    }
+
     for i := 0; i < len(source); i++ {
         if globalReachArray[i] {
             continue
         }
 
-        dfs(globalReachArray, &reached, dfsStack, i, allowedSwaps)
+        dfs(globalReachArray, &reached, dfsStack, i, adjacentVertices)
 
         reachedSourceIndex := 0
         reachedTargetIndex := 0
