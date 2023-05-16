@@ -11,14 +11,14 @@ def prep(file):
             dvudol = input()
             if dvudol == '1' or dvudol == '0':
                 break
-        data = pd.read_csv(file_path, sep="\t", header=None, names=['in', 'out', 'weight', 'time'])
-        if math.isnan(data.iloc[0]['out']):
-            data = pd.read_csv(file_path, sep=" ", header=None, names=['in', 'out', 'weight', 'time'])
+        data = pd.read_csv(file_path, sep="[ ]{1,}", header=None, names=['in', 'out', 'weight', 'time'])
+        #if math.isnan(data.iloc[1]['out']):
+        #    data = pd.read_csv(file_path, sep=" ", header=None, names=['in', 'out', 'weight', 'time'])
         df = {'in': [], 'out': [], 'weight': [], 'time': []}
         if dvudol == '1':
             for index, row in data.iterrows():
                 df['in'].append(row['in'])
-                df['out'].append(str(row['out']) + 'r')
+                df['out'].append(row['out']*(-1))
                 df['weight'].append(row['weight'])
                 df['time'].append(row['time'])
         else:
