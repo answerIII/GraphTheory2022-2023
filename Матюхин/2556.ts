@@ -1,14 +1,36 @@
+function dfsUntilLast(
+    reachArray: boolean[],
+    firstVertex: number,
+    lastVertex: number,
+    adjacentVertices: Set<number>[],
+): boolean {
+    const dfsStack = [firstVertex];
+
+    while (dfsStack.length !== 0) {
+        const currentVertex = dfsStack.pop()!;
+        reachArray[currentVertex] = true;
+
+        for (const vertex of adjacentVertices[currentVertex]) {
+            if (vertex === lastVertex) {
+                return true;
+            }
+
+            if (!reachArray[vertex]) {
+                dfsStack.push(vertex);
+            }
+        }
+    }
+
+    return false;
+}
+
 function isPossibleToCutPath(grid: number[][]): boolean {
     const rows = grid.length;
     const cols = grid[0].length;
     const size = rows * cols;
 
-    if (size === 2) {
-        return false;
-    }
-
-    const first = 0;
-    const last = size - 1;
+    const firstVertex = 0;
+    const lastVertex = size - 1;
 
     const adjacentVertices =Array.from(
         new Array(size),
@@ -17,7 +39,7 @@ function isPossibleToCutPath(grid: number[][]): boolean {
 
     const reachArray = new Array(size).fill(false);
 
-    for (let i = 0; i< rows; ++i) {
+    for (let i = 0; i < rows; ++i) {
         for (let j = 0; j < cols; ++j) {
             if (grid[i][j] === 0) {
                 continue;
@@ -43,19 +65,19 @@ function isPossibleToCutPath(grid: number[][]): boolean {
         }
     }
 
-    const dfsStack = [first];
-    reachArray[first] = true;
-
-    while (dfsStack.length !== 0) {
-        for (const vertex of adjacentVertices[dfsStack.pop()!]) {
-            if (!reachArray[vertex]) {
-                reachArray[vertex] = true;
-                dfsStack.push(vertex);
-            } else if (vertex === last) {
-                return false;
-            }
-        }
+    if (!dfsUntilLast(
+        reachArray,
+        firstVertex,
+        lastVertex,
+        adjacentVertices,
+    )) {
+        return true;
     }
 
-    return true;
+    return !dfsUntilLast(
+        reachArray,
+        firstVertex,
+        lastVertex,
+        adjacentVertices,
+    );
 }
