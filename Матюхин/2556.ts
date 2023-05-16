@@ -3,6 +3,10 @@ function isPossibleToCutPath(grid: number[][]): boolean {
     const cols = grid[0].length;
     const size = rows * cols;
 
+    if (size === 2) {
+        return false;
+    }
+
     const first = 0;
     const last = size - 1;
 
