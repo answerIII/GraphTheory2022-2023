@@ -32,6 +32,10 @@ function isPossibleToCutPath(grid: number[][]): boolean {
     const firstVertex = 0;
     const lastVertex = size - 1;
 
+    if (firstVertex === lastVertex) {
+        return false;
+    }
+
     const adjacentVertices =Array.from(
         new Array(size),
         () => new Set<number>(),
