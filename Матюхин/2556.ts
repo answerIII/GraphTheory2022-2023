@@ -51,14 +51,6 @@ function isPossibleToCutPath(grid: number[][]): boolean {
 
             const pos = i * cols + j;
 
-            if (j > 0 && grid[i][j - 1] === 1) {
-                adjacentVertices[pos].add(pos - 1);
-            }
-
-            if (i > 0 && grid[i - 1][j] === 1) {
-                adjacentVertices[pos].add(pos - cols);
-            }
-
             if (j < cols - 1 && grid[i][j + 1] === 1) {
                 adjacentVertices[pos].add(pos + 1);
             }
