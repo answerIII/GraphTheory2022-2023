@@ -24,6 +24,7 @@ class TreeAncestor {
     }
 
     getKthAncestor(node: number, k: number): number {
-        return k === 0 ? node : this.sparseTable[k - 1][node];
+        return k === 0 ? node : k < this.sparseTable.length ?
+            this.sparseTable[k - 1][node] : -1;
     }
 }
