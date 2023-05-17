@@ -3,8 +3,8 @@
 1514(medium) - done
 1786(medium) - none
 1261(medium) - done
-1976(medium)
-1559
+1976(medium) - done
+1559(medium) - done
 753(hard) - done
 685
 2577(hard) - done
