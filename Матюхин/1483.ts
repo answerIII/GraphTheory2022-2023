@@ -1,30 +1,66 @@
 class TreeAncestor {
-    private sparseTable: number[][] = [];
+    private sparseTable: number[][];
 
-    constructor(_: number, parentNumbers: number[]) {
-        this.sparseTable[0] = [...parentNumbers];
-        let isSparseTableFilled = false;
+    private dfsSparceTable(adjacentVertices: Set<number>[]): void {
+        const reachArray = new Array(adjacentVertices.length).fill(false);
+        const dfsStack = [0];
 
-        for (let i = 1; !isSparseTableFilled; ++i) {
-            this.sparseTable[i] = new Array(parentNumbers.length).fill(-1);
-            isSparseTableFilled = true;
+        while (dfsStack.length !== 0) {
+            const currentVertex = dfsStack.pop()!;
 
-            for (let j = 0; j < parentNumbers.length; ++j) {
-                const prevAncestor = this.sparseTable[i - 1][j];
+            if (!reachArray[currentVertex]) {
+                for (let j = 1; j < this.sparseTable.length; ++j) {
+                    const aboveRow = this.sparseTable[j - 1];
+                    const aboveVertex = aboveRow[currentVertex];
+                    const currentRow = this.sparseTable[j];
 
-                if (prevAncestor !== -1) {
-                    this.sparseTable[i][j] = parentNumbers[prevAncestor];
-
-                    if (this.sparseTable[i][j] !== -1) {
-                        isSparseTableFilled = false;
+                    if (aboveVertex !== -1) {
+                        // Assign 2^j-th ancestor to the current position.
+                        currentRow[currentVertex] = aboveRow[aboveVertex];
                     }
+                }
+            }
+
+            for (const vertex of adjacentVertices[currentVertex]) {
+                if (!reachArray[vertex]) {
+                    reachArray[currentVertex] = true;
+                    dfsStack.push(vertex);
                 }
             }
         }
     }
 
+    constructor(_: number, parentNumbers: number[]) {
+        const adjacentVertices = Array.from(
+            { length: parentNumbers.length },
+            () => new Set<number>(),
+        );
+
+        this.sparseTable = [[...parentNumbers], ...Array.from({
+            length: Math.floor(Math.log2(parentNumbers.length)) + 1,
+        }, () => new Array(parentNumbers.length).fill(-1))];
+
+        parentNumbers.forEach((parentNumber, vertex) => {
+            if (parentNumber !== -1) {
+                adjacentVertices[vertex].add(parentNumber);
+                adjacentVertices[parentNumber].add(vertex);
+            }
+        });
+
+        this.dfsSparceTable(adjacentVertices);
+    }
+
     getKthAncestor(node: number, k: number): number {
-        return k === 0 ? node : k < this.sparseTable.length ?
-            this.sparseTable[k - 1][node] : -1;
+        while (k !== 0) {
+            if (node === -1) {
+                return -1;
+            }
+
+            const kPower2 = Math.floor(Math.log2(k));
+            node = this.sparseTable[kPower2][node];
+            k -= 2 ** kPower2;
+        }
+
+        return node;
     }
 }
