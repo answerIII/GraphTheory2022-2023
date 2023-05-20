@@ -21,7 +21,7 @@ print("подграф с наибольшей КСС: ", ver)
 
 n = 5 # кол-во вершин дя 2a 
 
-random_v = random.choices(list(max_WCC), k=n) # мн-во вершин для 2a 
+random_v = random.sample(list(max_WCC), k=n) # мн-во вершин для 2a 
  
 
 def dijkstra_algo(graph, start) -> int:
@@ -46,21 +46,66 @@ def dijkstra_algo(graph, start) -> int:
 
   print("Расстояния ", d, "Вершина", start) 
   k = list(d.values())
-  return max(k) 
+  return max(k), k 
 
 
 
 def find_eccentrisity(g, v) -> list: # поиск массива экцентрисететов g - граф, v - мн-во вершин, по которым идёт поиск 
   e = []
+  e_1 = []
   for i in v: 
       m = dijkstra_algo(g, i) 
-      e.append(m) 
-  return e
+      e.append(m)
+      e_1.append(m[1])
+  return e, e_1
 
 
 eccentricity = find_eccentrisity(ver, random_v) 
+print('-------') 
+matrix_of_shortest_paths = find_eccentrisity(ver, max_WCC)
 
-print("Диаметр:", max(eccentricity), "Совпадает со встроенной ф-цией?") 
-print("Радиус:", min(eccentricity), "Совпадает со встроенной ф-цией?") 
+print("Диаметр:", max(eccentricity[0]), "Совпадает со встроенной ф-цией?") 
+print("Радиус:", min(eccentricity[0]), "Совпадает со встроенной ф-цией?") 
 # Возможно неправильно 
-print("90 процентиля расстояния (геодезического) между вершинами графа:", np.percentile(eccentricity_r, 90)) 
+print("90 процентиля расстояния (геодезического) между вершинами графа:", np.percentile(matrix_of_shortest_paths[1], 90)) 
+
+
+#2b
+def bfs_snowball(adjList, unvisited, lenght):
+    WCC = set()  # weakly connected component
+    queue = list()  # queue<int>
+    
+    src_node = unvisited.pop()
+    queue.append(src_node)
+    
+    # loop until the queue is empty
+    while queue and len(WCC) < lenght:
+        # pop the front node of the queue and add it to WCC
+        current_node = queue.pop(0)
+        WCC.add(current_node)
+        
+        # check all the neighbour nodes of the current node
+        for neighbour_node in adjList[current_node]:
+            to = neighbour_node[0] # neighbour_node - это tuple(to, weight, time)
+            if to in unvisited:
+                unvisited.remove(to)
+                queue.append(to)
+
+    return WCC
+
+n = 5 #любое число 
+
+if len(max_WCC) > n:
+    new_WCC = bfs_snowball(adjList, max_WCC, n)#третий параметр - это количество вершин, которые мы включим в множество
+
+new_ver = defaultdict(set)
+
+for line in dataset:
+    [from_ind, to_ind, weight, time] = [int(x) for x in line.split()]
+    if from_ind in new_WCC and to_ind in new_WCC:
+      new_ver[from_ind].add(to_ind)
+      new_ver[to_ind].add(from_ind) 
+
+        
+for i in new_WCC: 
+      m = dijkstra_algo(new_ver, i)
