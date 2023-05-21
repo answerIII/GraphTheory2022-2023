@@ -26,5 +26,13 @@
 
     <script defer src="/index.js"></script>
   </head>
-  <body></body>
+  <body>
+    <template id="graph-alert-template">
+      <div part="wrap">
+        <span part="text">
+          <slot name="text"></slot>
+        </span>
+      </div>
+    </template>
+  </body>
 </html>

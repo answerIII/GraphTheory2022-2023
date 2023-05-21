@@ -1,0 +1,17 @@
+graph-error-alert::part(text),
+graph-info-alert::part(text),
+graph-warn-alert::part(text) {
+  color: #ffffff;
+}
+
+graph-error-alert::part(wrap) {
+  background-color: #ff0000;
+}
+
+graph-info-alert::part(wrap) {
+  background-color: #00ff00;
+}
+
+graph-warn-alert::part(wrap) {
+  background-color: #0000ff;
+}
