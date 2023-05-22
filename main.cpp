@@ -1,20 +1,25 @@
 #include <iostream>
 #include <fstream>
+#include <unordered_set>
 
 class StaticGraph
 {
-    public:
-    void SetVertex(int n)
-    {
-        return;
+private: 
+    std::vector<std::unordered_set<int>> _staticGraph;
+public:  
+    void SetVertex(int n){
+        _staticGraph.resize(n+1); 
     }
-    void Push(int x, int y)
-    {
-        return;
+
+    void Push(int x, int y){
+        if (x != y) {
+            _staticGraph[x].insert(y);
+            _staticGraph[y].insert(x);
+        }
     }
 };
 
-bool DataReader(std::string fileName, StaticGraph graph){
+bool DataReader(std::string fileName, StaticGraph& graph){
     std::ifstream inFile(fileName);
 
     if(!inFile)
