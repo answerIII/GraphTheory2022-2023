@@ -110,8 +110,8 @@ for line in dataset:
     a[from_ind][to_ind] = 1
     a[to_ind][from_ind] = 1  
 
-G = nx.from_numpy_array(a)
-nx.draw_networkx(G)
+# # G = nx.from_numpy_array(a)
+# # nx.draw_networkx(G)
 
 
 def dijkstra_algo(adjList, start) -> list:
@@ -153,8 +153,51 @@ for i in range(1, V):
     pairs_of_vertexes += dijkstra_algo(adjList, i)
 
 print("pairs_of_vertexes:", pairs_of_vertexes)
-
 print("size of pairs_of_vertexes:", len(pairs_of_vertexes))
 
-pylab.show()
+
+
+all_possible_edges = []
+for i in range(1, V):
+    for j in range(i + 1, V):
+        all_possible_edges.append((i,j))
+
+print("all_possible_edges:", all_possible_edges)
+print("size of all_possible_edges:", len(all_possible_edges))
+
+all_possible_edges = set(all_possible_edges)
+pairs_of_vertexes = set(pairs_of_vertexes)
+
+remaining_edges = all_possible_edges - pairs_of_vertexes
+
+print("remaining_edges:", remaining_edges)
+print("size of remaining_edges:", len(remaining_edges))
+
+print("V:", V - 1)
+
+edge_list = []
+for i in range(1, V):
+    for j in range(i, V):
+        if a[i][j] == 1:
+            edge_list.append((i,j))
+print(a)
+print("edge_list:", edge_list)
+print("size of edge_list:", len(edge_list))
+
+positives = []; negatives = []
+for edge in remaining_edges:
+    if edge in edge_list and len(positives) < 10000:
+        positives.append(edge)
+    elif len(negatives) < 10000:
+        negatives.append(edge)
+    else:
+        break
+
+print("positives:", positives)
+print("size of positives:", len(positives))
+           
+print("positives:", negatives)
+print("size of negatives:", len(negatives))
+
+# pylab.show()
 f.close()
