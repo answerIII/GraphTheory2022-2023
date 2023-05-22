@@ -1,17 +1,17 @@
-graph-error-alert::part(text),
-graph-info-alert::part(text),
-graph-warn-alert::part(text) {
+stlp-error-alert::part(text),
+stlp-info-alert::part(text),
+stlp-warn-alert::part(text) {
   color: #ffffff;
 }
 
-graph-error-alert::part(wrap) {
+stlp-error-alert::part(wrap) {
   background-color: #ff0000;
 }
 
-graph-info-alert::part(wrap) {
+stlp-info-alert::part(wrap) {
   background-color: #00ff00;
 }
 
-graph-warn-alert::part(wrap) {
+stlp-warn-alert::part(wrap) {
   background-color: #0000ff;
 }
