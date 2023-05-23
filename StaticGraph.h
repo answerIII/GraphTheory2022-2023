@@ -14,6 +14,9 @@ private:
     int _vertexCount = 0;
     int _edgeCount = 0;
     int _mainCompCount = 0;
+    int _mainCompIdx = 0;
+    double _clCoeff = -1.0;
+    double _assortCoeff = 0.0;
     std::vector<std::unordered_set<int>> _staticGraph;
     std::vector<std::vector<int>> _weakComponents;
 
@@ -21,8 +24,17 @@ private:
     std::pair<int,int> _mainDiameter;
     std::pair<int,int> _mainPerc90;
 
+    
+    int perc(std::vector<int>& vec, int p){
+        if (p < 100){
+            std::sort(vec.begin(), vec.end());
+            return vec[std::floor(vec.size() * p / 100.0)];
+        }
+        return -1;
+    }
+
     void weakConnCalc(){
-        if (_weakComponents.size() == 0){
+        if (_weakComponents.size() == 0 && _mainCompCount == 0){
             int n = GetVertexCount();
             std::vector<bool> visited(n+1);
             std::queue<int> bfs;
@@ -45,17 +57,14 @@ private:
                     }
                     ++comp;
                 }
-            } 
+            }
+            for (int i = 0; i < _weakComponents.size(); ++i)
+                if (_weakComponents[i].size() > _mainCompCount){
+                    _mainCompCount = _weakComponents[i].size();
+                    _mainCompIdx = i;
+                }
         }
-    }
-
-    int perc(std::vector<int>& vec, int p){
-        if (p < 100){
-            std::sort(vec.begin(), vec.end());
-            return vec[std::floor(vec.size() * p / 100.0)];
-        }
-        return -1;
-    }
+    } 
 
     void calcRadDimPerc90(std::vector<std::vector<int>>& adj, int type){
         int n = adj.size();
@@ -137,6 +146,36 @@ private:
         return {{0}};
     }
 
+    bool isExistEdge(int x, int y){
+        std::unordered_set<int>::const_iterator exist = _staticGraph[x].find(y);
+        if (exist == _staticGraph[x].end())
+            return false;
+        return true;
+    }
+
+    void calcClCoeff(){
+        if (_mainCompCount != 0 && _clCoeff == -1.0){
+            double clu = 0.0;
+            int ncount = 0;
+            int v = 0;
+            _clCoeff = 0.0;
+            for(int i = 0; i < _weakComponents[_mainCompIdx].size(); ++i){
+                ncount = 0;
+                v = _weakComponents[_mainCompIdx][i];
+                if (_staticGraph[v].size() >= 2){
+                    for(auto v1: _staticGraph[v])
+                        for(auto v2: _staticGraph[v])
+                            if (v1 != v2 && isExistEdge(v1, v2))
+                                ++ncount;
+                    clu = (double)ncount / 
+                        (_staticGraph[v].size() * (_staticGraph[v].size() - 1));
+                }
+                _clCoeff += clu;
+            }
+            _clCoeff /= _mainCompCount; 
+        }
+    }
+
 public:  
     void SetVertex(int n){
         _staticGraph.resize(n+1); 
@@ -162,7 +201,8 @@ public:
     }
 
     double GetDensity(){
-        return (double)GetEdgeCount() / ((GetVertexCount() * (GetVertexCount() - 1)) / 2);
+        return (double)GetEdgeCount() / 
+            ((GetVertexCount() * (GetVertexCount() - 1)) / 2);
     }
 
     int GetWeakConnCount(){
@@ -174,11 +214,7 @@ public:
     double GetMainCompToFull(){
         if (_weakComponents.size() == 0)
             weakConnCalc();
-        int max = 0;
-        for (int i = 0; i < _weakComponents.size(); ++i)
-            if (_weakComponents[i].size() > max)
-                max = _weakComponents[i].size();
-        return (double)max / GetVertexCount();
+        return (double)_mainCompCount / GetVertexCount();
     }
 
     std::pair<int,int> GetRadius(){
@@ -197,6 +233,14 @@ public:
         if (_mainPerc90.first == 0)
             handleRadDimPerc90();
         return {_mainPerc90.first, _mainPerc90.second};
+    }
+
+    double GetAvgClCoeff(){
+        if (_mainCompCount == 0)
+            weakConnCalc();
+        if (_clCoeff == -1.0)
+            calcClCoeff();
+        return _clCoeff;
     }
 };
 
