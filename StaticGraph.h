@@ -4,7 +4,8 @@
 #include <vector>
 #include <unordered_set>
 #include <queue>
-
+#include <climits>
+#include <algorithm>
 
 class StaticGraph
 {
@@ -48,8 +49,11 @@ private:
     }
 
     int perc(std::vector<int>& vec, int p){
-        //TODO
-        return 0;
+        if (p < 100){
+            std::sort(vec.begin(), vec.end());
+            return vec[std::floor(vec.size() * p / 100.0)];
+        }
+        return -1;
     }
 
     void calcRadDimPerc90(std::vector<std::vector<int>>& adj, int type){
@@ -159,10 +163,22 @@ public:
         return (double)max / GetVertexCount();
     }
 
-    int GetRadius(){
+    std::pair<int,int> GetRadius(){
         if (_weakComponents.size() == 0)
-            return 0;
-        return 0;
+            handleRadDimPerc90();
+        return {_mainRadius.first, _mainRadius.second};
+    }
+
+    std::pair<int,int> GetDiameter(){
+        if (_weakComponents.size() == 0)
+            handleRadDimPerc90();
+        return {_mainDiameter.first, _mainDiameter.second};
+    }
+
+    std::pair<int, int> Perc90(){
+        if (_weakComponents.size() == 0)
+            handleRadDimPerc90();
+        return {_mainPerc90.first, _mainPerc90.second};
     }
 };
 
