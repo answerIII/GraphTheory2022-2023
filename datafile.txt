@@ -2,3 +2,7 @@ datasets/radoslaw_email.tsv
 radoslaw_email
 datasets/bitcoinalpha.tsv
 bitcoinalpha
+datasets/opsahl_ucsocial.tsv
+opsahl_ucsocial
+datasets/digg_friends.tsv
+digg_friends
