@@ -66,6 +66,9 @@ private:
             std::cout << '\n' << '\t' << "Random: " << graph.GetPerc90().first << '\n';
             std::cout << '\t' << "Snowball: " << graph.GetPerc90().second << '\n';
         }
+
+        std::cout << "Cl koef: ";
+        std::cout << graph.GetAvgClCoeff() << '\n';
     }
 
     void taskMenuPrint(std::string datasetName)

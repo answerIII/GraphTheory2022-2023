@@ -106,10 +106,12 @@ private:
     void handleRadDimPerc90(){
         int n = GetVertexCount();
         if (n > 500){
-            std::vector<std::vector<int>> rand = randGraph();
-            calcRadDimPerc90(rand, 0);
-            std::vector<std::vector<int>> snow = snowGraph();
-            calcRadDimPerc90(snow, 1);
+            std::vector<std::vector<int>> randAdj;
+            randGraph(randAdj);
+            calcRadDimPerc90(randAdj, 0);
+            std::vector<std::vector<int>> snowAdj;
+            snowGraph(snowAdj);
+            calcRadDimPerc90(snowAdj, 1);
         }
         else{
             std::vector<std::vector<int>> adj; 
@@ -138,12 +140,45 @@ private:
                 adj[_weakComponents[maxCompIdx][i] - 1][v - 1] = 1;
     }
 
-    std::vector<std::vector<int>> randGraph(){
-        return {{0}};
+    void randGraph(std::vector<std::vector<int>>& adj){
+        int size = 500; 
+        for(int i = 0; i < size; ++i){
+            std::vector<int> maxIntVec(size, INT_MAX / 2 - 1); 
+            adj.push_back(maxIntVec);
+        }
+
+        int maxCompIdx = 0;
+        int maxCompSize = 0;
+        for(int i = 0; i < _weakComponents.size(); ++i){ 
+            if(_weakComponents[i].size() > maxCompSize){
+                maxCompIdx = i;
+                maxCompSize = _weakComponents[i].size();
+            }
+        }
+
+        int randNum;
+        srand(time(NULL));
+        std::vector<int> randomVertex;
+        std::vector<int> component(_weakComponents[maxCompIdx]);
+        for(int i = 0; i < size; ++i){
+            randNum = rand() % (component.size() - 1); 
+            randomVertex.push_back(component[randNum]);
+            component.erase(component.begin() + randNum);
+        }
+
+        for(int i = 0; i < size; ++i){
+            for(int j = 0; j < size; ++j){
+                if(auto v =_staticGraph[randomVertex[i]].find(randomVertex[j]); 
+                        v != _staticGraph[randomVertex[i]].end())
+                    adj[i][j] = 1;
+            }
+        }
+
     }
 
-    std::vector<std::vector<int>> snowGraph(){
-        return {{0}};
+    void snowGraph(std::vector<std::vector<int>>& adj){
+        //to do
+        adj = {{0}};
     }
 
     bool isExistEdge(int x, int y){
