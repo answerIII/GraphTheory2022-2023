@@ -1,6 +1,7 @@
 import numpy as np 
 import math 
 from collections import defaultdict
+import networkx as nx
 
 # A 
 
@@ -82,6 +83,24 @@ def PA_temporal(u, v, graph, number) -> (list):
 
   return PA 
 
+def AA_temporal(u, v, z_arr, graph, number) -> (list):
+  n =  len(graph[u][v]['weight'][number])
+  AA = np.zeros(n) 
+  sum_x = np.zeros(n)
+
+  for z in z_arr:
+    x = graph[z]
+
+    for x1 in x:
+      sum_x += np.array(graph[z][x1]['weight'][number])
+    
+    AA = AA + (np.array(graph[u][z]['weight'][number]) + np.array(graph[v][z]['weight'][number])) / np.log(1 + sum_x)
+    # print("AA", AA)
+    # print('log', np.log(1 + sum_x))
+    sum_x = np.zeros(n)  
+
+  return AA
+
 def topological_features(u, v, graph, number) -> list: 
   u_neigh = set(graph[u]) 
   v_neigh = set(graph[v]) 
@@ -104,4 +123,51 @@ def topological_features(u, v, graph, number) -> list:
   features = list(AA) + list(CN) + list(JC) + list(PA)
 
   return features 
+
+
+f = open('small-graph.txt', 'r')
+
+dataset = f.readlines()
+uniqueVertexes = set()
+
+for line in dataset:
+    [from_ind, to_ind, weight, time] = [int(x) for x in line.split()]
+    uniqueVertexes.add(from_ind)
+    uniqueVertexes.add(to_ind)
+
+ver = defaultdict(list)
+all_time = []
+l = 0.7
+# matrix = defaultdict(list)
+for line in dataset:
+    [from_ind, to_ind, weight, time] = [int(x) for x in line.split()]
+    if ver[(to_ind, from_ind)]:
+        ver[(to_ind, from_ind)].append(time)
+    else:
+        ver[(from_ind, to_ind)].append(time)
+    all_time.append(time)
+
+t_min = min(all_time)
+t_max = max(all_time)
+
+G = nx.Graph()
+
+weight_liner = defaultdict(list)
+
+for uv in ver:
+  if len(ver[uv]) != 0:
+    w = temporal_weight(ver[uv], t_min, t_max)
+    weight_liner = past_event_aggregation(w['linear'])
+    weight_exponetial = past_event_aggregation(w['exponential'])
+    weight_square = past_event_aggregation(w['square root'])
+
+    G.add_edge(uv[0], uv[1], weight = [list(weight_liner.values())])
+    G[uv[0]][uv[1]]['weight'] += [list(weight_exponetial.values())]
+    G[uv[0]][uv[1]]['weight'] += [list(weight_square.values())]
+
+ver.clear()
+for i in range(3):
+  for j in G.edges:
+    ver[(j[0],j[1])].append(topological_features(j[0], j[1], G, i))
+
   
