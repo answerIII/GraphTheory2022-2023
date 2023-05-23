@@ -1,4 +1,4 @@
-from basic_features import print_basic_properties
+from logistic_regression import link_prediction
 
 datasets = {
     1:'Rado', 2:'UC', 5:'bitA',
@@ -24,6 +24,7 @@ dataset = f.readlines()
 #             print("Code not found")
 #             break
 
-print_basic_properties(dataset, display_interm_results=True)
+
+link_prediction(dataset)
 
 f.close()

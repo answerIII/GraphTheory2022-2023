@@ -4,7 +4,6 @@ import math
 import numpy as np
 import queue
 
-max_WCC = set()
 
 def print_basic_properties(dataset, display_interm_results = False) -> None:
 
