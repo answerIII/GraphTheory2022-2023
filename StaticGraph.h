@@ -228,7 +228,7 @@ private:
                 r2 += ncount2;
                 r3 += ncount2 * ncount;
             } 
-            re /= 2;
+            //re /= 2;
             _assortCoeff = (re*r1 - r2*r2)/(r3*r1 - r2*r2);
         }
     }

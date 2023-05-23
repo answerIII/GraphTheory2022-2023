@@ -69,6 +69,8 @@ private:
 
         std::cout << "Cl koef: ";
         std::cout << graph.GetAvgClCoeff() << '\n';
+        std::cout << "Assort koef: ";
+        std::cout << graph.GetAssortCoeff() << '\n';
     }
 
     void taskMenuPrint(std::string datasetName)
