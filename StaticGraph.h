@@ -16,7 +16,7 @@ private:
     int _mainCompCount = 0;
     int _mainCompIdx = 0;
     double _clCoeff = -1.0;
-    double _assortCoeff = 0.0;
+    double _assortCoeff = -1.0;
     std::vector<std::unordered_set<int>> _staticGraph;
     std::vector<std::vector<int>> _weakComponents;
 
@@ -210,6 +210,29 @@ private:
             _clCoeff /= _mainCompCount; 
         }
     }
+    
+    void calcAssortCoeff(){
+        if (_mainCompCount != 0 && _assortCoeff == -1.0){
+            double r1 = 0.0, r2 = 0.0, r3 = 0.0, re = 0.0;
+            int v = 0;
+            int ncount = 0, ncount2 = 0;
+            double num = 0.0, denum = 0.0;
+            for(int i = 0; i < _weakComponents[_mainCompIdx].size(); ++i){
+                v = _weakComponents[_mainCompIdx][i];
+                for(auto v1: _staticGraph[v]){
+                    re += _staticGraph[i].size() * _staticGraph[v1].size();
+                }
+                ncount = _staticGraph[v].size(); 
+                ncount2 = ncount * ncount;
+                r1 += ncount;
+                r2 += ncount2;
+                r3 += ncount2 * ncount;
+            } 
+            re /= 2;
+            _assortCoeff = (re*r1 - r2*r2)/(r3*r1 - r2*r2);
+        }
+    }
+
 
 public:  
     void SetVertex(int n){
@@ -276,6 +299,14 @@ public:
         if (_clCoeff == -1.0)
             calcClCoeff();
         return _clCoeff;
+    }
+
+    double GetAssortCoeff(){
+        if (_mainCompCount == 0)
+            weakConnCalc();
+        if(_assortCoeff == -1.0)
+            calcAssortCoeff();
+        return _assortCoeff;
     }
 };
 
