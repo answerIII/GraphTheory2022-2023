@@ -31,18 +31,20 @@
  * @property {TemporalGraphAdjacencyList} adjacency
  *   An adjacency list of a graph.
  * @property {number} edgesNumber
- *   A number of edges in a graph (counting multiple edges as one).
- * @property {number} edgesNumberMultiples
  *   A number of edges in a graph (counting multiple edges as many).
+ * @property {number} uniqueEdgesNumber
+ *   A number of edges in a graph (counting multiple edges as one).
  * @property {number} verticesNumber
  *   A number of vertices in a graph.
+ * @property {number} density
+ *   A density charcteristic of a graph.
  */
 
 /**
- * What column is being read currently.
+ * The column being read currently.
  * @enum {number}
  */
-const currentlyReadingState = Object.freeze({
+const CurrentlyReadingState = Object.freeze({
   /**
    * The first column (the edge source).
    */
@@ -65,6 +67,28 @@ const currentlyReadingState = Object.freeze({
 });
 
 /**
+ * The state of a new edge and a respective source vertex after
+ * this edge is added to the graph.
+ * @enum {number}
+ */
+const EdgeAdditionState = Object.freeze({
+  /**
+   * The edge was multiple, thus the vertex was added before.
+   */
+  edgeMultipleVertexAddedBefore: 1,
+
+  /**
+   * The edge was not multiple, the vertex was added before.
+   */
+  edgeNotMultipleVertexAddedBefore: 2,
+
+  /**
+   * The edge was not multiple, the vertex was not added before.
+   */
+  edgeNotMultipleVertexNotAddedBefore: 3,
+});
+
+/**
  * The decoder for the text.
  */
 const textDecoder = new TextDecoder();
@@ -83,17 +107,37 @@ const textDecoder = new TextDecoder();
  *   The edge weight.
  * @param {Date} args.time
  *   The edge creation time.
+ * @returns {EdgeAdditionState}
+ *   The state of the edge and the respective source
+ *   vertex after the edge is added to the graph.
  */
 const addTemporalGraphEdge = ({ adjacency, from, to, weight, time }) => {
   if (from in adjacency) {
     if (to in adjacency[from]) {
       adjacency[from][to].push({ weight, time });
-    } else {
-      adjacency[from][to] = [{ weight, time }];
+      return EdgeAdditionState.edgeMultipleVertexAddedBefore;
     }
-  } else {
-    adjacency[from] = { [to]: [{ weight, time }] };
+
+    adjacency[from][to] = [{ weight, time }];
+    return EdgeAdditionState.edgeNotMultipleVertexAddedBefore;
   }
+
+  adjacency[from] = { [to]: [{ weight, time }] };
+  return EdgeAdditionState.edgeNotMultipleVertexNotAddedBefore;
+};
+
+/**
+ * Calculates the density of the graph.
+ * @param {object} args
+ *   The function alrguments as an object.
+ * @param {number} args.uniqueEdgesNumber
+ *   The number of edges in the graph (counting multiple edges as one).
+ * @param {number} args.verticesNumber
+ *   The number of vertices in the graph.
+ * @returns
+ */
+const calculateDensity = ({ uniqueEdgesNumber, verticesNumber }) => {
+  return (2 * uniqueEdgesNumber) / (verticesNumber * (verticesNumber - 1));
 };
 
 /**
@@ -113,8 +157,9 @@ const createUndirectedTemporalGraph = async (file) => {
   const graph = {
     adjacency: {},
     edgesNumber: 0,
-    edgesNumberMultiples: 0,
+    uniqueEdgesNumber: 0,
     verticesNumber: 0,
+    density: 0,
   };
 
   /**
@@ -147,9 +192,9 @@ const createUndirectedTemporalGraph = async (file) => {
 
   /**
    * The column being read currently.
-   * @type {number}
+   * @type {CurrentlyReadingState}
    */
-  let currentlyReading = currentlyReadingState.from;
+  let currentlyReadingState = CurrentlyReadingState.from;
 
   /**
    * Whether the current line is skipped.
@@ -211,7 +256,12 @@ const createUndirectedTemporalGraph = async (file) => {
           const currentEdgeTime = new Date(currentEdgeTimestamp);
 
           // Add the undirected edge to the list.
-          addTemporalGraphEdge({
+
+          /**
+           * The state of the current edge and the respective
+           * source vertex after the edge is added to the graph.
+           */
+          const fromEdgeAdditionState = addTemporalGraphEdge({
             adjacency: graph.adjacency,
             from: currentEdgeFrom,
             to: currentEdgeTo,
@@ -219,20 +269,53 @@ const createUndirectedTemporalGraph = async (file) => {
             time: currentEdgeTime,
           });
 
-          addTemporalGraphEdge({
+          if (
+            fromEdgeAdditionState ===
+            EdgeAdditionState.edgeNotMultipleVertexAddedBefore
+          ) {
+            ++graph.uniqueEdgesNumber;
+          }
+
+          if (
+            fromEdgeAdditionState ===
+            EdgeAdditionState.edgeNotMultipleVertexNotAddedBefore
+          ) {
+            ++graph.uniqueEdgesNumber;
+            ++graph.verticesNumber;
+          }
+
+          // Ignore the multiple edge value for this one: because
+          // the graph is undirected, it is always the same as
+          // above: it is the "second link" of an undirected edge,
+          // just in reverse direction.
+
+          /**
+           * The state of the current edge and the respective
+           * destination vertex after the edge is added to the graph.
+           */
+          const toEdgeAdditionState = addTemporalGraphEdge({
             adjacency: graph.adjacency,
             from: currentEdgeTo,
             to: currentEdgeFrom,
             weight: currentEdgeWeight,
             time: currentEdgeTime,
           });
+
+          if (
+            toEdgeAdditionState ===
+            EdgeAdditionState.edgeNotMultipleVertexNotAddedBefore
+          ) {
+            ++graph.verticesNumber;
+          }
+
+          ++graph.edgesNumber;
         }
 
         // Reset the values to defaults.
         currentEdgeFrom = null;
         currentEdgeTo = null;
         currentEdgeWeight = null;
-        currentlyReading = currentlyReadingState.from;
+        currentlyReadingState = CurrentlyReadingState.from;
         isLineSkipped = false;
         isSpaceBefore = false;
         readBuffer = "";
@@ -258,18 +341,18 @@ const createUndirectedTemporalGraph = async (file) => {
       }
 
       // Switch over to the next column and parse the current one.
-      switch (currentlyReading) {
-        case currentlyReadingState.from:
+      switch (currentlyReadingState) {
+        case CurrentlyReadingState.from:
           currentEdgeFrom = Number(readBuffer);
-          currentlyReading = currentlyReadingState.to;
+          currentlyReadingState = CurrentlyReadingState.to;
           break;
-        case currentlyReadingState.to:
+        case CurrentlyReadingState.to:
           currentEdgeTo = Number(readBuffer);
-          currentlyReading = currentlyReadingState.weight;
+          currentlyReadingState = CurrentlyReadingState.weight;
           break;
-        case currentlyReadingState.weight:
+        case CurrentlyReadingState.weight:
           currentEdgeWeight = Number(readBuffer);
-          currentlyReading = currentlyReadingState.timestamp;
+          currentlyReadingState = CurrentlyReadingState.timestamp;
       }
 
       // The current character is either tab or space, so mark that.
@@ -279,6 +362,9 @@ const createUndirectedTemporalGraph = async (file) => {
       readBuffer = "";
     }
   }
+
+  // Calculate some graph characteristics.
+  graph.density = calculateDensity(graph);
 
   // Clean up the reader and the stream.
   reader.releaseLock();
@@ -310,6 +396,8 @@ self.addEventListener("message", async (event) => {
 
   console.info(`Called ${name} with:`, event.data);
 
+  // When creating a graph, it might have huge size,
+  // so do not send it back and save it internally.
   if (name === "createUndirectedTemporalGraph") {
     undirectedTemporalGraph = await createUndirectedTemporalGraph(
       event.data[0]

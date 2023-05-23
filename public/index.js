@@ -72,7 +72,7 @@ const showAlert = ({ type = "info", text = null }) => {
  * @enum {string}
  * @type {Readonly<{ [key: string]: string }>}
  */
-const workerNames = Object.freeze(
+const WorkerNames = Object.freeze(
   ["createUndirectedTemporalGraph"].reduce(
     (obj, value) => ({ ...obj, [value]: value }),
     {}
@@ -132,7 +132,7 @@ datasetForm.addEventListener("submit", (event) => {
   } else {
     // Send the name and arguments to the worker.
     worker.postMessage([
-      workerNames.createUndirectedTemporalGraph,
+      WorkerNames.createUndirectedTemporalGraph,
       datasetFile,
     ]);
   }
@@ -151,7 +151,7 @@ datasetForm.addEventListener("submit", (event) => {
     const result = event.data[1];
 
     switch (name) {
-      case workerNames.createUndirectedTemporalGraph:
+      case WorkerNames.createUndirectedTemporalGraph:
       // TODO: add the next computation step
     }
   });
