@@ -6,6 +6,7 @@
 #include <queue>
 #include <climits>
 #include <algorithm>
+#include <cmath>
 
 class StaticGraph
 {
@@ -62,12 +63,12 @@ private:
             for (int i = 0; i < n; ++i)
                 for (int j = 0; j < n; ++j)
                     adj[i][j] = std::min(adj[i][j], adj[i][k] + adj[k][j]);
-        int rad = INT_MAX, dim = 0, perc90 = 0, max = 0;
+        int rad = INT_MAX / 2 - 1, dim = 0, perc90 = 0, max = 0;
         std::vector<int> dist;
         for(int i = 0; i < n; ++i){
             max = 0;
             for(int j = 0; j < n; ++j){
-                if (adj[i][j] != INT_MAX){
+                if (adj[i][j] != INT_MAX / 2 - 1){
                     if (adj[i][j] > max)
                         max = adj[i][j];
                     dist.push_back(adj[i][j]);
@@ -102,13 +103,30 @@ private:
             calcRadDimPerc90(snow, 1);
         }
         else{
-            std::vector<std::vector<int>> adj = adjGraph();
+            std::vector<std::vector<int>> adj; 
+            adjGraph(adj);
             calcRadDimPerc90(adj, 0);
         }
     }
 
-    std::vector<std::vector<int>> adjGraph(){
-        return {{0}};
+    void adjGraph(std::vector<std::vector<int>>& adj){
+        int maxCompIdx = 0;
+        int maxCompSize = 0;
+        for(int i = 0; i < _weakComponents.size(); ++i){ 
+            if(_weakComponents[i].size() > maxCompSize){
+                maxCompIdx = i;
+                maxCompSize = _weakComponents[i].size();
+            }
+        }
+
+        for(int i = 0; i < maxCompSize; ++i){
+            std::vector<int> maxIntVec(maxCompSize, INT_MAX / 2 - 1); 
+            adj.push_back(maxIntVec);
+        }
+
+        for(int i = 0; i < maxCompSize; ++i)
+            for(auto v: _staticGraph[_weakComponents[maxCompIdx][i]])
+                adj[_weakComponents[maxCompIdx][i] - 1][v - 1] = 1;
     }
 
     std::vector<std::vector<int>> randGraph(){
@@ -164,19 +182,19 @@ public:
     }
 
     std::pair<int,int> GetRadius(){
-        if (_weakComponents.size() == 0)
+        if (_mainRadius.first == 0)
             handleRadDimPerc90();
         return {_mainRadius.first, _mainRadius.second};
     }
 
     std::pair<int,int> GetDiameter(){
-        if (_weakComponents.size() == 0)
+        if (_mainDiameter.first == 0)
             handleRadDimPerc90();
         return {_mainDiameter.first, _mainDiameter.second};
     }
 
-    std::pair<int, int> Perc90(){
-        if (_weakComponents.size() == 0)
+    std::pair<int, int> GetPerc90(){
+        if (_mainPerc90.first == 0)
             handleRadDimPerc90();
         return {_mainPerc90.first, _mainPerc90.second};
     }

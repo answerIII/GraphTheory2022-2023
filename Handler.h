@@ -42,6 +42,30 @@ private:
         std::cout << graph.GetWeakConnCount() << '\n';
         std::cout << "Main comp to full graph: ";
         std::cout << graph.GetMainCompToFull() << '\n';
+
+        std::cout << "Main component radius: ";
+        if(graph.GetRadius().second == 0) 
+            std::cout << graph.GetRadius().first << '\n';
+        else{
+            std::cout << '\n' << '\t' << "Random: " << graph.GetRadius().first << '\n';
+            std::cout << '\t' << "Snowball: " << graph.GetRadius().second << '\n';
+        }
+
+        std::cout << "Main component diameter: ";
+        if(graph.GetDiameter().second == 0) 
+            std::cout << graph.GetDiameter().first << '\n';
+        else{
+            std::cout << '\n' << '\t' << "Random: " << graph.GetDiameter().first << '\n';
+            std::cout << '\t' << "Snowball: " << graph.GetDiameter().second << '\n';
+        }
+        
+        std::cout << "Main component perc90: ";
+        if(graph.GetPerc90().second == 0) 
+            std::cout << graph.GetPerc90().first << '\n';
+        else{
+            std::cout << '\n' << '\t' << "Random: " << graph.GetPerc90().first << '\n';
+            std::cout << '\t' << "Snowball: " << graph.GetPerc90().second << '\n';
+        }
     }
 
     void taskMenuPrint(std::string datasetName)
