@@ -73,8 +73,6 @@ for i in range(len(d)):
     for j in range(i+1, len(d)):
         pairs_v_dist_2.add((d[i][j][1], d[i][j][2]))
 
-print(pairs_v_dist_2)
-
 all_pairs_edges = set()
 for i in range(len(adjacency_list)):
     for j in range(i+1, len(adjacency_list)):
