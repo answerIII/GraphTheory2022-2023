@@ -1,0 +1,52 @@
+#include <iostream>
+#include <vector>
+#include <set>
+#include <algorithm>
+#include <iterator>
+
+using namespace std;
+
+class Solution {
+public:
+	vector<int> s;
+	vector<int> f;
+	int minimumHammingDistance(vector<int>& source, vector<int>& target, vector<vector<int>>& allowedSwaps) {
+		vector<bool> vis(source.size());
+		vector<vector<int>> M(source.size());
+		s = source;
+		for (vector<int> p : allowedSwaps) {
+			M[p[0]].push_back(p[1]);
+			M[p[1]].push_back(p[0]);
+		}
+
+		int res = source.size();
+		for (int i = 0; i < source.size(); i++) {
+			if (!vis[i]) {
+				DFS(vis, M, i, f);
+				multiset<int> a;
+				multiset<int> b;
+				for (int n : f) {
+					a.insert(source[n]);
+					b.insert(target[n]);
+				}
+				vector <int> v_intersection;
+				set_intersection(a.begin(), a.end(), b.begin(), b.end(), back_inserter(v_intersection));
+				res -= v_intersection.size();
+				f.clear();
+			}
+		}
+		return res;
+	}
+
+	void DFS(vector<bool>& vis, vector<vector<int>>& M, int k, vector<int>& f) {
+		if (vis[k]) {
+			return;
+		}
+		f.push_back(k);
+		vis[k] = true;
+		for (int l : M[k]) {
+			DFS(vis, M, l, f);
+		}
+		return;
+	}
+};
