@@ -112,16 +112,6 @@ def topological_features(edge, adjacency_list, edges):
 
     return edge_vector
 
-def common_neighbours(u, v, adjacency_list):
-    return len(set(adjacency_list[u]) & set(adjacency_list[v]))
-
-def jaccard_coefficient(u, v, adjacency_list):
-    return len(set(adjacency_list[u]) & set(adjacency_list[v])) / len(set(adjacency_list[u]) | set(adjacency_list[v]))
-
-def preferential_attachment(u, v, adjacency_list):
-    return len(adjacency_list[u]) * len(adjacency_list[v])
-
-
 adjacency_list, tmin, tmax, edges = get_adjacency_list(data)
 for edge in edges:
     edges[edge] = temporal_weighting(edges[edge], tmin, tmax)
