@@ -5,7 +5,8 @@ import numpy as np
 from collections import deque
 import collections
 
-dataset_path = 'datasets/' + 'out.radoslaw_email_email' + '.txt'
+dataset_path = 'datasets/' + 'test' + '.txt'
+# dataset_path = 'datasets/' + 'out.radoslaw_email_email' + '.txt'
 # dataset_path = 'datasets/' + 'out.prosper-loans' + '.txt'
 data = pd.read_csv(dataset_path, sep='\s+', names=['id_from', 'id_to', 'weight', 'time'], header=None)
 
@@ -71,9 +72,9 @@ d = [[[math.inf, node, neighbour] for neighbour in adjacency_list[node]] for nod
 pairs_v_dist_2 = set()
 d = floyd_warshall(adjacency_list)
 
-for node in adjacency_list:
-    for neighbour in adjacency_list[node]:
-        if d[list(adjacency_list).index(node)][list(adjacency_list).index(neighbour)] == 2:
+for i in range(len(d)):
+    for j in range(len(d)):
+        if d[i][j][0] == 2 and ((d[i][j][1], d[i][j][2]) not in pairs_v_dist_2) and ((d[i][j][2], d[i][j][1]) not in pairs_v_dist_2):
             pairs_v_dist_2.add((d[i][j][1], d[i][j][2]))
 
 all_pairs_edges = set()
