@@ -1,0 +1,67 @@
+class Solution {
+public:
+	vector<vector<int>> ncells;
+	vector<vector<bool>> vis;
+	int myrow;
+	int mycol;
+	int latestDayToCross(int row, int col, vector<vector<int>>& cells) {
+		int l = 0;
+		int r = col*row;
+		int m = 0;
+		int res = 0;
+		mycol = col;
+		myrow = row;
+		while (l <= r){
+			vis.resize(row);
+			for (vector<bool>& v : vis) {
+				v.resize(col);
+			}
+			m = l + (r - l) / 2;
+
+			vector<vector<int>> g(row, vector<int>(col, 0));
+			for (int i = 0; i < m && i < cells.size(); i++) {
+				g[cells[i][0]-1][cells[i][1]-1] = 1;
+			}
+
+			bool result = false;
+			for (int i = 0; i < col; i++) {
+				if (result){
+					break;
+				}
+				if (g[0][i] == 1) {
+					continue;
+				}
+				result = DFS(g, 0, i);
+			}
+			if (result) {
+				res = m;
+				l = m + 1;
+			}
+			else {
+				r = m - 1;
+			}
+			vis.clear();
+		}
+		return res;
+	}
+
+	vector<vector<int>> dirs = { {1, 0}, {0, 1}, {0, -1}, {-1 , 0}};
+	bool DFS(vector<vector<int>>& g, int x, int y) {
+		int newx;
+		int newy;
+		for (vector<int> p : dirs) {
+			newx = x + p[0];
+			newy = y + p[1];
+			if (newx >= 0 && newy >= 0 && newx < myrow && newy < mycol && g[newx][newy] != 1 && newx == myrow - 1) {
+				return true;
+			}
+			if (newx >= 0 && newy >= 0 && newx < myrow && newy < mycol && g[newx][newy] != 1 && !vis[newx][newy]) {
+				vis[newx][newy] = true;
+				if (DFS(g, newx, newy)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+};
