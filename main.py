@@ -26,6 +26,6 @@ dataset = f.readlines()
 #             break
 
 #print_basic_properties(dataset)
-link_prediction(dataset)
+link_prediction(dataset, 50)
 
 f.close()
