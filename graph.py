@@ -2,7 +2,7 @@
 
 import os.path
 import weakref
-from typing import Self, Dict, List
+from typing import Self, Dict, List, Set
 
 
 class Edge:
@@ -37,19 +37,19 @@ class Edge:
         return False
 
     @property
-    def timestamp(self):
+    def timestamp(self) -> float:
         return self._timestamp
 
     @property
-    def weight(self):
+    def weight(self) -> int:
         return self._weight
 
     @property
-    def from_node(self):
+    def from_node(self) -> weakref.ProxyType:
         return self.__from_node
 
     @property
-    def to_node(self):
+    def to_node(self) -> weakref.ProxyType:
         return self.__to_node
 
 
@@ -76,7 +76,7 @@ class Node:
         return self.__u_id
 
     @property
-    def nodes_to(self) -> List["Node"]:
+    def nodes_to(self) -> Set["Edge"]:
         """Returns list of vertices where an edge EXISTS. Does not take into account the multiedges
 
         Returns:
@@ -108,19 +108,21 @@ class Node:
 class Graph:
     """Graph object"""
 
-    def __init__(self, path: str):
+    def __init__(self, path: str | None):
         """Create graph obj
 
         Args:
-            path (str): Path file "out.{graph_name}"
+            path (str | None): Path file "out.{graph_name}", If none then empty graph
         Raises:
             OSError: wrond graph path
         """
 
-        count = 0
-
         self.__graph: Dict[int, Node] = {}
 
+        if path != None:
+            self.__read_from_file(path)
+
+    def __read_from_file(self, path):
         if not os.path.isfile(path):
             raise OSError("wrond graph path")
 
@@ -139,18 +141,17 @@ class Graph:
                     float(tmp[3]),
                 )
 
-                par = self.__graph.get(v_from, Node(v_from))
-                ch = self.__graph.get(v_to, Node(v_to))
+                self.add_edge(v_from, v_to, weight, timestamp)
 
-                par._add_child(ch, weight, timestamp)
-                ch._add_parent(par, weight, timestamp)
+    def add_edge(self, v_from, v_to, weight, timestamp):
+        par = self.__graph.get(v_from, Node(v_from))
+        ch = self.__graph.get(v_to, Node(v_to))
 
-                self.__graph[v_from] = par
-                self.__graph[v_to] = ch
+        par._add_child(ch, weight, timestamp)
+        ch._add_parent(par, weight, timestamp)
 
-                count += 1
-
-        print("Edges:", count)
+        self.__graph[v_from] = par
+        self.__graph[v_to] = ch
 
     def __str__(self):
         ans = "from\tto\tweight\ttimestamp\n"
@@ -159,7 +160,7 @@ class Graph:
             node = self.__graph[key]
 
             for j in node.edges_to:
-                ans += f"{node.u_id}\t{j.node.u_id}\n"
+                ans += f"{node.u_id}\t{j.to_node.u_id}\n"
 
         return ans
 
@@ -182,12 +183,13 @@ class Graph:
 if __name__ == "__main__":
     # t = Graph("./graphs/radoslaw_email/out.radoslaw_email_email")
     t = Graph("./test.txt")
+    print(t)
 
     node_1 = t[1]
-    print(*set(node_1.edges_to), sep="\n")
-    print("___________________________")
+    # print(*set(node_1.edges_to), sep="\n")
+    # print("___________________________")
 
     node_2 = t[2]
-    print(*set(node_2.edges_from), sep="\n")
+    # print(*set(node_2.edges_from), sep="\n")
 
     # print(t)
