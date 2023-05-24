@@ -36,15 +36,46 @@ class AlertElement extends RootElement {
 }
 
 /**
+ * The possible types of alert messages.
+ * @enum {string}
+ * @type {Readonly<{ [key: string]: string }>}
+ */
+const AlertTypes = Object.freeze(
+  ["error", "info", "warn"].reduce(
+    (obj, value) => ({ ...obj, [value]: value }),
+    {}
+  )
+);
+
+/**
+ * The names of the graph worker functions.
+ * @enum {string}
+ * @type {Readonly<{ [key: string]: string }>}
+ */
+const WorkerNames = Object.freeze(
+  ["createGraphFromFile"].reduce(
+    (obj, value) => ({ ...obj, [value]: value }),
+    {}
+  )
+);
+
+/**
+ * The form used to send datasets.
+ */
+const datasetForm = /** @type {HTMLFormElement} */ (
+  document.getElementById("dataset-form")
+);
+
+/**
  * Shows the alert of `type` with `text`.
- * @param {object} args
- *   The function alrguments as an object.
- * @param {string} args.type
+ * @param {object}     args
+ *   The function arguments as an object.
+ * @param {AlertTypes} args.type
  *   The alert type (error, info or warn).
- * @param {string?} args.text
+ * @param {string?}    args.text
  *   The text to display on the alert.
  */
-const showAlert = ({ type = "info", text = null }) => {
+const showAlert = ({ type = AlertTypes.info, text = null }) => {
   /**
    * The text element to "replace" the slot.
    */
@@ -63,28 +94,12 @@ const showAlert = ({ type = "info", text = null }) => {
   rootElement.appendChild(textElement);
   document.body.appendChild(rootElement);
 
+  // Duplicate the message in the console.
+  console[type](text);
+
   // Remove the alert after some time.
   setTimeout(HTMLElement.prototype.remove.bind(rootElement), 3000);
 };
-
-/**
- * The names of the graph worker functions.
- * @enum {string}
- * @type {Readonly<{ [key: string]: string }>}
- */
-const WorkerNames = Object.freeze(
-  ["createUndirectedTemporalGraph"].reduce(
-    (obj, value) => ({ ...obj, [value]: value }),
-    {}
-  )
-);
-
-/**
- * The form used to send datasets.
- */
-const datasetForm = /** @type {HTMLFormElement} */ (
-  document.getElementById("dataset-form")
-);
 
 customElements.define(
   "stlp-error-alert",
@@ -127,31 +142,25 @@ datasetForm.addEventListener("submit", (event) => {
   );
 
   if (datasetFile.size === 0) {
-    console.info("The dataset is empty");
-    showAlert({ type: "error", text: "The dataset is empty" });
+    showAlert({
+      type: "error",
+      text: "The dataset is absent or empty",
+    });
   } else {
     // Send the name and arguments to the worker.
-    worker.postMessage([
-      WorkerNames.createUndirectedTemporalGraph,
-      datasetFile,
-    ]);
+    worker.postMessage({
+      name: WorkerNames.createGraphFromFile,
+      args: {
+        file: datasetFile,
+        isDirected: false,
+      },
+    });
   }
 
   // Recieve the function results from the worker.
-  worker.addEventListener("message", (event) => {
-    /**
-     * The name of the executed function.
-     * @type {string}
-     */
-    const name = event.data[0];
-
-    /**
-     * The result of the executed function.
-     */
-    const result = event.data[1];
-
+  worker.addEventListener("message", ({ data: { name, result } }) => {
     switch (name) {
-      case WorkerNames.createUndirectedTemporalGraph:
+      case WorkerNames.createGraphFromFile:
       // TODO: add the next computation step
     }
   });
