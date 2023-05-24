@@ -1,0 +1,77 @@
+class Solution {
+public:
+	int size;
+	int res = 0;
+	int flipLights(int n, int presses) {
+		if (presses == 0) {
+			return 1;
+		}
+		size = n;
+		string l(n, '1');
+		unordered_map<string, map<int, bool>> lStates;
+		DFS(lStates, l, 0, presses);
+		return res;
+	}
+
+	void DFS(unordered_map<string, map<int, bool>>& lStates, string& l, int cur, int presses) {
+		if (lStates[l][cur]) {
+			return;
+		}
+		
+		lStates[l][cur] = true;
+
+		if (cur == presses) {
+			res++;
+			return;
+		}
+
+		string newl1 = l, newl2 = l, newl3 = l, newl4 = l;
+		for (int i = 0; i < l.size(); i++) {
+			if (l[i] == '1') {
+				newl1[i] = '0';
+			}
+			else {
+				newl1[i] = '1';
+			}
+		}
+
+		cur++;
+
+		DFS(lStates, newl1, cur, presses);
+
+		for (int i = 0; i < l.size(); i += 2) {
+			if (l[i] == '1') {
+				newl2[i] = '0';
+			}
+			else {
+				newl2[i] = '1';
+			}
+		}
+
+		DFS(lStates, newl2, cur, presses);
+
+		for (int i = 1; i < l.size(); i += 2) {
+			if (l[i] == '1') {
+				newl3[i] = '0';
+			}
+			else {
+				newl3[i] = '1';
+			}
+		}
+
+		DFS(lStates, newl3, cur, presses);
+
+		for (int i = 0; i < l.size(); i = i * 3 + 1) {
+			if (l[i] == '1') {
+				newl4[i] = '0';
+			}
+			else {
+				newl4[i] = '1';
+			}
+		}
+
+		DFS(lStates, newl4, cur, presses);
+
+		return;
+	}
+};
