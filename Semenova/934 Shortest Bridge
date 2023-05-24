@@ -1,0 +1,77 @@
+class Solution {
+public:
+	queue<pair<int, int>> xy;
+	vector<vector<int>> g;
+	int size;
+	int res;
+	vector<vector<bool>> vis;
+	int shortestBridge(vector<vector<int>>& grid) {
+		bool f = false;
+		g = grid;
+		size = grid.size();
+		vis.resize(size);
+		for (vector<bool>& v : vis) {
+			v.resize(size);
+		}
+		for (int i = 0; i < grid.size(); i++) {
+			for (int j = 0; j < grid.size(); j++) {
+				if (grid[i][j] == 1) {
+					f = true;
+					DFS(i, j);
+					break;
+				}
+			}
+			if (f)
+			{
+				break;
+			}
+		}
+		BFS(2);
+		return res - 1;
+	}
+
+	vector<vector<int>> dirs = { {1, 0}, {0, 1}, {-1, 0}, {0, -1} };
+	void DFS(int x, int y){
+		if (vis[x][y]) {
+			return;
+		}
+		vis[x][y] = true;
+		xy.push(make_pair(x, y));
+		int newx;
+		int newy;
+		g[x][y] = 2;
+		for (vector<int> p : dirs){
+			newx = x + p[0];
+			newy = y + p[1];
+			if (newx >= 0 && newy >= 0 && newy < size && newx < size && g[newx][newy] == 1) {
+				DFS(newx, newy);
+			}
+		}
+	}
+
+	void BFS(int l){
+		int newx;
+		int newy;
+		queue<pair<int, int>> newxy;
+		while (!xy.empty()) {
+			pair<int, int> pxy = xy.front();
+			xy.pop();
+			g[pxy.first][pxy.second] = l;
+			for (vector<int> p : dirs) {
+				newx = pxy.first + p[0];
+				newy = pxy.second + p[1];
+				if (newx >= 0 && newy >= 0 && newy < size && newx < size && g[newx][newy] == 1) {
+					res = l - 1;
+					return;
+				}
+				if (newx >= 0 && newy >= 0 && newy < size && newx < size && !vis[newx][newy]) {
+					vis[newx][newy] = true;
+					newxy.push(make_pair(newx, newy));
+				}
+			}
+		}
+		xy = newxy;
+		BFS(l + 1);
+		return;
+	}
+};
