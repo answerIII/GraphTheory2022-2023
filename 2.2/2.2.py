@@ -125,7 +125,7 @@ def topological_features(u, v, graph, number) -> list:
   return features 
 
 
-f = open('small-graph.txt', 'r')
+f = open('datasets\\small-graph.txt', 'r')
 
 dataset = f.readlines()
 uniqueVertexes = set()

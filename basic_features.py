@@ -3,10 +3,7 @@ from collections import defaultdict
 import math
 import numpy as np
 import queue
-
-
 import random
-
 
 
 def print_basic_properties(dataset, display_interm_results = False) -> None:
@@ -105,16 +102,10 @@ def print_basic_properties(dataset, display_interm_results = False) -> None:
     ### Пункт 1.2.
 
     
-    # from traitlets.traitlets import default
-    # from collections import defaultdict 
-    # import numpy as np 
-    # import math 
-    # import random
 
 
-    # f = open('small-graph.txt', 'r') 
 
-    # dataset = f.readlines()
+
 
     ver = defaultdict(set) # подграф с наибольшей КСС 
 

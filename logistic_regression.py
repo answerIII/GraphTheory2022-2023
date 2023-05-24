@@ -8,21 +8,24 @@ from static_features import calc_four_static_properties
 
 def link_prediction(dataset):
 
-    [V, adjList, nonexistent_edges, y] = prepare_data_all(dataset, s = 50, display_interm_results=False)
+    [V, adjList, nonexistent_edges, y] = prepare_data_all(dataset, s = 15, display_interm_results=False)
 
     # for i in range(V):
     #     print(i, ":", end=" ")
     #     print(adjList[i])
 
+    X = []
     for edge in nonexistent_edges:
         features = calc_four_static_properties(adjList, edge, display_interm_results=False)
-        edge = list(edge)
-        # print(edge, end=":")
-        edge += features
-        # print(edge)
+        X.append(features)
+        
+
+    # for i in range(len(nonexistent_edges)):
+    #     print(nonexistent_edges[i], ":", X[i])
 
 
-    X_train, X_test, y_train, y_test = train_test_split(nonexistent_edges, y, test_size=0.25, random_state=1)
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=1)
 
 
 
