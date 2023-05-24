@@ -5,8 +5,8 @@ import numpy as np
 from collections import deque
 import collections
 
-dataset_path = 'datasets/' + 'test' + '.txt'
-# dataset_path = 'datasets/' + 'out.radoslaw_email_email' + '.txt'
+# dataset_path = 'datasets/' + 'test' + '.txt'
+dataset_path = 'datasets/' + 'out.radoslaw_email_email' + '.txt'
 # dataset_path = 'datasets/' + 'out.prosper-loans' + '.txt'
 data = pd.read_csv(dataset_path, sep='\s+', names=['id_from', 'id_to', 'weight', 'time'], header=None)
 

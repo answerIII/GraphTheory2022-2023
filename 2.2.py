@@ -48,14 +48,14 @@ def temporal_weighting(timestamps, tmin, tmax):
 def past_event_aggregation(weights):
     weights_agg = []
     for weight_type in weights:
-        weights_agg.append(np.percentile(weight_type, 0))
-        weights_agg.append(np.percentile(weight_type, 25))
-        weights_agg.append(np.percentile(weight_type, 50))
-        weights_agg.append(np.percentile(weight_type, 75))
-        weights_agg.append(np.percentile(weight_type, 100))
-        weights_agg.append(sum(weight_type))
-        weights_agg.append(np.mean(weight_type))
-        weights_agg.append(np.var(weight_type))
+        weights_agg.append(np.quantile(weights[weight_type], 0))
+        weights_agg.append(np.quantile(weights[weight_type], 0.25))
+        weights_agg.append(np.quantile(weights[weight_type], 0.5))
+        weights_agg.append(np.quantile(weights[weight_type], 0.75))
+        weights_agg.append(np.quantile(weights[weight_type], 1))
+        weights_agg.append(sum(weights[weight_type]))
+        weights_agg.append(np.mean(weights[weight_type]))
+        weights_agg.append(np.var(weights[weight_type]))
 
     return weights_agg
 
@@ -84,7 +84,6 @@ def topological_features(edge, adjacency_list, edges):
             wtf_vy = wtf_vy[i]
             vy_sum += wtf_vy
 
-        jc_denominator
         for z in Z:
             wtf_uz = edges.get((edge[0], z))
             if not wtf_uz:
@@ -97,13 +96,14 @@ def topological_features(edge, adjacency_list, edges):
             zx_sum = 0
             for x in adjacency_list[z]:
                 wtf_zx = edges.get((z, x))
-                if not wtf_uz:
+                if not wtf_zx:
                     wtf_zx = edges.get((x, z))
                 wtf_zx = wtf_zx[i]
                 zx_sum += wtf_zx
             AA += (wtf_uz + wtf_vz) / math.log(1 + wtf_zx)
             CN += wtf_uz + wtf_vz
             JC += (wtf_uz + wtf_vz) / (ux_sum + vy_sum)
+
         PA = ux_sum * vy_sum
         edge_vector.append(AA)
         edge_vector.append(CN)
@@ -120,5 +120,3 @@ for edge in edges:
 edges_copy = edges
 for edge in edges:
     edges_copy[edge] = topological_features(edge, adjacency_list, edges)
-
-
