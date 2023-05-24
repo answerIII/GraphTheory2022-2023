@@ -1,0 +1,29 @@
+class Solution {
+public:
+	vector<vector<int>> res;
+	vector<vector<int>> ed;
+	vector<vector<int>> getAncestors(int n, vector<vector<int>>& edges) {
+		res.resize(n);
+		ed.resize(n);
+		for (vector<int>& v : edges) {
+			ed[v[0]].push_back(v[1]);
+		}
+
+		for (int i = 0; i < n; i++) {
+			DFS(i, i);
+		}
+	
+		return res;
+	}
+
+	void DFS(int s, int f) {
+		for (int k : ed[s]) {
+
+			if (res[k].size() == 0 || res[k][res[k].size() - 1] != f) {
+				DFS(k, f);
+				res[k].push_back(f);
+			}
+		}
+		return;
+	}
+};
