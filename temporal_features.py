@@ -147,12 +147,8 @@ def calc_temporate_feauters(dataset, qs):
   for line in dataset:
       [from_ind, to_ind, weight, time] = [int(x) for x in line.split()]
       all_time.append(time)
-      if time <= qs:
-        if ver[(to_ind, from_ind)]:
-            ver[(to_ind, from_ind)].append(time)
-        else:
-            ver[(from_ind, to_ind)].append(time)
-
+      if time <= qs: 
+        ver[(min(from_ind, to_ind), max(from_ind, to_ind))].append(time)
       else:
         ver_after.append([from_ind, to_ind])
 
@@ -164,15 +160,14 @@ def calc_temporate_feauters(dataset, qs):
   weight_liner = defaultdict(list)
 
   for uv in ver:
-    if len(ver[uv]) != 0:
-      w = temporal_weight(ver[uv], t_min, t_max)
-      weight_liner = past_event_aggregation(w['linear'])
-      weight_exponetial = past_event_aggregation(w['exponential'])
-      weight_square = past_event_aggregation(w['square root'])
+    w = temporal_weight(ver[uv], t_min, t_max)
+    weight_liner = past_event_aggregation(w['linear'])
+    weight_exponetial = past_event_aggregation(w['exponential'])
+    weight_square = past_event_aggregation(w['square root'])
 
-      G.add_edge(uv[0], uv[1], weight = [list(weight_liner.values())])
-      G[uv[0]][uv[1]]['weight'] += [list(weight_exponetial.values())]
-      G[uv[0]][uv[1]]['weight'] += [list(weight_square.values())]
+    G.add_edge(uv[0], uv[1], weight = [list(weight_liner.values())])
+    G[uv[0]][uv[1]]['weight'] += [list(weight_exponetial.values())]
+    G[uv[0]][uv[1]]['weight'] += [list(weight_square.values())]
 
   ver.clear()
   for i in range(3):
