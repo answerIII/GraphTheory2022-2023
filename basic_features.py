@@ -172,44 +172,55 @@ def print_basic_properties(dataset, display_interm_results = False) -> None:
     def bfs_snowball(visited, adjList, unvisited, lenght):
         WCC = set()  # weakly connected component
         queue = list()  # queue<int>
+        edges = defaultdict(set)
         queue.append(visited[0])
         queue.append(visited[1])
-        unvisited.remove(visited[0])
-        unvisited.remove(visited[1])
-        
+
         # loop until the queue is empty
         while queue and len(WCC) < lenght:
             # pop the front node of the queue and add it to WCC
             current_node = queue.pop(0)
             WCC.add(current_node)
-            
             # check all the neighbour nodes of the current node
             for neighbour_node in adjList[current_node]:
-                to = neighbour_node[0] # neighbour_node - это tuple(to, weight, time)
+                to = neighbour_node  # neighbour_node - это tuple(to, weight, time)
                 if to in unvisited:
                     unvisited.remove(to)
                     queue.append(to)
+        # print("snow-ball component 1", WCC)
+        max_size = 0
+        while len(WCC) > 0:
+            new_WCC = bfs(adjList, WCC)
+            # print(WCC)
+            size = len(new_WCC)
+            if size > max_size:
+                max_size = size
+                max_WCC = new_WCC
 
-        return WCC
+        print("snow-ball component", max_WCC)
+        for v in max_WCC:
+            for neighbour_node in adjList[v]:
+                if neighbour_node in max_WCC:
+                    edges[v].add(neighbour_node)
+                    edges[neighbour_node].add(v)
 
-    n = 3 #любое число 
+        return edges, max_WCC
 
+
+    n = 5  # любое число больше 2
+
+#     print("Число вершин в наибольшой компоненте связности: ", len(max_WCC))
     if len(max_WCC) > n:
-        random_v = random.sample(list(max_WCC), k = 2)
-        new_WCC = bfs_snowball(random_v, adjList, max_WCC, n)#третий параметр - это количество вершин, которые мы включим в множество
+        random_v = random.sample(list(max_WCC), k=2)
+        edges, new_WCC = bfs_snowball(random_v, adjList, max_WCC, n)
+        print("Snowball: ", edges)
+        print("Size snowball component: ", len(new_WCC))
 
-    new_ver = defaultdict(set)
+        matrix_of_shortest_paths = find_eccentrisity(edges, new_WCC)
 
-    for line in dataset:
-        [from_ind, to_ind, weight, time] = [int(x) for x in line.split()]
-        if from_ind in new_WCC and to_ind in new_WCC:
-            new_ver[from_ind].add(to_ind)
-            new_ver[to_ind].add(from_ind) 
-        
-
-    for i in new_WCC: 
-        m = dijkstra_algo(new_ver, i)
-    
+        print("Диаметр snowball:", max(matrix_of_shortest_paths[0]))
+        print("Радиус snowball:", min(matrix_of_shortest_paths[0]))
+        print("90 процентиля расстояния (геодезического) между вершинами графа snowball:", np.percentile(matrix_of_shortest_paths[1], 90))    
 
 
 
