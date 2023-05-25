@@ -1,0 +1,19 @@
+Task 1.1
+Число вершин: |V| = 986
+Число ребер: |E| = 16064
+Плотность: p = 0.033080384262929745
+Число компонент слабой связности: 1
+Доля вершин в максимальной по мощности компоненте слабой связности: 1.000000
+
+Task 1.2
+Оценки для 500 вершин (случайные вершины): diameter_from_random_500 = 7, radius_from_random_500 = 4, percentile_90_from_random_500 = 3.0
+Оценки для 1000 вершин (случайные вершины): diameter_from_random_1000 = 0, radius_from_random_1000 = 0, percentile_90_from_random_1000 = 0
+Оценки для 500 вершин (снежный ком): diameter_from_snowball_500 = 4, radius_from_snowball_500 = 3, percentile_90_from_snowball_500 = 3.0
+Оценки для 1000 вершин (снежный ком): diameter_from_snowball_1000 = 0, radius_from_snowball_1000 = 0, percentile_90_from_snowball_1000 = 0
+Вычисленные значения: diameter = 7, radius = 4, percentile_90 = 3
+
+Task 1.3
+Cредний кластерный коэффициент сети: Cl_average = 0.4070504475195388
+
+Task 1.4
+Коэффициент корреляции Пирсона: -0.025743368083089496
