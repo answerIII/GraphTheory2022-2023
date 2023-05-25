@@ -1,0 +1,12 @@
+category: Communication
+code: DG
+name: Digg
+description: User–user reply
+url: http://www.public.asu.edu/~mdechoud/datasets.html
+cite: konect:choudhury09 
+extr: munmun
+long-description: This is the reply network of the social news website Digg. Each node in the network is a user of the website, and each directed edge denotes that a user replied to another user.
+tags: #loop #incomplete
+entity-names:  user
+relationship-names: reply
+timeiso:  2009

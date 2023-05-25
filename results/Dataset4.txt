@@ -1,0 +1,10 @@
+n = 30398, volume = 87627
+|V| = 30398, |E| = 85155, p = 0.000184, number of components = 373, max component size = 29652, max component proportion = 0.975459
+0 = 439605726, False
+diameter_from_random_500 = 10, radius_from_random_500 = 6, percentile_90_from_random_500 = 6.0
+diameter_from_random_1000 = 10, radius_from_random_1000 = 6, percentile_90_from_random_1000 = 6.0
+diameter_from_snowball_500 = 6, radius_from_snowball_500 = 4, percentile_90_from_snowball_500 = 4.0
+diameter_from_snowball_1000 = 6, radius_from_snowball_1000 = 4, percentile_90_from_snowball_1000 = 4.0
+could not find diameter, raduis, percentile_90
+Cl_average = 0.005419
+Degree associativity = 0.004634

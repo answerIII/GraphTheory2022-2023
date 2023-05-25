@@ -1,0 +1,51 @@
+opsahl-ucsocial
+n = 1899, volume = 59835
+|V| = 1899, |E| = 13838, p = 0.007679, number of components = 4, max component size = 1893, max component proportion=  0.996840
+diameter_from_random_500 = 7, radius_from_random_500 = 4, percentile_90_from_random_500 = 4.0
+diameter_from_random_1000 = 8, radius_from_random_1000 = 4, percentile_90_from_random_1000 = 4.0
+diameter_from_snowball_500 = 4, radius_from_snowball_500 = 3, percentile_90_from_snowball_500 = 3.0
+diameter_from_snowball_1000 = 5, radius_from_snowball_1000 = 3, percentile_90_from_snowball_1000 = 3.0
+diameter = 8, raduis = 4, percentile_90 = 4
+Cl_average = 0.109746
+Degree associativity = -0.187776
+
+email-Eu-core-temporal_processed:
+n = 986, volume = 332334
+|V| = 986, |E| = 16064, p = 0.033080, number of components = 1, max component size = 986, max component proportion = 1.000000
+diameter_from_random_500 = 7, radius_from_random_500 = 4, percentile_90_from_random_500 = 3.0
+diameter_from_snowball_500 = 4, radius_from_snowball_500 = 3, percentile_90_from_snowball_500 = 3.0
+diameter = 7, raduis = 4, percentile_90 = 3
+Cl_average = 0.407050
+Degree associativity = -0.025743
+
+soc-sign-bitcoinalpha
+n = 3783, volume = 24186
+|V| = 3783, |E| = 14124, p = 0.001974, number of components = 5, max component size = 3775, max component proportion = 0.997885
+diameter_from_random_500 = 8, radius_from_random_500 = 5, percentile_90_from_random_500 = 5.0
+diameter_from_random_1000 = 8, radius_from_random_1000 = 4, percentile_90_from_random_1000 = 5.0
+diameter_from_snowball_500 = 2, radius_from_snowball_500 = 1, percentile_90_from_snowball_500 = 2.0
+diameter_from_snowball_1000 = 4, radius_from_snowball_1000 = 2, percentile_90_from_snowball_1000 = 3.0
+diameter = 10, raduis = 5, percentile_90 = 5
+Cl_average = 0.177003
+Degree associativity = -0.168516
+
+soc-sign-bitcoinotc
+n = 5881, volume = 35592
+|V| = 5881, |E| = 21492, p = 0.001243, number of components = 4, max component size = 5875, max component proportion = 0.998980
+diameter_from_random_500 = 8, radius_from_random_500 = 4, percentile_90_from_random_500 = 5.0
+diameter_from_random_1000 = 8, radius_from_random_1000 = 5, percentile_90_from_random_1000 = 4.0
+diameter_from_snowball_500 = 4, radius_from_snowball_500 = 2, percentile_90_from_snowball_500 = 3.0
+diameter_from_snowball_1000 = 4, radius_from_snowball_1000 = 2, percentile_90_from_snowball_1000 = 3.0
+diameter = 9, raduis = 5, percentile_90 = 5
+Cl_average = 0.177686
+Degree associativity = -0.164834
+
+munmun_digg_reply:
+n = 30398, volume = 87627
+|V| = 30398, |E| = 85155, p = 0.000184, number of components = 373, max component size = 29652, max component proportion=  0.975459
+diameter_from_random_500 = 9, radius_from_random_500 = 6, percentile_90_from_random_500 = 6.0
+diameter_from_random_1000 = 11, radius_from_random_1000 = 7, percentile_90_from_random_1000 = 6.0
+diameter_from_snowball_500 = 6, radius_from_snowball_500 = 4, percentile_90_from_snowball_500 = 4.0
+diameter_from_snowball_1000 = 6, radius_from_snowball_1000 = 4, percentile_90_from_snowball_1000 = 4.0
+Cl_average = 0.005419
+Degree associativity = 0.004634

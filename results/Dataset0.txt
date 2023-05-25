@@ -1,0 +1,10 @@
+n = 1899, volume = 59835
+|V| = 1899, |E| = 13838, p = 0.007679, number of components = 4, max component size = 1893, max component proportion = 0.996840
+1790778 = 1790778, True
+diameter_from_random_500 = 6, radius_from_random_500 = 4, percentile_90_from_random_500 = 4.0
+diameter_from_random_1000 = 7, radius_from_random_1000 = 4, percentile_90_from_random_1000 = 4.0
+diameter_from_snowball_500 = 4, radius_from_snowball_500 = 3, percentile_90_from_snowball_500 = 3.0
+diameter_from_snowball_1000 = 5, radius_from_snowball_1000 = 3, percentile_90_from_snowball_1000 = 3.0
+diameter = 8, raduis = 4, percentile_90 = 4
+Cl_average = 0.109746
+Degree associativity = -0.187776
