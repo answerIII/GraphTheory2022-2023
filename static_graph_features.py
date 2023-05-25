@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import sys
 def calc_static_features(file):
     file_path = 'datasets/' + file + '.csv'
     data = pd.read_csv(file_path, sep="\t")
@@ -50,7 +51,10 @@ def calc_static_features(file):
         print("Плотность графа: " + str(M / (countVertex * (countVertex - 1) * 0.5)))
 
     # Считаем количество Компонент слабой связности
+    sys.setrecursionlimit(1000000)
 
+
+    # pragma comment(linker, "/STACK:4000000")
     def DFS_for_weak_component(vertex, component):
         visited.add(vertex)
         component.append(vertex)
@@ -60,6 +64,21 @@ def calc_static_features(file):
                 continue
             DFS_for_weak_component(neigh, component)
 
+    def iterativeDFS(v, visit, component):
+        stack = []
+        stack.append(v)
+        while stack:
+            v = stack[-1]
+            stack.pop()
+            component.append(v)
+            neighs = AllVertex.get(v)
+            for neigh in neighs:
+                if neigh not in visit:
+                    stack.append(neigh)
+                    visit.add(neigh)
+
+
+
     visited = set([])
     components = []
     for vertex in AllVertex.items():
@@ -68,7 +87,8 @@ def calc_static_features(file):
         if vertex[0] in visited:
             continue
         component = []
-        DFS_for_weak_component(vertex[0], component)
+        #DFS_for_weak_component(vertex[0], component)
+        iterativeDFS(vertex[0], visited, component)
         components.append(component)
     print('Количество компонент слабой связности: ' + str(len(components)))
 

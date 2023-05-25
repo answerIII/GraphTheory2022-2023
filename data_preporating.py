@@ -1,5 +1,6 @@
 import pandas as pd
 import math
+#Обработка файла с графом и сохранение в нужном нам виде
 def prep(file):
     if file[-4:] == "prep":
         return file
@@ -11,9 +12,9 @@ def prep(file):
             dvudol = input()
             if dvudol == '1' or dvudol == '0':
                 break
-        data = pd.read_csv(file_path, sep="[ ]{1,}", header=None, names=['in', 'out', 'weight', 'time'])
+        data = pd.read_csv(file_path, delim_whitespace=True, header=None, names=['in', 'out', 'weight', 'time'])
         #if math.isnan(data.iloc[1]['out']):
-        #    data = pd.read_csv(file_path, sep=" ", header=None, names=['in', 'out', 'weight', 'time'])
+        #    data = pd.read_csv(file_path, sep='\s+', header=None, names=['in', 'out', 'weight', 'time'])
         df = {'in': [], 'out': [], 'weight': [], 'time': []}
         if dvudol == '1':
             for index, row in data.iterrows():
