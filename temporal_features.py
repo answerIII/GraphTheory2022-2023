@@ -131,10 +131,10 @@ def calc_temporate_feauters(dataset, qs):
 
     PA = PA_temporal(u, v, graph, number)
 
-    print(AA)
-    print(CN)
-    print(JC)
-    print(PA)
+    # print(AA)
+    # print(CN)
+    # print(JC)
+    # print(PA)
 
     features = list(AA) + list(CN) + list(JC) + list(PA)
 
@@ -154,6 +154,14 @@ def calc_temporate_feauters(dataset, qs):
 
   t_min = min(all_time)
   t_max = max(all_time)
+
+
+  # for key, value in ver.items():
+  #   print(key, ":" ,value)
+
+  for key, value in ver.items():
+    ver[key] = list(set(value))
+
 
   G = nx.Graph()
 
@@ -176,11 +184,15 @@ def calc_temporate_feauters(dataset, qs):
 
   y = [0] * len(ver)
   j = 0
-  print('ver', len(ver))
+  print("len(ver):", len(ver))
+  print("len(ver_after):", len(ver_after))
 
   for i in ver:
     if ([i[0], i[1]] in ver_after) or ([i[1],i[0]] in ver_after):
       y[j] = 1
     j += 1
+
+  print("y.count(1):", y.count(1))
+  print("y.count(0):", y.count(0))
 
   return ver, y

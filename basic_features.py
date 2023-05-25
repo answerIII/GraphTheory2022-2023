@@ -115,13 +115,13 @@ def print_basic_properties(dataset, display_interm_results = False) -> None:
             ver[from_ind].add(to_ind)
             ver[to_ind].add(from_ind) 
         
-    print("подграф с наибольшей КСС: ", ver) 
+    #print("подграф с наибольшей КСС: ", ver) 
 
     n = 5 # кол-во вершин для 2a 
 
     # random_v = random.choices(list(max_WCC), k=n) 
     random_v =random.sample(list(max_WCC), k=n) # мн-во вершин для 2a
-    print('random_v', random_v)
+    #print('random_v', random_v)
 
     def dijkstra_algo(graph, start) -> int:
         d = defaultdict(bool) # расстояние от вершины старт до всех остальных 
@@ -143,7 +143,7 @@ def print_basic_properties(dataset, display_interm_results = False) -> None:
                     curr_v = i
                     min_d = d[i]
 
-        print("Расстояния ", d, "Вершина", start) 
+        #print("Расстояния ", d, "Вершина", start) 
         k = list(d.values())
         return max(k), k
 
