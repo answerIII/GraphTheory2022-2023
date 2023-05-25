@@ -10,13 +10,14 @@ datasets = {
 
 print("Введите номер датасета: ", end="")
 n = int(input())
-print(datasets[n])
+print("Выбранный датасет:", datasets[n])
 
 f = open('datasets\\' + datasets[n] + '.txt', 'r')
 dataset = f.readlines()
 
 while True:
-    print("****************** \n1 - посчитать статические свойства \n2 - запустить логистическую регрессию со статическими признаками \n3 - запустить логистическую регрессию с темпоральными признаками\n******************")
+    print("****************** \n1 - посчитать статические свойства \n2 - запустить логистическую регрессию со статическими признаками \n" +
+          "3 - запустить логистическую регрессию с темпоральными признаками \n4 - выбрать другой датасет\n******************")
     option = input()
     match option:
         case "1":
@@ -28,6 +29,13 @@ while True:
         case "3":
             print("Проводим рассчеты...")
             link_prediction_temporal(dataset, 50)
+        case "4":
+            print("Введите номер датасета: ", end="")
+            n = int(input())
+            print("Выбранный датасет:", datasets[n])
+
+            f = open('datasets\\' + datasets[n] + '.txt', 'r')
+            dataset = f.readlines()
         case _:
             print("Code not found")
             break
