@@ -173,11 +173,9 @@ private:
                     adj[i][j] = 1;
             }
         }
-
     }
 
     void snowGraph(std::vector<std::vector<int>>& adj){
-        //to do
         adj = {{0}};
     }
 
@@ -190,37 +188,36 @@ private:
 
     void calcClCoeff(){
         if (_mainCompCount != 0 && _clCoeff == -1.0){
-            double clu = 0.0;
-            int ncount = 0;
+            double clu = 0.0, ncount = 0.0;
             int v = 0;
             _clCoeff = 0.0;
             for(int i = 0; i < _weakComponents[_mainCompIdx].size(); ++i){
-                ncount = 0;
+                ncount = 0.0;
+                clu = 0.0;
                 v = _weakComponents[_mainCompIdx][i];
                 if (_staticGraph[v].size() >= 2){
-                    for(auto v1: _staticGraph[v])
-                        for(auto v2: _staticGraph[v])
+                    for(int v1: _staticGraph[v])
+                        for(int v2: _staticGraph[v])
                             if (v1 != v2 && isExistEdge(v1, v2))
                                 ++ncount;
-                    clu = (double)ncount / 
+                    clu = ncount / 
                         (_staticGraph[v].size() * (_staticGraph[v].size() - 1));
                 }
-                _clCoeff += clu;
+                _clCoeff += clu / 2;
             }
-            _clCoeff /= _mainCompCount; 
+            _clCoeff /= _mainCompCount;
         }
     }
     
     void calcAssortCoeff(){
-        if (_mainCompCount != 0 && _assortCoeff == -1.0){
+        if (_mainCompCount != 0 && _assortCoeff == -1.0){  
             double r1 = 0.0, r2 = 0.0, r3 = 0.0, re = 0.0;
+            double ncount = 0.0, ncount2 = 0.0;
             int v = 0;
-            int ncount = 0, ncount2 = 0;
-            double num = 0.0, denum = 0.0;
             for(int i = 0; i < _weakComponents[_mainCompIdx].size(); ++i){
                 v = _weakComponents[_mainCompIdx][i];
                 for(auto v1: _staticGraph[v]){
-                    re += _staticGraph[i].size() * _staticGraph[v1].size();
+                    re += _staticGraph[v].size() * _staticGraph[v1].size();
                 }
                 ncount = _staticGraph[v].size(); 
                 ncount2 = ncount * ncount;
@@ -228,11 +225,9 @@ private:
                 r2 += ncount2;
                 r3 += ncount2 * ncount;
             } 
-            //re /= 2;
             _assortCoeff = (re*r1 - r2*r2)/(r3*r1 - r2*r2);
         }
     }
-
 
 public:  
     void SetVertex(int n){
