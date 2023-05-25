@@ -1,5 +1,6 @@
 from logistic_regression import link_prediction
 from basic_features import print_basic_properties
+from logisstic_regression_temporal import link_prediction_temporal 
 
 datasets = {
     1:'Rado', 2:'UC', 5:'bitA',
@@ -27,5 +28,7 @@ dataset = f.readlines()
 
 #print_basic_properties(dataset)
 link_prediction(dataset, 50)
+link_prediction_temporal(dataset, 50)
+
 
 f.close()
