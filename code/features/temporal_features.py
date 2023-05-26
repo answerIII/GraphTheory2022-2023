@@ -99,7 +99,6 @@ def compute_temporal_features(graph: StaticGraph, edges: np.ndarray, lower_bound
         .groupby(["v1", "v2"])\
         ["time"].apply(np.array)
     
-    features_list = []
     intersections = []
     for first_id, second_id, *_ in edges:
         intersection = get_intersection(graph.nodes[first_id].neighbors, graph.nodes[second_id].neighbors)
