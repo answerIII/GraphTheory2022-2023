@@ -338,10 +338,21 @@ class Graph {
     /**
      * Calculates the features (or estimates their values) of the largest
      * weakly connected component of the graph.
+     * @param {object}  args
+     * @param {boolean} [args.forceExact]
+     * @param {boolean} [args.skipEstimates]
+     * @param {boolean} [args.oneEstimate]
      */
-    calculateLargestWCCFeatures() {
+    calculateLargestWCCFeatures({
+        forceExact = false,
+        skipEstimates = false,
+        oneEstimate = false,
+    }) {
         // Use the threshold for the exact calculation.
-        if (this.largestWCC.length <= this.#largestWCCFeaturesThreshold) {
+        if (
+            forceExact ||
+            this.largestWCC.length <= this.#largestWCCFeaturesThreshold
+        ) {
             const now = performance.now();
             console.info("Started the exact calculation");
 
@@ -354,6 +365,10 @@ class Graph {
             console.info(
                 `Time taken: (${Math.floor(performance.now() - now)}ms)`
             );
+        }
+
+        if (skipEstimates) {
+            return;
         }
 
         for (let i = 0; i < this.#largestWCCFeaturesExperimentsNumber; ++i) {
@@ -433,6 +448,10 @@ class Graph {
             console.info(
                 `Time taken: (${Math.floor(performance.now() - nowS)}ms)`
             );
+
+            if (oneEstimate) {
+                break;
+            }
         }
     }
 
@@ -917,6 +936,10 @@ class Graph {
         }
 
         return visitedNodes;
+    }
+
+    getResultDistance(fromNode, toNode) {
+        return this.#distances.get(fromNode)?.get(toNode);
     }
 
     /**
@@ -1577,12 +1600,28 @@ const nodeGenerateFeaturesAnswers = (setName = "null") => {
  * @param {string} [setName]
  * @returns {Graph}
  */
-const nodeGenerateGraphInformation = (setName = "null") => {
+const nodeCreateGraphInstance = (setName = "null", dirName = "sets") => {
     const fs = require("fs");
     const graph = new Graph();
 
-    graph.createFromFile(fs.readFileSync(`sets/${setName}`).toString());
-    graph.calculateLargestWCCFeatures();
+    graph.createFromFile(fs.readFileSync(`${dirName}/${setName}`).toString());
+    return graph;
+};
+
+/**
+ * @param {string} [setName]
+ * @returns {Graph}
+ */
+const nodeGenerateGraphInformation = (
+    setName = "null",
+    dirName = "sets",
+    wccFeatures = {}
+) => {
+    const fs = require("fs");
+    const graph = new Graph();
+
+    graph.createFromFile(fs.readFileSync(`${dirName}/${setName}`).toString());
+    graph.calculateLargestWCCFeatures(wccFeatures);
 
     {
         const { largestWCCRelativeSize } = graph;
@@ -1615,12 +1654,17 @@ const nodeGenerateGraphInformation = (setName = "null") => {
 
         // prettier-ignore
         console.info(
-            `WCC number:                           ${graph.wccs.length}`
+            `WCCs number:                          ${graph.wccs.length}`
         );
 
         // prettier-ignore
         console.info(
-            `LWCC relative size:                   ${largestWCCRelativeSize}`
+            `LWCC size:                           ${graph.largestWCC.length}`
+        );
+
+        // prettier-ignore
+        console.info(
+            `LWCC relative size:                  ${largestWCCRelativeSize}`
         );
     }
 
@@ -1676,6 +1720,7 @@ const nodeGenerateGraphInformation = (setName = "null") => {
 if (module) {
     module.exports = {
         Graph,
+        nodeCreateGraphInstance,
         nodeGenerateFeaturesAnswers,
         nodeGenerateGraphInformation,
     };
