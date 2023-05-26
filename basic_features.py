@@ -206,7 +206,6 @@ def print_basic_properties(dataset, display_interm_results = False) -> None:
         return edges, max_WCC
 
 
-    n = 5  # любое число больше 2
 
 #     print("Число вершин в наибольшой компоненте связности: ", len(max_WCC))
     if len(max_WCC) > n:
