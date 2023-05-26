@@ -184,6 +184,12 @@ class Graph {
     #adjacency = new Map();
 
     /**
+     * The number of loops each node has.
+     * @type {Map<number, number>}
+     */
+    #loops = new Map();
+
+    /**
      * The distances list of the graph.
      * @type {Map<number, Map<number, number>>}
      */
@@ -213,6 +219,11 @@ class Graph {
      * @type {Map<number, number>}
      */
     #maxDistances = new Map();
+
+    /**
+     * The assortativity coefficient of the graph.
+     */
+    assortativityCoefficient = 0;
 
     /**
      * The average clustering coefficient of the graph.
@@ -313,6 +324,7 @@ class Graph {
         this.#calculateDensity();
         this.#doFullDFS();
         this.#calculateLargestWCCFeatures();
+        this.#calculateAssortativityCoefficient();
         this.#calculateClusteringCoefficient();
 
         // Clean up the stream and the reader.
@@ -329,13 +341,13 @@ class Graph {
      *
      * This operation modifies the graph, but a lot of graph properties are not
      * automatically recalculated. Do not forget to recalculate them manually.
-     * @param {object} args
+     * @param {object}  args
      *     The function arguments as an object.
-     * @param {number} args.edgeFrom
+     * @param {number}  args.edgeFrom
      *     The edge source.
-     * @param {number} args.edgeTo
+     * @param {number}  args.edgeTo
      *     The edge destination.
-     * @param {Date}   args.edgeTime
+     * @param {Date}    args.edgeTime
      *     The edge creation time.
      * @param {boolean} [args.isReversed]
      *     Whether the edge is "reversed" ("backward" edge for a "forward" one).
@@ -343,6 +355,19 @@ class Graph {
      *     node counter.
      */
     #addEdge({ edgeFrom, edgeTo, edgeTime, isReversed = false }) {
+        // Check for and consider the existense of loops.
+        if (edgeFrom === edgeTo) {
+            if (this.#loops.has(edgeFrom)) {
+                const current = /** @type {number} */ (
+                    this.#loops.get(edgeFrom)
+                );
+
+                this.#loops.set(edgeFrom, current + 1);
+            } else {
+                this.#loops.set(edgeFrom, 1);
+            }
+        }
+
         if (!this.#adjacency.has(edgeFrom)) {
             // Case: the adjacency list does not have such source
             // node yet.
@@ -388,7 +413,7 @@ class Graph {
             }
         }
 
-        if (!isReversed) {
+        if (!isReversed && edgeFrom !== edgeTo) {
             this.#addEdge({
                 edgeTime,
                 edgeFrom: edgeTo,
@@ -396,6 +421,51 @@ class Graph {
                 isReversed: true,
             });
         }
+    }
+
+    /**
+     * Calculates `this.assortativityCoefficient` of this graph.
+     */
+    #calculateAssortativityCoefficient() {
+        // Initialize with zeros.
+        let r1 = 0n;
+        let r2 = 0n;
+        let r3 = 0n;
+        let re = 0n;
+
+        // Go through every node.
+        for (const [node, adjacent] of this.#adjacency) {
+            if (this.#loops.has(node)) {
+                r1 += BigInt((adjacent.size + 1) ** 1);
+                r2 += BigInt((adjacent.size + 1) ** 2);
+                r3 += BigInt((adjacent.size + 1) ** 3);
+            } else {
+                r1 += BigInt(adjacent.size ** 1);
+                r2 += BigInt(adjacent.size ** 2);
+                r3 += BigInt(adjacent.size ** 3);
+            }
+
+            // Go through every node adjacent to it.
+            for (const [adjacentNode] of adjacent) {
+                const adjacentNodeSize = /** @type {Map<number, Date[]>} */ (
+                    this.#adjacency.get(adjacentNode)
+                ).size;
+
+                if (this.#loops.has(node) && this.#loops.has(adjacentNode)) {
+                    re += BigInt((adjacent.size + 1) * (adjacentNodeSize + 1));
+                } else if (this.#loops.has(node)) {
+                    re += BigInt((adjacent.size + 1) * adjacentNodeSize);
+                } else if (this.#loops.has(adjacentNode)) {
+                    re += BigInt(adjacent.size * (adjacentNodeSize + 1));
+                } else {
+                    re += BigInt(adjacent.size * adjacentNodeSize);
+                }
+            }
+        }
+
+        // Calculate the final value.
+        this.assortativityCoefficient =
+            Number(re * r1 - r2 ** 2n) / Number(r3 * r1 - r2 ** 2n);
     }
 
     /**
