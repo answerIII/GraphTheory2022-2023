@@ -112,7 +112,9 @@ def random_sample_metrics(adjacency_list, max_comp):
     rad = math.inf
     for i in range(len(d)):
         row_max = -1
-        for j in range(i + 1, len(d)):
+        for j in range(len(d)):
+            if j == i:
+                continue
             if d[i][j]!=math.inf:
                 dist_list.append(d[i][j])
                 if d[i][j]>row_max:
@@ -137,7 +139,9 @@ def snowball_sample(adjacency_list, max_comp):
     rad = math.inf
     for i in range(len(d)):
         row_max = -1
-        for j in range(i + 1, len(d)):
+        for j in range(len(d)):
+            if j == i:
+                continue
             if d[i][j] != math.inf:
                 dist_list.append(d[i][j])
                 if d[i][j] > row_max:
@@ -167,12 +171,18 @@ def CL(adjacency_list, max_comp):
 
     return cl / (len(max_comp))
 
-#расчёт корреляции
-def r_pearson(adjacency_list):
-    # adjacency_list = get_adjacency_list(data)[0]
+def r_pearson_old(adjacency_list):
+    adjacency_list = get_adjacency_list(data)[0]
     X = []
     Y = []
     visited = set()
+    #
+    # for edge in edges_r:
+    #     x = edge[0]
+    #     y = edge[1]
+    #     X.append(len(adjacency_list[x]))
+    #     Y.append(len(adjacency_list[y]))
+
     for vertex_1 in adjacency_list:
         for vertex_2 in adjacency_list[vertex_1]:
             if ((vertex_2, vertex_1) not in visited) and ((vertex_1,vertex_2) not in visited):
@@ -193,6 +203,26 @@ def r_pearson(adjacency_list):
     else:
         return numerator / denominator
 
+#расчёт корреляции
+def r_pearson(adjacency_list):
+    visited = set()
+    sum_mult = 0
+    sum_degree = 0
+    sum_square = 0
+    count_edges = 0
+
+    for node in adjacency_list:
+        for neigh in adjacency_list[node]:
+            if (neigh not in visited):
+                sum_degree += len(adjacency_list[neigh]) + len(adjacency_list[node])
+                sum_mult += len(adjacency_list[neigh]) * len(adjacency_list[node])
+                sum_square += len(adjacency_list[neigh])** 2 + len(adjacency_list[node]) ** 2
+                count_edges += 1
+        visited.add(node)
+
+    M = 1 / count_edges
+    r = (sum_mult - (M * ((0.5 * sum_degree) ** 2))) / (0.5 * sum_square - (M * ((0.5 * sum_degree) ** 2)))
+    return r
 
 def get_graph_properties(adjacency_list, count_edges, is_loop):
     nodes_num = nodes_number(adjacency_list)

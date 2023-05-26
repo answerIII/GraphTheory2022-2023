@@ -32,8 +32,10 @@ from static_topological_features import common_neighbours, adamic_adar, jaccard_
 # dataset_path = 'datasets/' + 'su_sx-superuser' + '.txt'
 # dataset_path = 'datasets/' + 'PL_prosper-loans' + '.txt'
 
-dataset_path = 'datasets/' + 'testgraph_7' + '.txt'
-# dataset_path = 'datasets/' + 'team_5' + '.txt'
+# dataset_path = 'datasets/' + 'testgraph_1' + '.txt'
+# dataset_path = 'datasets/' + 'team_12' + '.txt'
+dataset_path = 'datasets/' + 'socfb-Reed98' + '.txt'
+# dataset_path = 'datasets/' + 'socfb-Middlebury45' + '.txt'
 
 
 print('Введите 1, если датасет из тестовых (без весов ребер и времени)')
@@ -41,7 +43,7 @@ print('Введите 2, если иначе')
 is_test = input()
 if is_test == '1':
     data = pd.read_csv(dataset_path, sep='\s+', names=['id_from', 'id_to'], header=None)
-    adjacency_list, count_edges, is_loop = get_adjacency_list_test(data)
+    adjacency_list, count_edges, is_loop, edges_r = get_adjacency_list_test(data)
     get_graph_properties(adjacency_list, count_edges, is_loop)
 
     CN = common_neighbours(1, 2, adjacency_list)

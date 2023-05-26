@@ -9,6 +9,7 @@ import collections
 def get_adjacency_list_test(data):
     adjacency_list = dict({})
     count_edges = 0
+    edges_r = set()
     is_loop = False
     for row in data.itertuples():
         # Список смежности для все ребер за все время
@@ -32,8 +33,9 @@ def get_adjacency_list_test(data):
             if count_add == 1:
                 is_loop = True
             count_edges += 1
+        edges_r.add((min(row[1], row[2]), max(row[1], row[2])))
 
-    return [adjacency_list, count_edges, is_loop]
+    return [adjacency_list, count_edges, is_loop, edges_r]
 
 #Получить список смежности для всего графа за все время
 def get_adjacency_list(data):
