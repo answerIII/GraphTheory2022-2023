@@ -1,0 +1,17 @@
+# expected: results from original article
+
+dataset: ../data/askubuntu.tsv
+result: {'AUC-I': 0.91, 'AUC-II-A': 0.93}
+expected: {'AUC-I': 0.937, 'AUC-II-A': 0.97}
+
+dataset: ../data/bitcoinalpha.tsv
+result: {'AUC-I': 0.68, 'AUC-II-A': 0.87}
+expected: {'AUC-I': 0.868, 'AUC-II-A': 0.945}
+
+dataset: ../data/superuser.tsv
+result: {'AUC-I': 0.95, 'AUC-II-A': 0.98}
+expected: {'AUC-I': 0.921, 'AUC-II-A': 0.965}
+
+dataset: ../data/diggfriends.tsv
+result: {'AUC-I': 0.86, 'AUC-II-A': 0.9}
+expected: {'AUC-I': 0.837, 'AUC-II-A': 0.866}
