@@ -18,12 +18,12 @@ def task_1(graph : Graph, properties : dict) -> tuple:
 
     vertices = properties['vertices']
     edges = properties['edges']
-    dencity = properties['density']
+    density = properties['density']
     components = properties['count_comps']
     percentage = properties['percentage']
 
-    heading = ('Vertices', 'Edges', 'Dencity', 'Components', 'Percentage')
-    values = (vertices, edges, dencity, components, percentage)
+    heading = ('Vertices', 'Edges', 'Density', 'Components', 'Percentage')
+    values = (vertices, edges, density, components, percentage)
     return heading, values
 
 def task_2(graph : Graph, properties : dict) -> tuple:
@@ -79,3 +79,4 @@ def __append_all(metrics : dict, properties : dict) -> None:
         properties['radius'] = metrics['radius']
         properties['diameter'] = metrics['diameter']
         properties['perc90'] = metrics['perc90']
+
