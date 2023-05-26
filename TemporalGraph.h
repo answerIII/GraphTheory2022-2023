@@ -58,9 +58,8 @@ public:
                                       _staticGraph[u].end(),
                                       _staticGraph[v].begin(),
                                       _staticGraph[v].end(),
-                                      intersect.begin());
+                                      std::back_inserter(intersect));
                     for (int i = 0; i < intersect.size(); ++i)
-                        if(_staticGraph[intersect[i]].size() > 1)
                             aa += 1.0 / log10(_staticGraph[intersect[i]].size());
                     intersectUV = intersect.size();
                     unionUV = nu + nv - intersectUV; 
