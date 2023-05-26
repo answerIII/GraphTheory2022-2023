@@ -120,6 +120,30 @@ class Graph {
      */
 
     /**
+     * @typedef GraphFeatures
+     *     Features associated with a pair of the graph nodes.
+     * @property {number} cn
+     *     A `CN` feature (see the paper).
+     * @property {number} aa
+     *     A `CN` feature (see the paper).
+     * @property {number} jc
+     *     A `CN` feature (see the paper).
+     * @property {number} pa
+     *     A `CN` feature (see the paper).
+     */
+
+    /**
+     * @typedef GraphTemporalWeights
+     *    Temporal weights for a pair of the graph nodes.
+     * @property {number} lin
+     *    A linear temporal weight.
+     * @property {number} exp
+     *    An exponential temporal weight.
+     * @property {number} sqrt
+     *    A square root temporal weight.
+     */
+
+    /**
      * @typedef GraphWCCFeatures
      *     Features associated with a weakly connected component
      *     of a graph.
@@ -209,6 +233,16 @@ class Graph {
     };
 
     /**
+     * The latest date observed in the graph.
+     */
+    #maxTime = new Date(NaN);
+
+    /**
+     * The earliest date observed in the graph.
+     */
+    #minTime = new Date(NaN);
+
+    /**
      * The numbers of distances that were encountered.
      * @type {Map<number, number>}
      */
@@ -291,6 +325,145 @@ class Graph {
     largestWCCFeatures1000Snowball = [];
 
     /**
+     * Calculate the local clustering coefficient for `node`.
+     * @param {number} node
+     *     The node to calculate the coefficient for.
+     * @returns {number}
+     *     The result local clustering coefficient.
+     */
+    calculateLocalClusteringCoefficient(node) {
+        // Get the neighbors of this node.
+        const neighbors = Array.from(
+            /** @type {Map<number, Date[]>} */ (
+                this.#adjacency.get(node)
+            ).keys()
+        );
+
+        // Less than two neighbors will not do anything.
+        if (neighbors.length < 2) {
+            return 0;
+        }
+
+        // Count the number of the edges between the neighbors.
+        let neighborEdgesNumber = 0;
+
+        // Check every possible edge on whether it exist, and
+        // increase the count if it does.
+        for (let i = 0; i < neighbors.length; ++i) {
+            for (let j = i + 1; j < neighbors.length; ++j) {
+                if (
+                    /** @type {Map<number, Date[]>} */ (
+                        this.#adjacency.get(neighbors[i])
+                    ).has(neighbors[j])
+                ) {
+                    ++neighborEdgesNumber;
+                }
+            }
+        }
+
+        return (
+            (2 * neighborEdgesNumber) /
+            (neighbors.length * (neighbors.length - 1))
+        );
+    }
+
+    /**
+     * Calculates the static features for `firstNode` and `secondNode`.
+     * @param {number} firstNode
+     *     The first node.
+     * @param {number} secondNode
+     *     The second node.
+     * @returns {GraphFeatures}
+     *     The result features.
+     */
+    calculateStaticFeatures(firstNode, secondNode) {
+        // Get the neighbors of the both nodes.
+        const firstNeighbors = Array.from(
+            /** @type {Map<number, Date[]>} */ (
+                this.#adjacency.get(firstNode)
+            ).keys()
+        ).filter((value) => value !== firstNode);
+
+        const secondNeighbors = Array.from(
+            /** @type {Map<number, Date[]>} */ (
+                this.#adjacency.get(secondNode)
+            ).keys()
+        ).filter((value) => value !== secondNode);
+
+        // Get the intersection and the union.
+        const intersection = firstNeighbors.filter((value) => {
+            return secondNeighbors.includes(value);
+        });
+
+        const union = Array.from(
+            new Set([...firstNeighbors, ...secondNeighbors])
+        );
+
+        // Calculate the featues as defined in the formulas.
+        return {
+            cn: intersection.length,
+            jc: intersection.length / union.length,
+            pa: firstNeighbors.length * secondNeighbors.length,
+            aa: intersection.reduce((sum, node) => {
+                // Get the neighbors of the node, as in formula.
+                const nodeNeighbors = Array.from(
+                    /** @type {Map<number, Date[]>} */ (
+                        this.#adjacency.get(node)
+                    ).keys()
+                ).filter((value) => value !== secondNode);
+
+                // Do the calculation according to the formula.
+                return sum + 1 / Math.log(nodeNeighbors.length);
+            }, 0),
+        };
+    }
+
+    /**
+     * Calculates the temporal weights for `firstNode` and `secondNode`.
+     * @param {number} firstNode
+     *     The first node.
+     * @param {number} secondNode
+     *     The second node.
+     * @returns {GraphTemporalWeights?}
+     *     The result temporal weights.
+     */
+    calculateTemporalWeights(firstNode, secondNode) {
+        // The limit parameter (`l` in the formula).
+        const limit = 0.1;
+
+        // Get the nodes adjacent to the first node.
+        const adjacent = /** @type {Map<number, Date[]>} */ (
+            this.#adjacency.get(firstNode)
+        );
+
+        if (!adjacent.has(secondNode)) {
+            return null;
+        }
+
+        // Get the times associated with the pair of nodes.
+        const times = /** @type {Date[]} */ (adjacent.get(secondNode));
+
+        // Skip the event aggregation, get the last time.
+        const lastTime = times.reduce((a, b) => (a > b ? a : b));
+
+        // Calculate and return the result temporal weights.
+        const timeFraction =
+            (lastTime.getTime() - this.#minTime.getTime()) /
+            (this.#maxTime.getTime() - this.#minTime.getTime());
+
+        const exponential =
+            (Math.exp(3 * timeFraction) - 1) / (Math.E ** 3 - 1);
+
+        const multiplier = 1 - limit;
+
+        return {
+            lin: limit + multiplier * timeFraction,
+            sqrt: limit + multiplier * Math.sqrt(timeFraction),
+            exp: limit + multiplier * exponential,
+        };
+    }
+
+    /**
      * Creates a new graph by parsing `file`.
      * @param {File} file
      *     The file with the table-like graph data.
@@ -337,6 +510,88 @@ class Graph {
     }
 
     /**
+     * Does a BFS from `fromNode` and goes until `toNode`, if it is provided.
+     * Used to calculate
+     * @param {object}  args
+     *     The function arguments as an object.
+     * @param {number}  args.fromNode
+     *     The source node.
+     * @param {number?} [args.toNode]
+     *     The destination node.
+     * @param {number?} [args.threshold]
+     *     The number of visited nodes threshold.
+     * @returns {Set<number>}
+     *     The list of the visited nodes.
+     */
+    doBFSFrom({ fromNode, toNode = null, threshold = null }) {
+        this.#distances.clear();
+
+        // Create the markers of the visited nodes.
+
+        /**
+         * @type {Set<number>}
+         */
+        const visitedNodes = new Set();
+
+        // Create the distances list for the source node.
+        if (!this.#distances.has(fromNode)) {
+            this.#distances.set(fromNode, new Map());
+        }
+
+        // Create the reference to the distances list
+        // for the source node for easier access to it.
+        const distances = /** @type {Map<number, number>} */ (
+            this.#distances.get(fromNode)
+        );
+
+        // Create the queue for keeping the BFS paths.
+
+        /**
+         * @type {Queue<number>}
+         */
+        const bfsQueue = new Queue();
+        bfsQueue.push(fromNode);
+        visitedNodes.add(fromNode);
+        distances.set(fromNode, 0);
+
+        // Go until all nodes are explored.
+        while (bfsQueue.peek() !== undefined) {
+            // Get the node being currently explored.
+            const currentNode = /** @type {number} */ (bfsQueue.pop());
+
+            // Get the distance to the current node.
+            const currentNodeDistance = /** @type {number} */ (
+                distances.get(currentNode)
+            );
+
+            // Explore all the adjacent not-visited nodes.
+            for (const [node] of /** @type {Map<number, Date[]>} */ (
+                this.#adjacency.get(currentNode)
+            )) {
+                if (!visitedNodes.has(node)) {
+                    bfsQueue.push(node);
+                    visitedNodes.add(node);
+                    distances.set(node, currentNodeDistance + 1);
+
+                    // Exit if we have reached the destination node.
+                    if (node === toNode) {
+                        return visitedNodes;
+                    }
+
+                    // Exit if we have reached the threshold count.
+                    if (threshold !== null) {
+                        if (visitedNodes.size >= threshold) {
+                            return visitedNodes;
+                        }
+                    }
+                }
+            }
+        }
+
+        return visitedNodes;
+    }
+
+    /**
      * Adds the edge to `this.adjacency`.
      *
      * This operation modifies the graph, but a lot of graph properties are not
@@ -355,6 +610,17 @@ class Graph {
      *     node counter.
      */
     #addEdge({ edgeFrom, edgeTo, edgeTime, isReversed = false }) {
+        // Update the earliest and the latest dates.
+        if (!isReversed) {
+            if (isNaN(this.#maxTime.getTime()) || edgeTime > this.#maxTime) {
+                this.#maxTime = edgeTime;
+            }
+
+            if (isNaN(this.#minTime.getTime()) || edgeTime < this.#minTime) {
+                this.#minTime = edgeTime;
+            }
+        }
+
         // Check for and consider the existense of loops.
         if (edgeFrom === edgeTo) {
             if (this.#loops.has(edgeFrom)) {
@@ -474,45 +740,15 @@ class Graph {
     #calculateClusteringCoefficient() {
         // Go through every node in the largest component.
         this.largestWCC.forEach((node) => {
-            // Get the neighbors of this node.
-            const neighbors = Array.from(
-                /** @type {Map<number, Date[]>} */ (
-                    this.#adjacency.get(node)
-                ).keys()
-            );
-
-            // Less than two neighbors will not do anything.
-            if (neighbors.length < 2) {
-                return;
-            }
-
-            // Count the number of the edges between the neighbors.
-            let neighborEdgesNumber = 0;
-
-            // Check every possible edge on whether it exist, and
-            // increase the count if it does.
-            for (let i = 0; i < neighbors.length; ++i) {
-                for (let j = i + 1; j < neighbors.length; ++j) {
-                    if (
-                        /** @type {Map<number, Date[]>} */ (
-                            this.#adjacency.get(neighbors[i])
-                        ).has(neighbors[j])
-                    ) {
-                        ++neighborEdgesNumber;
-                    }
-                }
-            }
-
-            // For now, just count the sum of the node clustering
+            // For now, just count the sum of the local clustering
             // coefficients.
             this.clusteringCoefficient +=
-                (2 * neighborEdgesNumber) /
-                (neighbors.length * (neighbors.length - 1));
+                this.calculateLocalClusteringCoefficient(node);
         });
 
-        // "Mean" the sum of the node clustering coefficients.
-        if (this.nodesNumber !== 0) {
-            this.clusteringCoefficient /= this.nodesNumber;
+        // "Mean" the sum of the local clustering coefficients.
+        if (this.largestWCC.length !== 0) {
+            this.clusteringCoefficient /= this.largestWCC.length;
         }
     }
 
@@ -563,7 +799,7 @@ class Graph {
                 const fromNode = this.largestWCC[fromIndex];
                 const toNode = this.largestWCC[toIndex];
 
-                this.#doBFSFrom({ fromNode, toNode });
+                this.doBFSFrom({ fromNode, toNode });
 
                 // Get the result distance between the two nodes.
                 const result = /** @type {number} */ (
@@ -597,7 +833,7 @@ class Graph {
 
             // Create the snowball sample by utilizing BFS.
             const nodeSample = Array.from(
-                this.#doBFSFrom({
+                this.doBFSFrom({
                     fromNode: initialNode,
                     threshold: this.#largestWCCFeaturesSubgraphSize,
                 })
@@ -625,7 +861,7 @@ class Graph {
 
         // Go through each of the nodes.
         subWCC.forEach((fromNode) => {
-            this.#doBFSFrom({ fromNode });
+            this.doBFSFrom({ fromNode });
 
             // Get the result distances from the source node.
             const results = /** @type {Map<number, number>} */ (
@@ -713,88 +949,6 @@ class Graph {
                 };
             }
         }
-    }
-
-    /**
-     * Does a BFS from `fromNode` and goes until `toNode`, if it is provided.
-     * Used to calculate
-     * @param {object}  args
-     *     The function arguments as an object.
-     * @param {number}  args.fromNode
-     *     The source node.
-     * @param {number?} [args.toNode]
-     *     The destination node.
-     * @param {number?} [args.threshold]
-     *     The number of visited nodes threshold.
-     * @returns {Set<number>}
-     *     The list of the visited nodes.
-     */
-    #doBFSFrom({ fromNode, toNode = null, threshold = null }) {
-        this.#distances.clear();
-
-        // Create the markers of the visited nodes.
-
-        /**
-         * @type {Set<number>}
-         */
-        const visitedNodes = new Set();
-
-        // Create the distances list for the source node.
-        if (!this.#distances.has(fromNode)) {
-            this.#distances.set(fromNode, new Map());
-        }
-
-        // Create the reference to the distances list
-        // for the source node for easier access to it.
-        const distances = /** @type {Map<number, number>} */ (
-            this.#distances.get(fromNode)
-        );
-
-        // Create the queue for keeping the BFS paths.
-
-        /**
-         * @type {Queue<number>}
-         */
-        const bfsQueue = new Queue();
-        bfsQueue.push(fromNode);
-        visitedNodes.add(fromNode);
-        distances.set(fromNode, 0);
-
-        // Go until all nodes are explored.
-        while (bfsQueue.peek() !== undefined) {
-            // Get the node being currently explored.
-            const currentNode = /** @type {number} */ (bfsQueue.pop());
-
-            // Get the distance to the current node.
-            const currentNodeDistance = /** @type {number} */ (
-                distances.get(currentNode)
-            );
-
-            // Explore all the adjacent not-visited nodes.
-            for (const [node] of /** @type {Map<number, Date[]>} */ (
-                this.#adjacency.get(currentNode)
-            )) {
-                if (!visitedNodes.has(node)) {
-                    bfsQueue.push(node);
-                    visitedNodes.add(node);
-                    distances.set(node, currentNodeDistance + 1);
-
-                    // Exit if we have reached the destination node.
-                    if (node === toNode) {
-                        return visitedNodes;
-                    }
-
-                    // Exit if we have reached the threshold count.
-                    if (threshold !== null) {
-                        if (visitedNodes.size >= threshold) {
-                            return visitedNodes;
-                        }
-                    }
-                }
-            }
-        }
-
-        return visitedNodes;
     }
 
     /**
