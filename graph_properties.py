@@ -135,13 +135,13 @@ def snowball_sample(adjacency_list, max_comp):
     dist_list = []
     diam = -1
     rad = math.inf
-    for i in d:
+    for i in range(len(d)):
         row_max = -1
-        for j in i:
-            if j != math.inf:
-                dist_list.append(j)
-                if j > row_max:
-                    row_max = j
+        for j in range(i + 1, len(d)):
+            if d[i][j] != math.inf:
+                dist_list.append(d[i][j])
+                if d[i][j] > row_max:
+                    row_max = d[i][j]
         if row_max != -1:
             diam = max(row_max, diam)
             rad = min(row_max, rad)

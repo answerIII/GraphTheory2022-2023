@@ -32,10 +32,8 @@ from static_topological_features import common_neighbours, adamic_adar, jaccard_
 # dataset_path = 'datasets/' + 'su_sx-superuser' + '.txt'
 # dataset_path = 'datasets/' + 'PL_prosper-loans' + '.txt'
 
-# dataset_path = 'datasets/' + 'testgraph_1' + '.txt'
-# dataset_path = 'datasets/' + 'testgraph_2' + '.txt'
-# dataset_path = 'datasets/' + 'testgraph_3' + '.txt'
-dataset_path = 'datasets/' + 'team_12' + '.txt'
+dataset_path = 'datasets/' + 'testgraph_7' + '.txt'
+# dataset_path = 'datasets/' + 'team_5' + '.txt'
 
 
 print('Введите 1, если датасет из тестовых (без весов ребер и времени)')
