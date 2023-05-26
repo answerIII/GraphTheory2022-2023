@@ -133,14 +133,25 @@ class Graph {
      */
 
     /**
+     * @typedef GraphTopologicalFeatures
+     *     Topological features associated with a pair of the graph nodes.
+     * @property {GraphFeatures} lin
+     *     Features for a linear temporal weight.
+     * @property {GraphFeatures} sqrt
+     *     Features for a square root temporal weight.
+     * @property {GraphFeatures} exp
+     *     Features for an exponential temporal weight.
+     */
+
+    /**
      * @typedef GraphTemporalWeights
      *    Temporal weights for a pair of the graph nodes.
      * @property {number} lin
      *    A linear temporal weight.
-     * @property {number} exp
-     *    An exponential temporal weight.
      * @property {number} sqrt
      *    A square root temporal weight.
+     * @property {number} exp
+     *    An exponential temporal weight.
      */
 
     /**
@@ -374,7 +385,7 @@ class Graph {
      * @param {number} secondNode
      *     The second node.
      * @returns {GraphFeatures}
-     *     The result features.
+     *     The result static features.
      */
     calculateStaticFeatures(firstNode, secondNode) {
         // Get the neighbors of the both nodes.
@@ -399,7 +410,7 @@ class Graph {
             new Set([...firstNeighbors, ...secondNeighbors])
         );
 
-        // Calculate the featues as defined in the formulas.
+        // Calculate the features as defined in the formulas.
         return {
             cn: intersection.length,
             jc: intersection.length / union.length,
@@ -424,7 +435,7 @@ class Graph {
      *     The first node.
      * @param {number} secondNode
      *     The second node.
-     * @returns {GraphTemporalWeights?}
+     * @returns {GraphTemporalWeights}
      *     The result temporal weights.
      */
     calculateTemporalWeights(firstNode, secondNode) {
@@ -437,7 +448,11 @@ class Graph {
         );
 
         if (!adjacent.has(secondNode)) {
-            return null;
+            return {
+                lin: NaN,
+                sqrt: NaN,
+                exp: NaN,
+            };
         }
 
         // Get the times associated with the pair of nodes.
@@ -460,6 +475,201 @@ class Graph {
             lin: limit + multiplier * timeFraction,
             sqrt: limit + multiplier * Math.sqrt(timeFraction),
             exp: limit + multiplier * exponential,
+        };
+    }
+
+    /**
+     * Calculates the topological features for `firstNode` and `secondNode`.
+     * @param {number} firstNode
+     *     The first node.
+     * @param {number} secondNode
+     *     The second node.
+     * @returns {GraphTopologicalFeatures}
+     *     The result topological features.
+     */
+    calculateTopologicalFeatures(firstNode, secondNode) {
+        // Get the neighbors of the both nodes.
+        const firstNeighbors = Array.from(
+            /** @type {Map<number, Date[]>} */ (
+                this.#adjacency.get(firstNode)
+            ).keys()
+        ).filter((value) => value !== firstNode);
+
+        const secondNeighbors = Array.from(
+            /** @type {Map<number, Date[]>} */ (
+                this.#adjacency.get(secondNode)
+            ).keys()
+        ).filter((value) => value !== secondNode);
+
+        // Get the intersection of the neighbors.
+        const intersection = firstNeighbors.filter((value) => {
+            return secondNeighbors.includes(value);
+        });
+
+        // Calculate the weighted sum of the first
+        // node with its neighbors.
+        const sumFirstNeighbors = firstNeighbors.reduce(
+            (sum, neighbor) => {
+                const weights = this.calculateTemporalWeights(
+                    firstNode,
+                    neighbor
+                );
+
+                return {
+                    lin: sum.lin + weights.lin,
+                    sqrt: sum.sqrt + weights.sqrt,
+                    exp: sum.exp + weights.exp,
+                };
+            },
+            { lin: 0, sqrt: 0, exp: 0 }
+        );
+
+        // Calculate the weighted sum of the second
+        // node with its neighbors.
+        const sumSecondNeighbors = secondNeighbors.reduce(
+            (sum, neighbor) => {
+                const weights = this.calculateTemporalWeights(
+                    secondNode,
+                    neighbor
+                );
+
+                return {
+                    lin: sum.lin + weights.lin,
+                    sqrt: sum.sqrt + weights.sqrt,
+                    exp: sum.exp + weights.exp,
+                };
+            },
+            { lin: 0, sqrt: 0, exp: 0 }
+        );
+
+        // Calculate the `CN` features following the formula.
+        const sumCN = intersection.reduce(
+            (sum, neighbor) => {
+                const firstWeights = this.calculateTemporalWeights(
+                    firstNode,
+                    neighbor
+                );
+
+                const secondWeights = this.calculateTemporalWeights(
+                    secondNode,
+                    neighbor
+                );
+
+                return {
+                    lin: sum.lin + firstWeights.lin + secondWeights.lin,
+                    sqrt: sum.sqrt + firstWeights.sqrt + secondWeights.sqrt,
+                    exp: sum.exp + firstWeights.exp + secondWeights.exp,
+                };
+            },
+            { lin: 0, sqrt: 0, exp: 0 }
+        );
+
+        // Calculate the `JC` features following the formula.
+        const sumJC = intersection.reduce(
+            (sum, neighbor) => {
+                const firstWeights = this.calculateTemporalWeights(
+                    firstNode,
+                    neighbor
+                );
+
+                const secondWeights = this.calculateTemporalWeights(
+                    secondNode,
+                    neighbor
+                );
+
+                return {
+                    lin:
+                        sum.lin +
+                        (firstWeights.lin + secondWeights.lin) /
+                            (sumFirstNeighbors.lin + sumSecondNeighbors.lin),
+                    sqrt:
+                        sum.sqrt +
+                        (firstWeights.sqrt + secondWeights.sqrt) /
+                            (sumFirstNeighbors.sqrt + sumSecondNeighbors.sqrt),
+                    exp:
+                        sum.exp +
+                        (firstWeights.exp + secondWeights.exp) /
+                            (sumFirstNeighbors.exp + sumSecondNeighbors.exp),
+                };
+            },
+            { lin: 0, sqrt: 0, exp: 0 }
+        );
+
+        // Calculate the `AA` features following the formula.
+        const sumAA = intersection.reduce(
+            (sum, neighbor) => {
+                const firstWeights = this.calculateTemporalWeights(
+                    firstNode,
+                    neighbor
+                );
+
+                const secondWeights = this.calculateTemporalWeights(
+                    secondNode,
+                    neighbor
+                );
+
+                // Get the neighbors of the neighbor.
+                const neighborNeighbors = Array.from(
+                    /** @type {Map<number, Date[]>} */ (
+                        this.#adjacency.get(neighbor)
+                    ).keys()
+                ).filter((value) => value !== neighbor);
+
+                // Calculate the weighted sum of the
+                // neighbor with its neighbors.
+                const sumNeighborNeighbors = neighborNeighbors.reduce(
+                    (sum, squaredNeighbor) => {
+                        const weights = this.calculateTemporalWeights(
+                            neighbor,
+                            squaredNeighbor
+                        );
+
+                        return {
+                            lin: sum.lin + weights.lin,
+                            sqrt: sum.sqrt + weights.sqrt,
+                            exp: sum.exp + weights.exp,
+                        };
+                    },
+                    { lin: 0, sqrt: 0, exp: 0 }
+                );
+
+                return {
+                    lin:
+                        sum.lin +
+                        (firstWeights.lin + secondWeights.lin) /
+                            Math.log(1 + sumNeighborNeighbors.lin),
+                    sqrt:
+                        sum.sqrt +
+                        (firstWeights.sqrt + secondWeights.sqrt) /
+                            Math.log(1 + sumNeighborNeighbors.sqrt),
+                    exp:
+                        sum.exp +
+                        (firstWeights.exp + secondWeights.exp) /
+                            Math.log(1 + sumNeighborNeighbors.exp),
+                };
+            },
+            { lin: 0, sqrt: 0, exp: 0 }
+        );
+
+        return {
+            lin: {
+                cn: sumCN.lin,
+                jc: sumJC.lin,
+                aa: sumAA.lin,
+                pa: sumFirstNeighbors.lin * sumSecondNeighbors.lin,
+            },
+            sqrt: {
+                cn: sumCN.sqrt,
+                jc: sumJC.sqrt,
+                aa: sumAA.sqrt,
+                pa: sumFirstNeighbors.sqrt * sumSecondNeighbors.sqrt,
+            },
+            exp: {
+                cn: sumCN.exp,
+                jc: sumJC.exp,
+                aa: sumAA.exp,
+                pa: sumFirstNeighbors.exp * sumSecondNeighbors.exp,
+            },
         };
     }
 
