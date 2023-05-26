@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include "StaticGraph.h"
+#include "TemporalGraph.h"
 
 class Handler
 {
@@ -24,6 +25,26 @@ private:
             if(inFile.eof())
                 break;
             graph.Push(x, y);
+        }
+
+        inFile.close();
+        return 1;
+    }
+
+    bool dataReader(std::string fileName, TemporalGraph& graph){
+        std::ifstream inFile(fileName);
+        if(!inFile)
+            return 0;
+
+        int vertexCount, x, y, l, t;
+        inFile >> vertexCount;
+        graph.SetVertex(vertexCount);
+    
+        while(true){
+            inFile >> x >> y >> l >> t;
+            if(inFile.eof())
+                break;
+            graph.Push(x, y, t);
         }
 
         inFile.close();
@@ -71,6 +92,12 @@ private:
         std::cout << graph.GetAvgClCoeff() << '\n';
         std::cout << "Assort koef: ";
         std::cout << graph.GetAssortCoeff() << '\n';
+    }
+
+    void temporalGraphPrint(TemporalGraph graph)
+    {
+        //here some tasks and print of it
+        std::cout << "Static graph features calculated" << '\n';
     }
 
     void taskMenuPrint(std::string datasetName)
@@ -147,7 +174,11 @@ public:
                     staticTaskPrint(graph);
                 }
                 if(control == '2'){
-                    std::cout << "no stuff here yet :)" << '\n';
+                    TemporalGraph graph;
+                    if(!dataReader(datasetPath[controlNum], graph))
+                        return 1;
+                    std::cout << datasetName[controlNum] << '\n';
+                    temporalGraphPrint(graph);
                 }
                 if(control == '3')
                     break;
