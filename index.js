@@ -147,13 +147,13 @@ class Graph {
     /**
      * The limit on the attempts during the feature selection generation.
      */
-    #featureSelectionAttemptsNumber = 750000;
+    #featureSelectionAttemptsNumber = 10_000_000;
 
     /**
      * The size of the positive or negative answers in the generated
      * feature selection.
      */
-    #featureSelectionEachSize = 10000;
+    #featureSelectionEachSize = 10_000;
 
     /**
      * The number of experiments to do for the estimation of features
@@ -468,7 +468,7 @@ class Graph {
             /** @type {Map<number, Date[]>} */ (
                 this.#adjacency.get(node)
             ).keys()
-        );
+        ).filter((value) => value !== node);
 
         // Less than two neighbors will not do anything.
         if (neighbors.length < 2) {
@@ -1659,12 +1659,12 @@ const nodeGenerateGraphInformation = (
 
         // prettier-ignore
         console.info(
-            `LWCC size:                           ${graph.largestWCC.length}`
+            `LWCC size:                            ${graph.largestWCC.length}`
         );
 
         // prettier-ignore
         console.info(
-            `LWCC relative size:                  ${largestWCCRelativeSize}`
+            `LWCC relative size:                   ${largestWCCRelativeSize}`
         );
     }
 

@@ -7,6 +7,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import RocCurveDisplay
 from sklearn.metrics import roc_auc_score
 
+SKIP_PLOT = True
 
 for name in os.listdir("data"):
     # S --- Static
@@ -19,24 +20,26 @@ for name in os.listdir("data"):
             S.append(row[1])
             T.append(row[2])
 
-    clf_s = LogisticRegression(max_iter=250).fit(S, y)
+    clf_s = LogisticRegression(max_iter=450).fit(S, y)
     print(f"auc({name}, s): {roc_auc_score(y, clf_s.decision_function(S))}")
 
-    RocCurveDisplay.from_predictions(y, clf_s.predict_proba(S)[:,1])
-    plt.axis("square")
-    plt.xlabel("false positive rate")
-    plt.ylabel("true positive rate")
-    plt.title("dataset {name}, s")
-    plt.legend()
-    plt.show()
+    if not SKIP_PLOT:
+        RocCurveDisplay.from_predictions(y, clf_s.predict_proba(S)[:,1])
+        plt.axis("square")
+        plt.xlabel("false positive rate")
+        plt.ylabel("true positive rate")
+        plt.title("dataset {name}, s")
+        plt.legend()
+        plt.show()
 
-    clf_t = LogisticRegression(max_iter=250).fit(T, y)
+    clf_t = LogisticRegression(max_iter=450).fit(T, y)
     print(f"auc({name}, t): {roc_auc_score(y, clf_t.decision_function(T))}")
 
-    RocCurveDisplay.from_predictions(y, clf_s.predict_proba(S)[:,1])
-    plt.axis("square")
-    plt.xlabel("false positive rate")
-    plt.ylabel("true positive rate")
-    plt.title("dataset {name}, t")
-    plt.legend()
-    plt.show()
+    if not SKIP_PLOT:
+        RocCurveDisplay.from_predictions(y, clf_s.predict_proba(S)[:,1])
+        plt.axis("square")
+        plt.xlabel("false positive rate")
+        plt.ylabel("true positive rate")
+        plt.title("dataset {name}, t")
+        plt.legend()
+        plt.show()
