@@ -3,7 +3,7 @@ from basic_features import print_basic_properties
 from logisstic_regresion_temporal import link_prediction_temporal 
 
 datasets = {
-    1:'Rado', 2:'UC', 5:'bitA',
+    1:'Rado', 2:'UC', 5:'bitA', 6: 'bitOT', 4: 'Dem',
     8:'D-rep', 7:'SX-MO', 10:'loans', 
     21:'small-graph', 22:'assortativity-example'
 }

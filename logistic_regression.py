@@ -5,6 +5,7 @@ from matplotlib import pyplot as plt
 
 from prepare_data import prepare_data_all, prepare_data_at_dist_2
 from static_features import calc_four_static_properties
+import pylab
 
 
 def AUC(X_test, Y_test, logistic_model):
@@ -25,9 +26,10 @@ def AUC(X_test, Y_test, logistic_model):
         plt.ylim([0.0, 1.05])
         plt.xlabel('False Positive Rate')
         plt.ylabel('True Positive Rate')
-        plt.title('Пример ROC-кривой')
+        plt.title('ROC-кривая')
         plt.legend(loc="lower right")
         plt.show()
+        pylab.show()
     else:
         print('y_test содержит либо все 1, либо все 0')
 

@@ -111,13 +111,13 @@ def print_basic_properties(dataset, display_interm_results = False) -> None:
 
     for line in dataset:
         [from_ind, to_ind, weight, time] = [int(x) for x in line.split()]
-        if from_ind in max_WCC:
+        if (from_ind and to_ind) in max_WCC:
             ver[from_ind].add(to_ind)
             ver[to_ind].add(from_ind) 
         
     #print("подграф с наибольшей КСС: ", ver) 
 
-    n = 5 # кол-во вершин для 2a 
+    n = 1000 # кол-во вершин для 2a 
 
     # random_v = random.choices(list(max_WCC), k=n) 
     random_v =random.sample(list(max_WCC), k=n) # мн-во вершин для 2a
@@ -158,15 +158,14 @@ def print_basic_properties(dataset, display_interm_results = False) -> None:
             e_1.append(m[1])
         return e, e_1
 
-    print(ver)
+    #print(ver)
 
     eccentricity = find_eccentrisity(ver, random_v)
     print('-------') 
-    matrix_of_shortest_paths = find_eccentrisity(ver, max_WCC)
 
     print("Диаметр:", max(eccentricity[0]), "Совпадает со встроенной ф-цией?") 
     print("Радиус:", min(eccentricity[0]), "Совпадает со встроенной ф-цией?") 
-    print("90 процентиля расстояния (геодезического) между вершинами графа:", np.percentile(matrix_of_shortest_paths[1], 90)) 
+    print("90 процентиля расстояния (геодезического) между вершинами графа:", np.percentile(eccentricity[1], 90)) 
 
 
     def bfs_snowball(visited, adjList, unvisited, lenght):
@@ -207,7 +206,6 @@ def print_basic_properties(dataset, display_interm_results = False) -> None:
         return edges, max_WCC
 
 
-    n = 5  # любое число больше 2
 
 #     print("Число вершин в наибольшой компоненте связности: ", len(max_WCC))
     if len(max_WCC) > n:

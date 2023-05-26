@@ -1,5 +1,7 @@
 import numpy as np 
 import queue
+import networkx as nx
+import matplotlib.pyplot as plt
 
 def number_of_vertexes(dataset):
     uniqueVertexes = set()
@@ -13,9 +15,42 @@ def get_edgeList(dataset):
      edgeList = []
      for line in dataset:
         [from_ind, to_ind, weight, time] = [int(x) for x in line.split()]
+        # print([from_ind, to_ind, time])
         edgeList.append([from_ind, to_ind, time])
         edgeList.append([to_ind, from_ind, time])
      return edgeList
+
+def draw_graph(dataset, qs):
+    G = nx.Graph()
+    for line in dataset:
+        [from_ind, to_ind, weight, time] = [int(x) for x in line.split()]
+        G.add_edge(from_ind, to_ind, weight=time)
+    
+    elarge = [(u, v) for (u, v, d) in G.edges(data=True) if d["weight"] > qs]
+    esmall = [(u, v) for (u, v, d) in G.edges(data=True) if d["weight"] <= qs]
+
+    pos = nx.spring_layout(G, seed=7)  # positions for all nodes - seed for reproducibility
+
+    # nodes
+    nx.draw_networkx_nodes(G, pos, node_size=700)
+
+    # edges
+    nx.draw_networkx_edges(G, pos, edgelist=elarge, width=6)
+    nx.draw_networkx_edges(
+        G, pos, edgelist=esmall, width=6, alpha=0.5, edge_color="b", style="dashed"
+    )
+
+    # node labels
+    nx.draw_networkx_labels(G, pos, font_size=20, font_family="sans-serif")
+    # edge weight labels
+    edge_labels = nx.get_edge_attributes(G, "weight")
+    nx.draw_networkx_edge_labels(G, pos, edge_labels)
+
+    ax = plt.gca()
+    ax.margins(0.08)
+    plt.axis("off")
+    plt.tight_layout()
+    plt.show()
 
 
 
@@ -157,6 +192,7 @@ def prepare_data_at_dist_2(dataset, s = 75, display_interm_results = False):
     print("t_min:", t_min)
     print("t_max:", t_max)
     print("qs:", qs)
+    
 
 
     adjList = [[] for _ in range(V)]
@@ -224,6 +260,11 @@ def prepare_data_at_dist_2(dataset, s = 75, display_interm_results = False):
     for i in range(len(nonexistent_edges)):
         if nonexistent_edges[i] in edgeL_after_qs:
             y[i] = 1
+
+    # draw_graph(dataset, qs)
+
+    # for i in range(len(nonexistent_edges)):
+    #     print(nonexistent_edges[i], ":", y[i])
 
 
     return [V, adjList, nonexistent_edges, y]
