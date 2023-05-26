@@ -1,6 +1,7 @@
 #ifndef TEMPORAL_GRAPH_CLASS
 #define TEMPORAL_GRAPH_CLASS
 
+#include <cmath>
 #include <map>
 #include <unordered_set>
 #include <utility>
@@ -9,6 +10,8 @@
 #include <climits>
 #include <algorithm>
 //#include "mlpack.hpp"
+//
+typedef double (*func)(double, double);
 
 class TemporalGraph
 {
@@ -19,6 +22,45 @@ private:
     std::map<std::pair<int, int>, std::vector<int>> _temporalGraph;
     std::map<std::pair<int,int>, std::vector<std::vector<double>>> _featureGraph;
     std::vector<std::set<int>> _staticGraph;
+
+    static double q0(double x, double y){
+        return x;
+    }
+
+    static double q1(double x, double y){
+        return x * 0.75 + y * 0.25;
+    }
+
+    static double q2(double x, double y){
+        return (x + y) / 2;
+    }
+    
+    static double q3(double x, double y){
+        return x * 0.25 + y * 0.75;
+    }
+
+    static double q4(double x, double y){
+        return y;
+    }
+
+    static double sum(double x, double y){
+        return x + y;
+    }
+
+    static double mean(double x, double y){
+        return (x + y) / 2;
+    }
+
+    void aggregate(std::vector<double>& stat, std::vector<double>& weights, int v, int u){
+        weights.resize(84);
+        std::vector<double> w = {weights[0], weights[1], weights[2]};
+        std::vector<double> s = {stat[0], stat[1], stat[2], stat[3]};
+        std::vector<func> funcs = {q0, q1, q2, q3, q4, sum, mean};
+        for (int i = 0; i < 7; ++i)
+            for (int j = 0; j < 4; ++j)
+                for (int k = 0; k < 3; ++k)
+                    weights[7 * i + 4 * j + 3 * k] = funcs[i](s[j], s[k]);
+    }  
 
 public: 
     void Push(int x, int y, int t){
@@ -86,6 +128,9 @@ public:
                 w.push_back(l + (1 - l)*(exp(3*tminmax-1)/e3m1));
                 w.push_back(l + (1 - l)*sqrt(tminmax));
                 _featureGraph[uv].push_back(w);
+                aggregate(_featureGraph[uv][0], 
+                          _featureGraph[uv][_featureGraph[uv].size()-1], 
+                          uv.first, uv.second);
             }
         }
     }
