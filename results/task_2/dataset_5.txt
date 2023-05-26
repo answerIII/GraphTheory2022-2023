@@ -1,0 +1,17 @@
+Temporal:
+Accuracy score = 0.859183
+Precision score = 0.855044
+Recall score = 0.865354
+F1 score = 0.860168
+Log Loss = 5.075550
+Matthews Correlation Coefficient = 0.718415
+AUC = 0.932520
+
+Static:
+Accuracy score = 0.761819
+Precision score = 0.890887
+Recall score = 0.597267
+F1 score = 0.715111
+Log Loss = 8.584930
+Matthews Correlation Coefficient = 0.554838
+AUC = 0.873464
