@@ -1,5 +1,5 @@
-#ifndef HANDLER
-#define HANDLER
+#ifndef HANDLER_CLASS
+#define HANDLER_CLASS
 
 #include <iostream>
 #include <fstream>
@@ -51,7 +51,7 @@ private:
         return 1;
     }
 
-    void staticTaskPrint(StaticGraph graph)
+    void staticTaskPrint(StaticGraph& graph)
     {
         std::cout << "Vertex count: ";
         std::cout << graph.GetVertexCount() << '\n';
@@ -94,7 +94,7 @@ private:
         std::cout << graph.GetAssortCoeff() << '\n';
     }
 
-    void temporalGraphPrint(TemporalGraph graph)
+    void temporalGraphPrint(TemporalGraph& graph)
     {
         //here some tasks and print of it
         std::cout << "Static graph features calculated" << '\n';
