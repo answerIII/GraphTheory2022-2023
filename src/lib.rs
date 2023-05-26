@@ -211,7 +211,7 @@ fn find_drq(
     py: Python<'_>,
     graph_path: String,
     threads_count: Option<usize>,
-) -> PyResult<Vec<(i32, i32, f64)>> {
+) -> PyResult<(i32, i32, f64)> {
     let threads_count = match threads_count {
         Some(x) => {
             if x < 1 {
@@ -244,12 +244,12 @@ fn find_drq(
 
     let root = biggest_component_root(&graph, &mut mnz);
     let graph = Arc::new(graph);
-    Ok(vec![drq_full(
+    Ok(drq_full(
         &root,
         &mnz,
         Arc::clone(&graph),
         threads_count,
-    )])
+    ))
 }
 
 #[pyfunction]
