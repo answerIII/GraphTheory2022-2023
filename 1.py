@@ -1,11 +1,10 @@
 import random
 import numpy as np
-import statistics
 
 def compute_distance(graph, start, end):
     if start not in graph or end not in graph:
         print("Ошибка: введены некорректные номера вершин.")
-        return
+        return None
     visited = set()
     queue = [(start, 0)]
     while queue:
@@ -16,7 +15,7 @@ def compute_distance(graph, start, end):
             visited.add(current_node)
             neighbors = graph[current_node]
             queue.extend((neighbor, distance + 1) for neighbor in neighbors)
-    return float('inf')
+    return None
 
 
 def analyze_graph(file_name):
@@ -24,8 +23,6 @@ def analyze_graph(file_name):
     # Считывание данных из файла и создание матриц смежности
     with open(file_name, 'r') as file:
         data = file.readlines()
-
-    num_edges = len(data)
     #matrix = [[0] * num_edges for _ in range(num_edges)]
     #time = [[0] * num_edges for _ in range(num_edges)]
     
@@ -33,41 +30,45 @@ def analyze_graph(file_name):
     graph = {}
     edges = set()  # Множество уникальных ребер
     for i, edge in enumerate(data):
-        u, v, q, t = map(int, edge.strip().split())
+        u, v = map(int, edge.strip().split())
+        if u not in graph:
+            graph[u] = []
+        if v not in graph:
+            graph[v] = []
         if u != v:  # Исключаем петли
-                edge = (min(u, v), max(u, v))  # Представляем ребро в виде кортежа (u, v), где u < v
+            edge = (min(u, v), max(u, v))  # Представляем ребро в виде кортежа (u, v), где u < v
+            if edge not in edges:  # Исключаем мультирёбра
                 edges.add(edge)
-                if u not in graph:
-                    graph[u] = []
-                if v not in graph:
-                    graph[v] = []
                 graph[u].append(v)
                 graph[v].append(u)
         #matrix[u][v] = q
         #time[u][v] = t
-
     # 1. Вычисление основных характеристик графа
+    num_edges = len(edges)
     num_nodes = len(graph)  # Число вершин
     density = num_edges / (num_nodes * (num_nodes - 1) / 2)  # Плотность графа
 
     # Итеративный алгоритм для поиска компонент слабой связности и максимальной компоненты
     visited = set()
+    largest_component = []
     components = []
     for node in graph:
         if node not in visited:
-            component_size = 0
+            component = []  # Временный список для хранения текущей компоненты слабой связности
             stack = [node]
             while stack:
                 current_node = stack.pop()
                 if current_node not in visited:
                     visited.add(current_node)
-                    component_size += 1
+                    component.append(current_node)
                     for neighbor in graph[current_node]:
                         stack.append(neighbor)
-            components.append(component_size)
+            components.append(component)
+            if len(component) > len(largest_component):
+                largest_component = component
 
     num_components = len(components)  # Число компонент слабой связности
-    largest_component_size = max(components)  # Размер максимальной компоненты
+    largest_component_size = len(largest_component)  # Размер максимальной компоненты
     largest_component_fraction = largest_component_size / num_nodes  # Доля вершин в максимальной компоненте
 
     output += "1. Характеристики графа:\n"
@@ -79,23 +80,30 @@ def analyze_graph(file_name):
 
 
     # 2a. Вычисление расстояний между случайно выбранными вершинами из максимальной компоненты слабой связности
-    # Получение наибольшей компоненты слабой связности
-    largest_component = max(graph.values(), key=len)
 
     # Выбор случайных вершин из наибольшей компоненты
-    random_vertices = random.sample(largest_component, 500)  # Выбор 500 случайных вершин
-
+    if largest_component_size <= 500:
+        vertices = list(largest_component)
+    else:
+        vertices = random.sample(list(largest_component), 500)  # Выбор 500 случайных вершин
     # Вычисление расстояний между выбранными вершинами
     distances = []
-    for i in range(len(random_vertices)):
-        for j in range(i + 1, len(random_vertices)):
-            start = random_vertices[i]
-            end = random_vertices[j]
+    for i in range(len(vertices)):
+        for j in range(i + 1, len(vertices)):
+            start = vertices[i]
+            end = vertices[j]
             distance = compute_distance(graph, start, end)
             distances.append(distance)
 
     # Вычисление радиуса, диаметра и 90-процентильного расстояния
-    radius = min(distances)
+    valid_distances = [d for d in distances if d is not None]
+
+    if valid_distances:
+        eccentricities = [max(compute_distance(graph, vertex, end) for end in vertices) for vertex in vertices]
+        radius = min(eccentricities)
+    else:
+        radius = 0
+
     diameter = max(distances)
     percentile90 = np.percentile(distances, 90)  # 90-процентиль
 
@@ -106,17 +114,23 @@ def analyze_graph(file_name):
     output += "90-процентиль расстояния: {}\n".format(percentile90)
 
     # 2b. Вычисление расстояний в подграфе "снежный ком"
-    snowball_sample_size = 500  # Размер подграфа "снежный ком"
+    if largest_component_size <= 500:
+        snowball_vertices = list(largest_component)
+    else:
+        if  largest_component_size <= 1000:
+            snowball_sample_size = largest_component_size  # Размер подграфа "снежный ком"
+        else: 
+            snowball_sample_size = 1000  # Размер подграфа "снежный ком"
 
-    snowball_vertices = set(random_vertices)  # Вершины, уже добавленные в подграф "снежный ком"
-    queue = list(random_vertices)  # Очередь вершин для обхода
-    while len(snowball_vertices) < snowball_sample_size and queue:
-        current_vertex = queue.pop(0)
-        neighbors = graph[current_vertex]
-        for neighbor in neighbors:
-            if neighbor not in snowball_vertices:
-                snowball_vertices.add(neighbor)
-                queue.append(neighbor)
+        snowball_vertices = set(vertices)  # Вершины, уже добавленные в подграф "снежный ком"
+        queue = list(vertices)  # Очередь вершин для обхода
+        while len(snowball_vertices) < snowball_sample_size and queue:
+            current_vertex = queue.pop(0)
+            neighbors = graph[current_vertex]
+            for neighbor in neighbors:
+                if neighbor not in snowball_vertices:
+                    snowball_vertices.add(neighbor)
+                    queue.append(neighbor)
 
     # Вычисление расстояний в подграфе "снежный ком"
     snowball_distances = []
@@ -129,7 +143,13 @@ def analyze_graph(file_name):
             snowball_distances.append(distance)
 
     # Вычисление радиуса, диаметра и 90-процентильного расстояния в подграфе "снежный ком"
-    snowball_radius = min(snowball_distances)
+    snowball_valid_distances = [d for d in snowball_distances if d is not None]
+
+    if snowball_valid_distances:
+        snowball_eccentricities = [max(compute_distance(graph, vertex, end) for end in vertices) for vertex in vertices]
+        snowball_radius = min(snowball_eccentricities)
+    else:
+        radius = 0
     snowball_diameter = max(snowball_distances)
     snowball_percentile90 = np.percentile(snowball_distances, 90)  # 90-процентиль
 
@@ -164,30 +184,31 @@ def analyze_graph(file_name):
 
 
     # 4. Вычисление коэффициента ассортативности
-    total_degree_product = 0
-    total_edge_weight_product = 0
-    total_degree_squared = 0
-    total_degree_cubed = 0
+    degree_pairs = []
+    for node in graph:
+        degree = len(graph[node])
+        for neighbor in graph[node]:
+            neighbor_degree = len(graph[neighbor])
+            degree_pairs.append((degree, neighbor_degree))
 
-    for node in graph.keys():
-      ki = len(graph[node])
-      total_degree_product += ki
-      total_degree_squared += ki * ki
-      total_degree_cubed += ki * ki * ki
+    degree_sum = 0
+    degree_squared_sum = 0
+    product_sum = 0
 
-    for neighbor1 in graph[node]:
-        kj = len(graph[neighbor1])
-        total_edge_weight_product += ki * kj
+    for degree_pair in degree_pairs:
+        degree_sum += degree_pair[0]
+        degree_squared_sum += degree_pair[0] ** 2
+        product_sum += degree_pair[0] * degree_pair[1]
 
-    mean_degree_product = total_degree_product / num_nodes
-    mean_edge_weight_product = total_edge_weight_product / num_nodes
-    mean_degree_squared = total_degree_squared / num_nodes
-    mean_degree_cubed = total_degree_cubed / num_nodes
+    mean_degree = degree_sum / len(degree_pairs)
+    mean_degree_squared = degree_squared_sum / len(degree_pairs)
+    mean_product = product_sum / len(degree_pairs)
 
     assortativity_coefficient = (
-        (mean_edge_weight_product - (mean_degree_product ** 2) / (2 * num_edges))
-        / (mean_degree_squared - (mean_degree_product ** 2) / (2 * num_edges))
+        (mean_product - mean_degree * mean_degree) /
+        (mean_degree_squared - mean_degree * mean_degree)
     )
+
     output += "\n4. Коэффициент ассортативности по степени вершин:\n"
     output += "Коэффициент ассортативности: {}\n".format(assortativity_coefficient)
 
