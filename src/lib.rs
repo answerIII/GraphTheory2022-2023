@@ -1,11 +1,12 @@
 use pyo3::{exceptions, prelude::*, types::PyDict};
 use std::{
-    cmp::{max, min, Reverse},
+    cmp::Reverse,
     collections::{BinaryHeap, HashMap, HashSet, VecDeque},
     fs::File,
     io::BufRead,
     io::BufReader,
-    sync::{mpsc, Arc, Mutex},
+    slice,
+    sync::{Arc, Mutex},
     thread,
 };
 
@@ -25,31 +26,6 @@ fn dfs(root: &usize, graph: &HashMap<usize, HashSet<usize>>, visited: &mut HashS
             }
         }
     }
-}
-
-#[warn(dead_code)]
-fn biggest_component_root_old(
-    graph: &HashMap<usize, HashSet<usize>>,
-    ans: &mut HashMap<usize, HashSet<usize>>,
-) -> usize {
-    let mut visited = HashSet::new();
-    let ids = graph.keys();
-
-    let mut old_len = 0;
-    let (mut max_len, mut max_root) = (0, 0);
-    for i in ids {
-        if visited.contains(i) {
-            continue;
-        }
-
-        dfs(i, graph, &mut visited);
-        if visited.len() - old_len > max_len {
-            max_len = visited.len() - old_len;
-            max_root = *i;
-        }
-        old_len = visited.len();
-    }
-    max_root
 }
 
 fn biggest_component_root(
@@ -109,24 +85,73 @@ fn dijkstra(root: &usize, graph: &HashMap<usize, HashSet<usize>>) -> HashMap<usi
 fn drq_full(
     root: &usize,
     mnz: &HashMap<usize, HashSet<usize>>,
-    graph: &HashMap<usize, HashSet<usize>>,
+    graph: Arc<HashMap<usize, HashSet<usize>>>,
     threads: usize,
 ) -> (i32, i32, f64) {
-    let mut diam = 0;
-    let mut rad = i32::MAX;
-    let mut dists: Vec<i32> = Vec::new();
+    let diam = Arc::new(Mutex::new(0 as i32));
+    let rad = Arc::new(Mutex::new(i32::MAX));
+    let dists = Arc::new(Mutex::new(Vec::new()));
 
-    for i in mnz.get(&root).unwrap() {
-        let ans = dijkstra(i, &graph);
+    let tmp = mnz
+        .get(&root)
+        .unwrap()
+        .into_iter()
+        .map(|&el| el)
+        .collect::<Vec<usize>>();
+    let mut right = unsafe {
+        let tmp = &tmp[..];
+        let len = tmp.len();
+        let ptr = tmp.as_ptr();
+        slice::from_raw_parts(ptr, len)
+    };
+    let mut d_threads = vec![];
 
-        let ans = ans.values().collect::<Vec<_>>();
-        let max_val = ans.iter().max().unwrap();
-        let tmp = **max_val;
-        diam = max(diam, tmp);
-        rad = min(rad, tmp);
+    let per_thread = right.len() / threads;
+    for _ in 1..threads + 1 {
+        let (left, _r) = right.split_at(per_thread);
+        right = _r;
+        let cur_graph = Arc::clone(&graph);
+        let global_dist = Arc::clone(&dists);
+        let global_diam = Arc::clone(&diam);
+        let global_rad = Arc::clone(&rad);
 
-        dists.extend(ans);
+        d_threads.push(thread::spawn(move || {
+            let mut cur_diam = 0;
+            let mut cur_rad = i32::MAX;
+
+            let mut cur_dists: Vec<i32> = vec![];
+            for i in left {
+                let ans = dijkstra(i, &cur_graph);
+                let ans = ans.values().collect::<Vec<_>>();
+                let max_val = ans.iter().max().unwrap();
+                let tmp = **max_val;
+                cur_diam = cur_diam.max(tmp);
+                cur_rad = cur_rad.min(tmp);
+
+                cur_dists.extend(ans);
+            }
+
+            {
+                let mut global_diam = global_diam.lock().unwrap();
+                *global_diam = global_diam.max(cur_diam);
+            };
+            {
+                let mut global_rad = global_rad.lock().unwrap();
+                *global_rad = global_rad.min(cur_rad);
+            };
+
+            {
+                let mut dists = global_dist.lock().unwrap();
+                dists.extend(cur_dists);
+            };
+        }));
     }
+
+    for i in d_threads {
+        i.join().unwrap();
+    }
+
+    let mut dists = dists.lock().unwrap().to_owned();
 
     let q = 0.9;
     let n = dists.len() as f64;
@@ -141,8 +166,45 @@ fn drq_full(
     } else {
         dists[k as usize] as f64
     };
-    (diam, rad, q)
+    let ans = (
+        diam.lock().unwrap().to_owned(),
+        rad.lock().unwrap().to_owned(),
+        q,
+    );
+    ans
 }
+
+// fn drq_full(
+//     root: &usize,
+//     mnz: &HashMap<usize, HashSet<usize>>,
+//     graph: &HashMap<usize, HashSet<usize>>,
+//     threads: usize,
+// ) -> (i32, i32, f64) {
+//     let mut diam = 0;
+//     let mut rad = i32::MAX;
+//     let mut dists: Vec<i32> = Vec::new();
+//     for i in mnz.get(&root).unwrap() {
+//         let ans = dijkstra(i, &graph);
+//         let ans = ans.values().collect::<Vec<_>>();
+//         let max_val = ans.iter().max().unwrap();
+//         let tmp = **max_val;
+//         diam = max(diam, tmp);
+//         rad = min(rad, tmp);
+//         dists.extend(ans);
+//     }
+//     let q = 0.9;
+//     let n = dists.len() as f64;
+//     sorting::quicksort_multi(&mut dists, threads);
+//     let k = (q * n - 1.0).floor();
+//     let q = if k + 1.0 < q * n {
+//         dists[k as usize + 1] as f64
+//     } else if (k + 1.0 - q * n).abs() < 1.0 / n {
+//         (dists[k as usize] + dists[k as usize + 1]) as f64 / 2.0
+//     } else {
+//         dists[k as usize] as f64
+//     };
+//     (diam, rad, q)
+// }
 
 #[pyfunction]
 fn find_drq(
@@ -181,8 +243,13 @@ fn find_drq(
     let mut mnz = HashMap::new();
 
     let root = biggest_component_root(&graph, &mut mnz);
-
-    Ok(vec![drq_full(&root, &mnz, &graph, threads_count)])
+    let graph = Arc::new(graph);
+    Ok(vec![drq_full(
+        &root,
+        &mnz,
+        Arc::clone(&graph),
+        threads_count,
+    )])
 }
 
 #[pyfunction]
