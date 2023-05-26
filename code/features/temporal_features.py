@@ -8,6 +8,10 @@ from ..base import StaticGraph
 
 @njit
 def _feat(weight):
+    if weight.size == 1:
+        t = weight[0]
+        return np.array([t, t, t, t, t, t, t, 0])
+    
     return np.array([
         *np.quantile(weight, [0, .25, .5, .75, 1]),
         weight.sum(),
@@ -43,17 +47,9 @@ def calc(timestamps_global, edges_grouped, time_grouped,
     
     for time_idx, time in enumerate(time_grouped):
         dt = (time - t_min) / (t_max - t_min)
-        weights = lower_bound + (1 - lower_bound) * np.vstack((
-            dt,
-            (np.exp(3 * dt) - 1) / (np.exp(3) - 1),
-            np.sqrt(dt)
-        ))
-        
-        temp_2 = np.zeros(24)
-        for pos in range(3):
-            temp_2[pos * 8 : (pos + 1) * 8] = _feat(weights[pos])
-            
-        wtf[time_idx] = temp_2
+        wtf[time_idx, : 8] = _feat(lower_bound + (1 - lower_bound) * dt)
+        wtf[time_idx, 8 : 16] = _feat(lower_bound + (1 - lower_bound) * (np.exp(3 * dt) - 1) / (np.exp(3) - 1))
+        wtf[time_idx, 16 : 24] = _feat(lower_bound + (1 - lower_bound) * np.sqrt(dt))
         
     # sorting by 2 arguments
     e_g = np.vstack((edges_grouped, edges_grouped[:, ::-1]))
@@ -89,12 +85,12 @@ def calc(timestamps_global, edges_grouped, time_grouped,
         output[idx, 72:] = summ[node_indices[0]] * summ[node_indices[1]]
         for node_index in node_indices:            
             fr, to = indices[node_index]
-            for inters_idx in intersection_indices(end[fr : to], intersection, fr):
-                output[idx, :72] += np.concatenate((
-                    wtf[inters_idx] / np.log(1 + summ[end[inters_idx]] + EPS), # AA
-                    wtf[inters_idx], # CN
-                    wtf[inters_idx] / jc_denom, # JC
-                ))
+            inters = intersection_indices(end[fr : to], intersection, fr)
+            output[idx, :72] += np.hstack((
+                wtf[inters] / np.log(1 + summ[end[inters]] + EPS), # AA
+                wtf[inters], # CN
+                wtf[inters] / jc_denom, # JC
+            )).sum(axis=0)
             
     return output
 
