@@ -162,11 +162,10 @@ def print_basic_properties(dataset, display_interm_results = False) -> None:
 
     eccentricity = find_eccentrisity(ver, random_v)
     print('-------') 
-    matrix_of_shortest_paths = find_eccentrisity(ver, max_WCC)
 
     print("Диаметр:", max(eccentricity[0]), "Совпадает со встроенной ф-цией?") 
     print("Радиус:", min(eccentricity[0]), "Совпадает со встроенной ф-цией?") 
-    print("90 процентиля расстояния (геодезического) между вершинами графа:", np.percentile(matrix_of_shortest_paths[1], 90)) 
+    print("90 процентиля расстояния (геодезического) между вершинами графа:", np.percentile(eccentricity[1], 90)) 
 
 
     def bfs_snowball(visited, adjList, unvisited, lenght):
