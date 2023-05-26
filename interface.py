@@ -3,6 +3,7 @@ from pathlib import Path
 from features import temporal_selection_model, static_selection_model
 import matplotlib.pyplot as plt
 from first import analyze_graph, calculate_distance
+from static_features import compute_static_features_for_pair
 
 datasets = [w for w in Path("conf.txt").read_text(encoding="utf-8").replace("\n", " ").split()]
 
@@ -46,11 +47,24 @@ def graph_info(dataset):
         graph[u].append(v)
         graph[v].append(u)
 
+    set_graph = {}
+    for i, edge in enumerate(data):
+        edge = edge.strip().split()
+        u = int(edge[0])
+        v = int(edge[1])
+        if u not in set_graph:
+            set_graph[u] = set()
+        if v not in set_graph:
+            set_graph[v] = set()
+        set_graph[u].add(v)
+        set_graph[v].add(u)
+
     print("Выберите какую информацию вы хотите получить:")
     print("1. Основные свойства для статического графа")
     print("2. Подсчет расстояния между двумя вершинами")
     print("3. Предсказание на основе статических характеристик")
     print("4. Предсказание на основе темпоральных характеристик")
+    print("5. Подсчет статичесих характеристик для пары вершин")
     print()
     print("-1. Назад")
 
@@ -65,6 +79,8 @@ def graph_info(dataset):
             print(static_selection_model(dataset))
         case 4:
             print(temporal_selection_model(dataset))
+        case 5:
+            compute_static_features_for_pair(set_graph)
         case -1:
             graph_selection(datasets)
         case _:
