@@ -25,7 +25,7 @@ from static_topological_features import common_neighbours, adamic_adar, jaccard_
 # dataset_path = 'datasets/' + 'BO_soc-sign-bitcoinotc' + '.txt'
 
 # dataset_path = 'datasets/' + 'ma_sx-mathoverflow' + '.txt'
-dataset_path = 'datasets/' + 'as_sx-askubuntu' + '.txt'
+# dataset_path = 'datasets/' + 'as_sx-askubuntu' + '.txt'
 
 # dataset_path = 'datasets/' + 'DG_munmun_digg_reply' + '.txt'
 # dataset_path = 'datasets/' + 'DF_digg-friends' + '.txt'
@@ -35,10 +35,11 @@ dataset_path = 'datasets/' + 'as_sx-askubuntu' + '.txt'
 # dataset_path = 'datasets/' + 'testgraph_1' + '.txt'
 # dataset_path = 'datasets/' + 'testgraph_2' + '.txt'
 # dataset_path = 'datasets/' + 'testgraph_3' + '.txt'
-# dataset_path = 'datasets/' + 'testgraph_6' + '.txt'
+dataset_path = 'datasets/' + 'team_12' + '.txt'
 
 
-print('Введите 1, если датасет из тестовых или введите 2, если иначе')
+print('Введите 1, если датасет из тестовых (без весов ребер и времени)')
+print('Введите 2, если иначе')
 is_test = input()
 if is_test == '1':
     data = pd.read_csv(dataset_path, sep='\s+', names=['id_from', 'id_to'], header=None)

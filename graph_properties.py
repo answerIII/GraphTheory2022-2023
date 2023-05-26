@@ -206,11 +206,13 @@ def get_graph_properties(adjacency_list, count_edges, is_loop):
     print('Доля вершин в максимальной слабой компоненте: ' + str(proportion))
 
     diam_1, rad_1, percent_1 = random_sample_metrics(adjacency_list, max_comp)
+    print('Метод случайно выбранных вершин: ')
     print('Радиус: ' + str(rad_1))
     print('Диаметр: ' + str(diam_1))
     print('90 процентиль: ' + str(percent_1))
 
     diam_2, rad_2, percent_2 = snowball_sample( adjacency_list, max_comp)
+    print('Метод «снежный ком»: ')
     print('Радиус: ' + str(rad_2))
     print('Диаметр: ' + str(diam_2))
     print('90 процентиль: ' + str(percent_2))
