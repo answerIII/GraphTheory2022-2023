@@ -5,6 +5,35 @@ import numpy as np
 from collections import deque
 import collections
 
+#Получить список смежности для всего графа за все время для тестовых графов
+def get_adjacency_list_test(data):
+    adjacency_list = dict({})
+    count_edges = 0
+    is_loop = False
+    for row in data.itertuples():
+        # Список смежности для все ребер за все время
+        count_add = 0
+        if (row[1] in adjacency_list):
+            if (row[2] not in adjacency_list[row[1]]):
+                adjacency_list[row[1]].append(row[2])
+                count_add += 1
+        else:
+            adjacency_list[row[1]] = [row[2]]
+            count_add += 1
+        if (row[2] in adjacency_list):
+            if (row[1] not in adjacency_list[row[2]]):
+                adjacency_list[row[2]].append(row[1])
+                count_add += 1
+        else:
+            adjacency_list[row[2]] = [row[1]]
+            count_add += 1
+
+        if count_add >= 1:
+            if count_add == 1:
+                is_loop = True
+            count_edges += 1
+
+    return [adjacency_list, count_edges, is_loop]
 
 #Получить список смежности для всего графа за все время
 def get_adjacency_list(data):
