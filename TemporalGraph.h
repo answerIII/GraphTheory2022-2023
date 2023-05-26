@@ -60,7 +60,8 @@ public:
                                       _staticGraph[v].end(),
                                       intersect.begin());
                     for (int i = 0; i < intersect.size(); ++i)
-                        aa += 1.0 / log10(_staticGraph[intersect[i]].size());
+                        if(_staticGraph[intersect[i]].size() > 1)
+                            aa += 1.0 / log10(_staticGraph[intersect[i]].size());
                     intersectUV = intersect.size();
                     unionUV = nu + nv - intersectUV; 
                     std::vector<double> features;

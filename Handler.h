@@ -96,7 +96,8 @@ private:
 
     void temporalGraphPrint(TemporalGraph& graph)
     {
-        //here some tasks and print of it
+        graph.CalcStaticFeatures();
+        graph.CalcTemporalFeatures();
         std::cout << "Static graph features calculated" << '\n';
     }
 
