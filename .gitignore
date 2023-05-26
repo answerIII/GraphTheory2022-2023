@@ -1,3 +1,6 @@
+graphs/
+.github/workflows/CI.yml
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

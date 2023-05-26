@@ -1,11 +1,15 @@
-use pyo3::{prelude::*, types::PyDict};
+use pyo3::{exceptions, prelude::*, types::PyDict};
 use std::{
     cmp::{max, min, Reverse},
     collections::{BinaryHeap, HashMap, HashSet, VecDeque},
     fs::File,
     io::BufRead,
     io::BufReader,
+    sync::{mpsc, Arc, Mutex},
+    thread,
 };
+
+mod sorting;
 
 fn dfs(root: &usize, graph: &HashMap<usize, HashSet<usize>>, visited: &mut HashSet<usize>) {
     let mut stack = VecDeque::new();
@@ -106,10 +110,12 @@ fn drq_full(
     root: &usize,
     mnz: &HashMap<usize, HashSet<usize>>,
     graph: &HashMap<usize, HashSet<usize>>,
+    threads: usize,
 ) -> (i32, i32, f64) {
     let mut diam = 0;
     let mut rad = i32::MAX;
     let mut dists: Vec<i32> = Vec::new();
+
     for i in mnz.get(&root).unwrap() {
         let ans = dijkstra(i, &graph);
 
@@ -124,7 +130,9 @@ fn drq_full(
 
     let q = 0.9;
     let n = dists.len() as f64;
-    dists.sort();
+
+    sorting::quicksort_multi(&mut dists, threads);
+
     let k = (q * n - 1.0).floor();
     let q = if k + 1.0 < q * n {
         dists[k as usize + 1] as f64
@@ -140,8 +148,20 @@ fn drq_full(
 fn find_drq(
     py: Python<'_>,
     graph_path: String,
-    big: Option<(i32, i32)>,
+    threads_count: Option<usize>,
 ) -> PyResult<Vec<(i32, i32, f64)>> {
+    let threads_count = match threads_count {
+        Some(x) => {
+            if x < 1 {
+                return Err(exceptions::PyValueError::new_err(
+                    "threads_count must be > 1",
+                ));
+            };
+            x
+        }
+        None => 1,
+    };
+
     let mut graph: HashMap<usize, HashSet<usize>> = HashMap::new();
 
     let reader = BufReader::new(File::open(graph_path)?);
@@ -161,33 +181,8 @@ fn find_drq(
     let mut mnz = HashMap::new();
 
     let root = biggest_component_root(&graph, &mut mnz);
-    // let mut diam = 0;
-    // let mut rad = i32::MAX;
-    // let mut dists: Vec<i32> = Vec::new();
-    // for i in mnz.get(&root).unwrap() {
-    //     let ans = dijkstra(i, &graph);
-    //     let ans = ans.values().collect::<Vec<_>>();
-    //     let max_val = ans.iter().max().unwrap();
-    //     let tmp = **max_val;
-    //     diam = max(diam, tmp);
-    //     rad = min(rad, tmp);
 
-    //     dists.extend(ans);
-    // }
-
-    // let q = 0.9;
-    // let N = dists.len() as f64;
-    // dists.sort();
-    // let k = (q * N - 1.0).floor();
-    // let q = if k + 1.0 < q * N {
-    //     dists[k as usize + 1] as f64
-    // } else if (k + 1.0 - q * N).abs() < 1.0 / N {
-    //     (dists[k as usize] + dists[k as usize + 1]) as f64 / 2.0
-    // } else {
-    //     dists[k as usize] as f64
-    // };
-
-    Ok(vec![drq_full(&root, &mnz, &graph)])
+    Ok(vec![drq_full(&root, &mnz, &graph, threads_count)])
 }
 
 #[pyfunction]
