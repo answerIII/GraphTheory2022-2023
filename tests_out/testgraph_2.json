@@ -1,0 +1,13 @@
+{
+    "num_vertices": 34,
+    "num_edges": 78,
+    "density": 0.13903743315508021,
+    "conn_comps": 1,
+    "max_conn_comp_fraction": 1.0,
+    "cl": 1.1412769564153646,
+    "r": -0.4756130976846144,
+    "full_time_secs": 0.008998632431030273,
+    "diameter": 5,
+    "radius": 3,
+    "90th_percentile": 4.0
+}

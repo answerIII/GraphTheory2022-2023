@@ -3,6 +3,7 @@ import time
 
 import numpy as np
 from scipy.stats import pearsonr
+import gc
 
 from code.features.feature_extraction import load_graph
 
@@ -51,19 +52,27 @@ def get_connected_comps(graph: Graph) -> list[list[int]]:
 def first_task(path: str, full: bool = False, threads=16) -> dict[str, float | int]:
     t1 = time.time()
     graph = load_graph(path)
-    t2 = time.time()
     num_vertices = len(graph.nodes)
     num_edges = len(graph.edges)
     density = graph.density
 
     conn_comps = get_connected_comps(graph)
+
     max_conn_comp = graph.get_subgraph(max(conn_comps, key=len))
+    conn_comps = len(conn_comps)
     max_conn_comp_fraction = len(max_conn_comp.nodes) / num_vertices
 
     cl = get_avg_cluster_coeff(max_conn_comp)
     r = get_deg_assortivity(max_conn_comp)
 
     if full or num_vertices < 31000:
+        graph.clear()
+        del graph
+        del max_conn_comp
+
+        gc.collect()
+
+        max_conn_comp = None
         diam, rad, q = drq.find_drq(path, threads)
         dist_stats = {"diameter": diam, "radius": rad, "90th_percentile": q}
     else:
@@ -74,11 +83,9 @@ def first_task(path: str, full: bool = False, threads=16) -> dict[str, float | i
         "num_edges": num_edges,
         "density": density,
         "conn_comps": conn_comps,
-        "max_conn_comp": max_conn_comp,
         "max_conn_comp_fraction": max_conn_comp_fraction,
         "cl": cl,
         "r": r,
-        "full_time": t3 - t1,
-        "load_time": t2 - t1,
+        "full_time_secs": t3 - t1,
         **dist_stats,
     }

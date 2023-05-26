@@ -90,7 +90,6 @@ fn drq_full(
 ) -> (i32, i32, f64) {
     let diam = Arc::new(Mutex::new(0 as i32));
     let rad = Arc::new(Mutex::new(i32::MAX));
-    let dists = Arc::new(Mutex::new(Vec::new()));
 
     let tmp = mnz
         .get(&root)
@@ -98,16 +97,26 @@ fn drq_full(
         .into_iter()
         .map(|&el| el)
         .collect::<Vec<usize>>();
+
+    let dists = Arc::new(Mutex::new(Vec::with_capacity(tmp.len())));
+
+    
     let mut right = unsafe {
         let tmp = &tmp[..];
         let len = tmp.len();
         let ptr = tmp.as_ptr();
         slice::from_raw_parts(ptr, len)
     };
-    let mut d_threads = vec![];
+    let mut d_threads = Vec::with_capacity(16);
 
-    let per_thread = right.len() / threads;
+    let mut per_thread = right.len() / threads;
+    if per_thread < threads{
+        per_thread = right.len();
+    }
     for _ in 1..threads + 1 {
+        if right.len() == 0{
+            break;
+        }
         let (left, _r) = right.split_at(per_thread);
         right = _r;
         let cur_graph = Arc::clone(&graph);
@@ -119,7 +128,7 @@ fn drq_full(
             let mut cur_diam = 0;
             let mut cur_rad = i32::MAX;
 
-            let mut cur_dists: Vec<i32> = vec![];
+            let mut cur_dists: Vec<i32> = Vec::with_capacity(per_thread);
             for i in left {
                 let ans = dijkstra(i, &cur_graph);
                 let ans = ans.values().collect::<Vec<_>>();
@@ -174,37 +183,6 @@ fn drq_full(
     ans
 }
 
-// fn drq_full(
-//     root: &usize,
-//     mnz: &HashMap<usize, HashSet<usize>>,
-//     graph: &HashMap<usize, HashSet<usize>>,
-//     threads: usize,
-// ) -> (i32, i32, f64) {
-//     let mut diam = 0;
-//     let mut rad = i32::MAX;
-//     let mut dists: Vec<i32> = Vec::new();
-//     for i in mnz.get(&root).unwrap() {
-//         let ans = dijkstra(i, &graph);
-//         let ans = ans.values().collect::<Vec<_>>();
-//         let max_val = ans.iter().max().unwrap();
-//         let tmp = **max_val;
-//         diam = max(diam, tmp);
-//         rad = min(rad, tmp);
-//         dists.extend(ans);
-//     }
-//     let q = 0.9;
-//     let n = dists.len() as f64;
-//     sorting::quicksort_multi(&mut dists, threads);
-//     let k = (q * n - 1.0).floor();
-//     let q = if k + 1.0 < q * n {
-//         dists[k as usize + 1] as f64
-//     } else if (k + 1.0 - q * n).abs() < 1.0 / n {
-//         (dists[k as usize] + dists[k as usize + 1]) as f64 / 2.0
-//     } else {
-//         dists[k as usize] as f64
-//     };
-//     (diam, rad, q)
-// }
 
 #[pyfunction]
 fn find_drq(

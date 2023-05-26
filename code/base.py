@@ -84,6 +84,13 @@ class Graph:
         if len(self.nodes) > 1:
             return 2 * len(self.edges_set) / len(self.nodes) / (len(self.nodes) - 1) 
         return np.nan
+    
+    def clear(self):
+        del self.edges
+        del self.network
+        del self.edges_set
+        del self.nodes
+        del self.active_nodes
 
 class StaticGraph(Graph):
     def __init__(self, timestamps, quantile_end, *args, **kwargs):
