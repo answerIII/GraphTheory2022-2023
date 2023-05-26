@@ -24,6 +24,7 @@ For each dataset that you want to process, you must describe the following param
 
 ## Results and tests
 
+- Basic properties on test datasets are in the `./tests/results.txt` file
 - The network properties calculated by us (for static graphs) and their comparison with the reference solutions obtained using the `NetworkX` library are located in the folder `./stats`
 - Charts for assessing the quality of our model for predicting the appearance of edges in a graph can be found in the folder `./figures`
 
