@@ -15,6 +15,7 @@ private:
     int _edgeCount = 0;
     int _mainCompCount = 0;
     int _mainCompIdx = 0;
+    int _subGraphSize = 500;
     double _clCoeff = -1.0;
     double _assortCoeff = -1.0;
     std::vector<std::unordered_set<int>> _staticGraph;
@@ -24,7 +25,6 @@ private:
     std::pair<int,int> _mainDiameter;
     std::pair<int,int> _mainPerc90;
 
-    
     int perc(std::vector<int>& vec, int p){
         if (p < 100){
             std::sort(vec.begin(), vec.end());
@@ -105,7 +105,7 @@ private:
 
     void handleRadDimPerc90(){
         int n = GetVertexCount();
-        if (n > 500){
+        if (n >= _subGraphSize){
             std::vector<std::vector<int>> randAdj;
             randGraph(randAdj);
             calcRadDimPerc90(randAdj, 0);
@@ -121,53 +121,37 @@ private:
     }
 
     void adjGraph(std::vector<std::vector<int>>& adj){
-        int maxCompIdx = 0;
-        int maxCompSize = 0;
-        for(int i = 0; i < _weakComponents.size(); ++i){ 
-            if(_weakComponents[i].size() > maxCompSize){
-                maxCompIdx = i;
-                maxCompSize = _weakComponents[i].size();
-            }
-        }
-
-        for(int i = 0; i < maxCompSize; ++i){
-            std::vector<int> maxIntVec(maxCompSize, INT_MAX / 2 - 1); 
+        int mainSize = _weakComponents[_mainCompIdx].size();
+        for(int i = 0; i < mainSize; ++i){
+            std::vector<int> maxIntVec(mainSize, INT_MAX / 2 - 1); 
             adj.push_back(maxIntVec);
         }
 
-        for(int i = 0; i < maxCompSize; ++i)
-            for(auto v: _staticGraph[_weakComponents[maxCompIdx][i]])
-                adj[_weakComponents[maxCompIdx][i] - 1][v - 1] = 1;
+        for(int i = 0; i < mainSize; ++i){
+            int currVertex = _weakComponents[_mainCompIdx][i];
+            for(auto v: _staticGraph[currVertex])
+                adj[currVertex - 1][v - 1] = 1;
+        }
     }
 
     void randGraph(std::vector<std::vector<int>>& adj){
-        int size = 500; 
-        for(int i = 0; i < size; ++i){
-            std::vector<int> maxIntVec(size, INT_MAX / 2 - 1); 
+        for(int i = 0; i < _subGraphSize; ++i){
+            std::vector<int> maxIntVec(_subGraphSize, INT_MAX / 2 - 1); 
             adj.push_back(maxIntVec);
-        }
-
-        int maxCompIdx = 0;
-        int maxCompSize = 0;
-        for(int i = 0; i < _weakComponents.size(); ++i){ 
-            if(_weakComponents[i].size() > maxCompSize){
-                maxCompIdx = i;
-                maxCompSize = _weakComponents[i].size();
-            }
         }
 
         int randNum;
         srand(time(NULL));
         std::vector<int> randomVertex;
-        std::vector<int> component(_weakComponents[maxCompIdx]);
-        for(int i = 0; i < size; ++i){
+        std::vector<int> component(_weakComponents[_mainCompIdx]);
+        for(int i = 0; i < _subGraphSize; ++i){
             randNum = rand() % (component.size() - 1); 
             randomVertex.push_back(component[randNum]);
             component.erase(component.begin() + randNum);
         }
 
-        for(int i = 0; i < size; ++i){
-            for(int j = 0; j < size; ++j){
+        for(int i = 0; i < _subGraphSize; ++i){
+            for(int j = 0; j < _subGraphSize; ++j){
                 if(auto v =_staticGraph[randomVertex[i]].find(randomVertex[j]); 
                         v != _staticGraph[randomVertex[i]].end())
                     adj[i][j] = 1;
@@ -176,7 +160,43 @@ private:
     }
 
     void snowGraph(std::vector<std::vector<int>>& adj){
-        adj = {{0}};
+        for(int i = 0; i < _subGraphSize; ++i){
+            std::vector<int> maxIntVec(_subGraphSize, INT_MAX / 2 - 1); 
+            adj.push_back(maxIntVec);
+        }
+
+        srand(time(NULL));
+        int mainSize = _weakComponents[_mainCompIdx].size();
+        int firstVertexNum = rand() % mainSize;
+        int secondVertexNum = rand() % mainSize;
+        while(firstVertexNum == secondVertexNum)
+            secondVertexNum = rand() % mainSize;
+
+        std::vector<int> snowVertex;
+        std::vector<bool> isVisit(_staticGraph.size()+1);
+        snowVertex.push_back(_weakComponents[_mainCompIdx][firstVertexNum]);
+        snowVertex.push_back(_weakComponents[_mainCompIdx][secondVertexNum]);
+        isVisit[_weakComponents[_mainCompIdx][firstVertexNum]] = 1;
+        isVisit[_weakComponents[_mainCompIdx][secondVertexNum]] = 1;
+
+        for(int i = 0; i < _subGraphSize; ++i){
+            for(auto v: _staticGraph[snowVertex[i]]){
+                if(!isVisit[v]){
+                    snowVertex.push_back(v);
+                    if(snowVertex.size() == _subGraphSize)
+                        break;
+                    isVisit[v] = 1;
+                }
+            }
+        }
+
+        for(int i = 0; i < _subGraphSize; ++i){
+            for(int j = 0; j < _subGraphSize; ++j){
+                if(auto v =_staticGraph[snowVertex[i]].find(snowVertex[j]); 
+                        v != _staticGraph[snowVertex[i]].end())
+                    adj[i][j] = 1;
+            }
+        }
     }
 
     bool isExistEdge(int x, int y){
