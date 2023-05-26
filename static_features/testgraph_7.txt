@@ -1,0 +1,4 @@
+Common Neighbours: 584
+Adamic-Adar : 255.58502871664757
+Jaccard Coefficient: 0.07626012013580569
+Preferential Attachment: 4718637
