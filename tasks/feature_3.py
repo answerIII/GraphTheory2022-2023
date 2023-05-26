@@ -9,7 +9,6 @@ def get_node_activities(graph:UndirectedGraph,t_s:int):
    l=0.2
    t_min=graph.t_min
    t_max=graph.t_max
-   print(t_min,t_max)
    # вычислим map весов (лин., эксп.,корн.)
    weight_map={}
       

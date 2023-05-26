@@ -11,7 +11,8 @@ def write_output_to_file(output_filename: str, output: List[str]):
 
 if __name__ == '__main__':
     output=[]
-    filename="radoslaw_email_email"
+    filenames=["radoslaw_email_email","small-graph","dnc-corecipient","sample"]
+    filename=filenames[0]
     graph=read_undirected_graph(filename)
     print("ok")
     output.append("Количество вершин и рёбер графа:"+str(graph.v)+","+str(graph.e))
@@ -41,5 +42,6 @@ if __name__ == '__main__':
     #     print(X[i])
     #     print(len(X[i]))
     Y=get_y(graph,edges)
+    #print(Y)
     regression_model(X,Y)
     
