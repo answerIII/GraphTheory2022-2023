@@ -1,0 +1,87 @@
+start read graph ../data/testgraph_1.txt
+RESULT:
+vertices=9, edges=13, density=0.3611111111111111
+components_count=1, max_comp_size=9, percentage=1.0
+metrix: {'radius': 2, 'diameter': 3, 'perc90': 3}
+avg=0.4, assort=-0.20370370370370416
+CN = 2
+AA = 1.8204784532536746
+JC = 0.2857142857142857
+PA = 18
+
+start read graph ../data/testgraph_2.txt
+RESULT:
+vertices=34, edges=78, density=0.13903743315508021
+components_count=1, max_comp_size=34, percentage=1.0
+metrix: {'radius': 3, 'diameter': 5, 'perc90': 4}
+avg=0.5706384782076824, assort=-0.4756130976846141
+CN = 7
+AA = 6.130716871863356
+JC = 0.3888888888888889
+PA = 144
+
+start read graph ../data/testgraph_3.txt
+RESULT:
+vertices=77, edges=254, density=0.08680792891319207
+components_count=1, percentage=1.0, max_comp_size=77
+metrix: {'radius': 3, 'diameter': 5, 'perc90': 4}
+avg=0.5731367499320135, assort=-0.16522513442236958
+CN = 0
+AA = 0
+JC = 0.0
+PA = 10
+
+start read graph ../data/testgraph_4.txt
+RESULT:
+vertices=62, edges=159, density=0.08408249603384453
+components_count=1, percentage=1.0, max_comp_size=62
+metrix: {'radius': 5, 'diameter': 8, 'perc90': 5}
+avg=0.25895824605502016, assort=-0.04359402821531295
+CN = 0
+AA = 0
+JC = 0.0
+PA = 48
+
+start read graph ../data/testgraph_5.txt
+RESULT:
+vertices=198, edges=2742, density=0.14059375480695277
+components_count=1, percentage=1.0, max_comp_size=198
+metrix: {'radius': 4, 'diameter': 6, 'perc90': 3}
+avg=0.6174507021536302, assort=0.02023739927504728
+CN = 0
+AA = 0
+JC = 0.0
+PA = 69
+
+start read graph ../data/testgraph_6.txt
+RESULT:
+vertices=19428, edges=96662, density=0.000512214581272078
+components_count=23, percentage=0.996757257566399, max_comp_size=19365
+metrix: {'radius': 6, 'diameter': 11, 'perc90': 6}
+avg=0.0, assort=-0.19155705078320998
+CN = 0
+AA = 0
+JC = 0.0
+PA = 9
+
+start read graph ../data/testgraph_7.txt
+RESULT:
+vertices=325729, edges=1090108, density=2.054887279975493e-05
+components_count=1, percentage=1.0, max_comp_size=325729
+metrix: {'not_snow': {'radius': 24.333333333333332, 'diameter': 44.0, 'perc90': 10.0}, 'snow': {'radius': 25.333333333333332, 'diameter': 31.0, 'perc90': 10.333333333333334}}
+avg=0.3342474877862492, assort=-0.051900964850516824
+CN = 584
+AA = 255.58502871664766
+JC = 0.07626012013580569
+PA = 4718637
+
+start read graph ../data/team_5.txt
+RESULT:
+vertices=998, edges=49871, density=0.1002426116023421
+components_count=1, percentage=1.0, max_comp_size=998
+metrix: {'radius': 2, 'diameter': 3, 'perc90': 2}
+avg=0.10019907145409718, assort=-0.005315099975755597
+CN = 12
+AA = 2.600555136266861
+JC = 0.061224489795918366
+PA = 10752
