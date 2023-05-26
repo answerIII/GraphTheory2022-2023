@@ -111,7 +111,7 @@ def print_basic_properties(dataset, display_interm_results = False) -> None:
 
     for line in dataset:
         [from_ind, to_ind, weight, time] = [int(x) for x in line.split()]
-        if from_ind in max_WCC:
+        if (from_ind and to_ind) in max_WCC:
             ver[from_ind].add(to_ind)
             ver[to_ind].add(from_ind) 
         
