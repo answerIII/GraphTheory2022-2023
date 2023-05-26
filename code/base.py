@@ -58,11 +58,16 @@ class Network:
 
 
 class Graph:
-    def __init__(self, network: Network, edges: np.ndarray, nodes: dict[int, Node]):
+    def __init__(self, network: Network, edges: np.ndarray, nodes: dict[int, Node], 
+                 active_nodes_ids: None | list[int] = None):
         self.network = network
         self.edges = edges
         self.edges_set: np.ndarray = np.unique(self.edges, axis=0)
         self.nodes = nodes
+        if active_nodes_ids is not None:
+            self.active_nodes = active_nodes_ids
+        else:
+            self.active_nodes = list(self.nodes.keys())
     
     def get_subgraph(self, nodes_ids: ArrayLike) -> "Graph":
         nodes_ids = np.unique(nodes_ids)
@@ -72,7 +77,7 @@ class Graph:
             [u_id, neighbor] for u_id, node in new_nodes.items() for neighbor in node.neighbors
         ])
         
-        return Graph(self.network, new_edges, new_nodes)
+        return Graph(self.network, new_edges, new_nodes, nodes_ids)
     
     @property
     def density(self):
