@@ -16,6 +16,8 @@ def calc_static_features(file):
         if dvudol:
             LeftVertex.add(row['in'])
             RightVertex.add(row['out'])
+        if row['in']==row['out']:
+            continue
         left = AllVertex.get(row['in'])
         if left:
             if (row['out']) in left:
