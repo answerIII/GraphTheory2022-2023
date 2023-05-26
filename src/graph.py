@@ -1,6 +1,6 @@
 class Graph(object):
-    def __init__(self, file_path : str, timestamp_col : int = 3, weight_col : int = 2, 
-                 number_of_lines_to_skip : int = 0, timestamp_filter : int = 100, is_multigraph : bool = False):        
+    def __init__(self, file_path : str, timestamp_col : int = None, weight_col : int = None, 
+                 number_of_lines_to_skip : int = 0, timestamp_filter : int = 100, is_multigraph : bool = True):        
         try:
             with open(file_path, "r") as file:
                 self.__init_data_structures(file, timestamp_col, weight_col, number_of_lines_to_skip, is_multigraph)
@@ -8,17 +8,25 @@ class Graph(object):
                     next(file)
 
                 edge_id = 0
-                filter = self.__filter(timestamp_filter)
+                filter = self.__filter(timestamp_filter) if (timestamp_col is not None) else None
 
                 for line in file:
                     tokens = line.split()
                     v1 = int(tokens[0])
                     v2 = int(tokens[1])
-                    w = int(tokens[weight_col])
-                    timestamp = float(tokens[timestamp_col])
+                    if (weight_col is not None):
+                        w = int(tokens[weight_col])
+                        if (w < 0):
+                            continue
+                    else:
+                        w = None
 
-                    if (w < 0) or (timestamp > filter) or (v1 == v2):
-                        continue
+                    if (timestamp_col is not None):
+                        timestamp = float(tokens[timestamp_col])
+                        if (timestamp > filter):
+                            continue
+                    else: 
+                        timestamp = None
 
                     self.add_edge(v1, v2, edge_id, timestamp)
                     edge_id += 1
@@ -33,7 +41,8 @@ class Graph(object):
         self.__number_of_edges_without_multiplicity = 0
       
         self.__edges_info = dict()
-        self.__timestamps = dict()
+        if (timestamp_col is not None):
+            self.__timestamps = dict()
         self.__vertices = set()
         self.__number_of_vertices, max_vertex_id = self.__numer_of_vertices_from_file(file, timestamp_col, weight_col, 
                                                                                       number_of_lines_to_skip)
@@ -49,18 +58,21 @@ class Graph(object):
             tokens = line.split()
             v1 = int(tokens[0])
             v2 = int(tokens[1])
-            w = int(tokens[weight_col])
-            timestamp = float(tokens[timestamp_col])
 
-            if (w < 0):
-                continue
+            if (weight_col is not None):
+                w = int(tokens[weight_col])
+                if (w < 0):
+                    continue
 
+            if (timestamp_col is not None):
+                timestamp = float(tokens[timestamp_col])
+                if (timestamp not in self.__timestamps):
+                    self.__timestamps[timestamp] = []
+                self.__timestamps[timestamp].append([v1, v2])
+               
             self.__vertices.add(v1)
             self.__vertices.add(v2)
     
-            if (timestamp not in self.__timestamps):
-                self.__timestamps[timestamp] = []
-            self.__timestamps[timestamp].append([v1, v2])
 
         file.seek(0)
 
@@ -172,7 +184,8 @@ class Graph(object):
     def __add_edge_to_list(self, vertex_from : int, vertex_to : int, edge_id : int) -> None:
         if (vertex_to not in self.__adjacent_vertices[vertex_from]):
             self.__adjacent_vertices[vertex_from][vertex_to] = set()
-            self.__number_of_edges_without_multiplicity += 1
+            if (vertex_from != vertex_to):
+                self.__number_of_edges_without_multiplicity += 1
 
         if (self.__is_multigraph == False) and (len(self.__adjacent_vertices[vertex_from][vertex_to]) > 0):
             return
@@ -181,6 +194,8 @@ class Graph(object):
 
 
     def __filter(self, timestamp_filter : int) -> float:
+        if (timestamp_filter is None):
+            return None
         if (timestamp_filter < 0 or timestamp_filter > 100):
             raise Exception(f"Required filter value is out of range: " + str(timestamp_filter))
         max = self.max_timestamp()
