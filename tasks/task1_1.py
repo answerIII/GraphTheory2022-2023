@@ -73,7 +73,7 @@ def calculate_radius_diameter_percentile(graph: UndirectedGraph, nodes: List[int
         range_perc=[]
         for i in range(len(ranges)):
             for j in range(ranges[i]):
-                range_perc.append(j)
+                range_perc.append(i)
         range_perc=np.array(range_perc)
         percentile=np.quantile(range_perc,0.9)
     else:
@@ -151,5 +151,52 @@ def get_snowball(graph: UndirectedGraph, start_node_list: List[int], start_nodes
         i+=1
     return start_list
 
+def get_snowball_for_regression(graph: UndirectedGraph, start_node_list: List[int], start_nodes_count:int,number_of_nodes_in_list:int,t_s:int)->List[int]:
+    start_list=sample(start_node_list,start_nodes_count)
+    queue=[]
+    visited=[]
+    queue.append(start_list[0])
+    visited.append(start_list[0])
+    while len(start_list)<min(number_of_nodes_in_list,len(start_node_list)) and queue:
+        for v in graph.edge_map[queue[0]].keys():
+            if v not in visited and min(graph.edge_map[queue[0]][v])<=t_s:
+                start_list.append(v)
+                visited.append(v)  
+                queue.append(v)
+        queue=queue[1:]
+    return start_list
 
+# def get_snowball_for_regression(graph: UndirectedGraph, start_node_list: List[int], start_nodes_count:int,number_of_nodes_in_list:int,t_s:int)->List[int]:
+#     start_list=sample(start_node_list,start_nodes_count)
+#     queue=[]
+#     visited=[]
+#     out_list=[]
+#     queue.append(start_list[0])
+#     visited.append(start_list[0])
+#     while len(out_list)<min(number_of_nodes_in_list,math.floor(len(start_node_list)/2)) and queue:
+#         for v in graph.edge_map[queue[0]].keys():
+#             if min(graph.edge_map[queue[0]][v])>t_s:
+#                 continue
+#             for w in graph.edge_map[v].keys():
+#                 if w not in visited and min(graph.edge_map[queue[0]][v])<=t_s:
+#                     out_list.append(str(queue[0])+"."+str(w))
+#                     visited.append(w)
+#                     queue.append(w)  
+#         queue=queue[1:]
+#     print("Forward")
+#     queue=[]
+#     visited=[]
+#     queue.append(start_list[0])
+#     visited.append(start_list[0])
+#     cur_len=len(out_list)
+#     while len(out_list)<cur_len+math.floor(cur_len/3) and queue:
+#         for v in graph.edge_map[queue[0]].keys():
+#              if v not in visited:
+#                 if max(graph.edge_map[queue[0]][v])>t_s and str(queue[0])+"."+str(w) not in out_list and str(w)+"."+str(queue[0]) not in out_list:
+#                     out_list.append(str(queue[0])+"."+str(w))
+#                 visited.append(v)  
+#                 queue.append(v)
+#         queue=queue[1:]
+
+#     return out_list
 

@@ -2,22 +2,6 @@ from graphs_init.undirected_graph import UndirectedGraph
 from typing import Set, Tuple, List
 from math import log
 
-#Функция для нахождения пересечения двух множеств (И)
-def conjunction(graph: UndirectedGraph, u: int, v: int,t_s:int) -> List[int]:
-    result=[]
-    neigbours_1=[]
-    neigbours_2=[]
-    for i in graph.edge_map[u].keys():
-        if min(graph.edge_map[u][i])<=t_s:
-            neigbours_1.append(i)
-    for i in graph.edge_map[v].keys():
-        if min(graph.edge_map[v][i])<=t_s:
-            neigbours_2.append(i)
-    for k in neigbours_2:
-        if k in neigbours_1:
-            result.append(k)
-    return result
-
 
 def get_neigbours(graph: UndirectedGraph, u: int,t_s:int):
     neigbours=[]
@@ -25,6 +9,16 @@ def get_neigbours(graph: UndirectedGraph, u: int,t_s:int):
         if min(graph.edge_map[u][i])<=t_s:
             neigbours.append(i)
     return neigbours
+
+#Функция для нахождения пересечения двух множеств (И)
+def conjunction(graph: UndirectedGraph, u: int, v: int,t_s:int) -> List[int]:
+    result=[]
+    neigbours_1=get_neigbours(graph,u,t_s)
+    neigbours_2=get_neigbours(graph,v,t_s)
+    for k in neigbours_1:
+        if k in neigbours_2:
+            result.append(k)
+    return result
 
 #Функция для нахождения объединения двух множеств (ИЛИ)
 def disjunction(graph: UndirectedGraph, u: int, v: int,t_s:int) -> List[int]:
