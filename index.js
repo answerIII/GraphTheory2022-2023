@@ -610,15 +610,15 @@ class Graph {
     }
 
     /**
-     * Calculates the topological features for `firstNode` and `secondNode`.
+     * Calculates the temporal features for `firstNode` and `secondNode`.
      * @param {number} firstNode
      *     The first node.
      * @param {number} secondNode
      *     The second node.
      * @returns {number[]}
-     *     The result topological features.
+     *     The result temporal features.
      */
-    calculateTopologicalFeatures(firstNode, secondNode) {
+    calculateTemporalFeatures(firstNode, secondNode) {
         // Get the neighbors of the both nodes.
         const firstNeighbors = Array.from(
             /** @type {Map<number, Date[]>} */ (
@@ -947,7 +947,7 @@ class Graph {
      * @returns {[number, number[], number[]][]}
      *     The vector of the features with the answers --- the first value
      *     is the answer, the second are the statical features and the third
-     *     are the topological features. The vector has 20,000 elements.
+     *     are the temporal features. The vector has 20,000 elements.
      */
     getFeaturesAnswers() {
         const now = performance.now();
@@ -1036,12 +1036,12 @@ class Graph {
                     secondNeighbor
                 );
 
-                const topological = this.calculateTopologicalFeatures(
+                const temporalFeatures = this.calculateTemporalFeatures(
                     firstNeighbor,
                     secondNeighbor
                 );
 
-                negativeResult.push([0, staticFeatures, topological]);
+                negativeResult.push([0, staticFeatures, temporalFeatures]);
                 continue;
             }
 
@@ -1080,12 +1080,12 @@ class Graph {
                 secondNeighbor
             );
 
-            const topological = this.calculateTopologicalFeatures(
+            const temporalFeatures = this.calculateTemporalFeatures(
                 firstNeighbor,
                 secondNeighbor
             );
 
-            positiveResult.push([1, staticFeatures, topological]);
+            positiveResult.push([1, staticFeatures, temporalFeatures]);
         }
 
         console.error("Maximum number of attempts reached");

@@ -11,7 +11,7 @@ SKIP_PLOT = True
 
 for name in os.listdir("data"):
     # S --- Static
-    # T --- Topological
+    # T --- Temporal
     S, T, y = [], [], []
 
     with open(f"data/{name}") as file:
@@ -28,7 +28,7 @@ for name in os.listdir("data"):
         plt.axis("square")
         plt.xlabel("false positive rate")
         plt.ylabel("true positive rate")
-        plt.title("dataset {name}, s")
+        plt.title(f"dataset {name}, s")
         plt.legend()
         plt.show()
 
@@ -36,10 +36,10 @@ for name in os.listdir("data"):
     print(f"auc({name}, t): {roc_auc_score(y, clf_t.decision_function(T))}")
 
     if not SKIP_PLOT:
-        RocCurveDisplay.from_predictions(y, clf_s.predict_proba(S)[:,1])
+        RocCurveDisplay.from_predictions(y, clf_t.predict_proba(T)[:,1])
         plt.axis("square")
         plt.xlabel("false positive rate")
         plt.ylabel("true positive rate")
-        plt.title("dataset {name}, t")
+        plt.title(f"dataset {name}, t")
         plt.legend()
         plt.show()
