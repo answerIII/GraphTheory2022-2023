@@ -101,12 +101,6 @@ def print_basic_properties(dataset, display_interm_results = False) -> None:
     
     ### Пункт 1.2.
 
-    
-
-
-
-
-
     ver = defaultdict(set) # подграф с наибольшей КСС 
 
     for line in dataset:
@@ -123,29 +117,39 @@ def print_basic_properties(dataset, display_interm_results = False) -> None:
     #random_v =random.sample(list(max_WCC), k=n) # мн-во вершин для 2a
     #print('random_v', random_v)
 
-    def dijkstra_algo(graph, start) -> int:
-        d = defaultdict(bool) # расстояние от вершины старт до всех остальных 
-        use = defaultdict(bool)
-        d[start] = 0 
-        min_d = 0 
-        curr_v = start
-        while min_d < math.inf:
-            i = curr_v 
-            use[i] = True 
-            min_d = math.inf 
-            path = d[i] + 1
-            for j in graph[i]: 
-                if (not d[j] and j != start) or path < d[j]:
-                    d[j] = path  
+    def dijkstra_algo(adjList: list[list], start) -> list:
+      min_queue = queue.PriorityQueue()
+      distance = [np.inf] * V
 
-            for i in graph:
-                if not use[i] and (d[i] and d[i] < min_d): 
-                    curr_v = i
-                    min_d = d[i]
+      min_queue.put((0, start))
+      distance[start] = 0
 
-        #print("Расстояния ", d, "Вершина", start) 
-        k = list(d.values())
-        return max(k), k
+      while not min_queue.empty():
+        u = min_queue.get()[1]
+        for v in adjList[u]:
+          weight = 1
+          if distance[v] > distance[u] + weight:
+            distance[v] = distance[u] + weight
+            min_queue.put((distance[v], v))
+
+
+      pairs_of_vertexes = [] # at distance = 2
+      for i in range(start, V):
+        if distance[i] == 2:
+          pairs_of_vertexes.append((start, i))
+
+                # print(i, ":", distance[i])
+
+            # print(pairs_of_vertexes)
+            # print()
+
+      # print('k',distance) 
+      distance[0]=0
+      if np.inf in distance: 
+        distance[distance.index(np.inf)] = 0 
+      # print(distance)     
+      return max(distance), distance
+
 
 
 
