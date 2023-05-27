@@ -2,12 +2,14 @@ import os
 from pathlib import Path
 from features import temporal_selection_model, static_selection_model
 import matplotlib.pyplot as plt
-from first import analyze_graph, calculate_distance
+from first import analyze_graph, compute_distance
 from static_features import compute_static_features_for_pair
 
 datasets = [w for w in Path("conf.txt").read_text(encoding="utf-8").replace("\n", " ").split()]
 
 def graph_selection(datasets):
+    if(not os.path.exists("datasets")):
+        os.mkdir("datasets")
     print("Выберите нужный датасет:")
     for i in range(len(datasets)):
         print(f"{i}. {datasets[i]}")
@@ -23,8 +25,8 @@ def graph_selection(datasets):
 
 def graph_info(dataset):
 
-    if(not os.path.exists("datasets")):
-        os.mkdir("datasets")
+    if(not os.path.exists("static_features")):
+        os.mkdir("static_features")
     try:
         f = open(f'./datasets/{dataset}')
         f.close()
@@ -74,13 +76,14 @@ def graph_info(dataset):
         case 1:
             print(analyze_graph(f"datasets/{dataset}"))
         case 2: 
-                calculate_distance(graph)
+                compute_distance(graph)
         case 3:
             print(static_selection_model(dataset))
         case 4:
             print(temporal_selection_model(dataset))
         case 5:
-            compute_static_features_for_pair(set_graph)
+            with open(f"static_features/{dataset}", mode = 'wt') as f:
+                f.write(compute_static_features_for_pair(set_graph))
         case -1:
             graph_selection(datasets)
         case _:
