@@ -3,8 +3,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, roc_auc_score, roc_curve, auc
 from matplotlib import pyplot as plt
 
-from prepare_data import prepare_data_all, prepare_data_at_dist_2
+from prepare_data import prepare_data_all, prepare_data_at_dist_2_static, prepare_data_at_dist_2_temp
 from static_features import calc_four_static_properties
+from temporal_features import calc_temporate_feauters
 import pylab
 
 
@@ -36,8 +37,7 @@ def AUC(X_test, Y_test, logistic_model):
 
 def link_prediction(dataset, s):
 
-    # [V, adjList, nonexistent_edges, y] = prepare_data_all(dataset, s, display_interm_results=False)
-    [V, adjList, nonexistent_edges, y] = prepare_data_at_dist_2(dataset, s, display_interm_results=False)
+    [V, qs, adjList, nonexistent_edges, y] = prepare_data_at_dist_2_static(dataset, s, display_interm_results=False)
 
     # for i in range(V):
     #     print(i, ":", end=" ")
@@ -67,4 +67,34 @@ def link_prediction(dataset, s):
     print(classification_report(y_test, predictions))
     
     AUC(X_test, y_test, logistic_model)
+
+
     
+def link_prediction_temporal(dataset, s):
+    
+    [V, qs, adjList, nonexistent_edges, y] = prepare_data_at_dist_2_temp(dataset, s, display_interm_results=False)
+
+
+
+    features, y = calc_temporate_feauters(dataset, nonexistent_edges, qs)
+    #print(features)
+
+    # for _list in features:
+    #     print(_list)
+
+
+    X = []
+    X = list(features.values())
+    # # print(X)
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25)
+
+    logistic_model = LogisticRegression(max_iter=100000)
+    logistic_model.fit(X_train, y_train)
+    
+    predictions = logistic_model.predict(X_test)
+    
+    print(classification_report(y_test, predictions))
+
+
+    AUC(X_test, y_test, logistic_model)

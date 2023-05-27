@@ -1,6 +1,6 @@
-from logistic_regression import link_prediction
+from logistic_regression import link_prediction, link_prediction_temporal
 from basic_features import print_basic_properties
-from logisstic_regresion_temporal import link_prediction_temporal 
+
 
 datasets = {
     1:'Rado', 2:'UC', 5:'bitA', 6: 'bitOT', 4: 'Dem',
@@ -28,7 +28,7 @@ while True:
             link_prediction(dataset, 50)
         case "3":
             print("Проводим рассчеты...")
-            link_prediction_temporal(dataset, 50)
+            link_prediction_temporal(dataset, 20)
         case "4":
             print("Введите номер датасета: ", end="")
             n = int(input())

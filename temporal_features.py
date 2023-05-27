@@ -4,7 +4,7 @@ from collections import defaultdict
 import networkx as nx
 
 # A 
-def calc_temporate_feauters(dataset, qs):
+def calc_temporate_feauters(dataset, nonexistent_edges, qs):
 
   def temporal_weight(t_arr, t_min, t_max) -> (dict):
 
@@ -39,26 +39,28 @@ def calc_temporate_feauters(dataset, qs):
 
   # C
 
-
   def CN_temporal(u, v, z_arr, graph, number) -> (list):
-    CN = np.zeros(len(graph[u][v]['weight'][number]))
+    CN = np.zeros(8)
 
     for z in z_arr:
-      CN = CN + np.array(graph[u][z]['weight'][number]) + np.array(graph[v][z]['weight'][number])
+      if len(graph[z]) > 0:
+        CN = CN + np.array(graph[u][z]['weight'][number]) + np.array(graph[v][z]['weight'][number])
 
     return CN
 
   def JC_temporal(u, v, z_arr, graph, number) -> list:
-    n =  len(graph[u][v]['weight'][number])
+    n =  8
     x = np.zeros(n)
     y = np.zeros(n)
     JC = np.zeros(n)
 
-    for i in graph[u]:
-      x += np.array(graph[u][i]['weight'][number])
+    if len(graph[u]) > 0:
+      for i in graph[u]:
+        x += np.array(graph[u][i]['weight'][number])
 
-    for i in graph[v]:
-      y += np.array(graph[v][i]['weight'][number])
+    if len(graph[v]) > 0:
+      for i in graph[v]:
+        y += np.array(graph[v][i]['weight'][number])
 
     tmp = x + y
     b = False
@@ -66,7 +68,8 @@ def calc_temporate_feauters(dataset, qs):
       tmp[-1] = 1 #?????
       b = True
     for z in z_arr:
-      JC = JC + (np.array(graph[u][z]['weight'][number]) + np.array(graph[v][z]['weight'][number])) / tmp
+      if len(graph[z]) > 0:
+        JC = JC + (np.array(graph[u][z]['weight'][number]) + np.array(graph[v][z]['weight'][number])) / tmp
     if b:
       JC[-1] = 0
     return JC
@@ -75,23 +78,25 @@ def calc_temporate_feauters(dataset, qs):
 
 
   def PA_temporal(u, v, graph, number) -> (list):
-    n = len(graph[u][v]['weight'][number])
+    n = 8
     PA = np.zeros(n)
     x = np.zeros(n)
     y = np.zeros(n)
 
-    for i in graph[u]:
-      x += np.array(graph[u][i]['weight'][number])
+    if (len(graph[u]) > 0):
+      for i in graph[u]:
+        x += np.array(graph[u][i]['weight'][number])
 
-    for i in graph[v]:
-      y += np.array(graph[v][i]['weight'][number])
+    if (len(graph[v]) > 0):
+      for i in graph[v]:
+        y += np.array(graph[v][i]['weight'][number])
 
     PA = x * y
 
     return PA
 
   def AA_temporal(u, v, z_arr, graph, number) -> (list):
-    n =  len(graph[u][v]['weight'][number])
+    n = 8
     AA = np.zeros(n)
     sum_x = np.zeros(n)
 
@@ -108,6 +113,9 @@ def calc_temporate_feauters(dataset, qs):
          tmp = AA[-1]
          b = True
 
+      #print("sum_x:", sum_x)
+
+      
       AA = AA + (np.array(graph[u][z]['weight'][number]) + np.array(graph[v][z]['weight'][number])) / np.log(1 + sum_x)
       # print("AA", AA)
       # print('log', np.log(1 + sum_x))
@@ -126,8 +134,9 @@ def calc_temporate_feauters(dataset, qs):
       CN = CN_temporal(u, v, z_arr, graph, number)
       JC = JC_temporal(u, v, z_arr, graph, number)
     else:
-      n = len(graph[u][v]['weight'][number])
+      n = 8
       AA, CN, JC = [0]*n, [0]*n, [0]*n
+
 
     PA = PA_temporal(u, v, graph, number)
 
@@ -135,6 +144,7 @@ def calc_temporate_feauters(dataset, qs):
     # print(CN)
     # print(JC)
     # print(PA)
+
 
     features = list(AA) + list(CN) + list(JC) + list(PA)
 
@@ -146,8 +156,8 @@ def calc_temporate_feauters(dataset, qs):
 
   for line in dataset:
       [from_ind, to_ind, weight, time] = [int(x) for x in line.split()]
-      all_time.append(time)
       if time <= qs: 
+        all_time.append(time)
         ver[(min(from_ind, to_ind), max(from_ind, to_ind))].append(time)
       else:
         ver_after.append([from_ind, to_ind])
@@ -156,16 +166,22 @@ def calc_temporate_feauters(dataset, qs):
   t_max = max(all_time)
 
 
-  # for key, value in ver.items():
-  #   print(key, ":" ,value)
-
   for key, value in ver.items():
     ver[key] = list(set(value))
 
 
   G = nx.Graph()
 
-  weight_liner = defaultdict(list)
+  
+  uniqueVertexes = set()
+  for line in dataset:
+    [from_ind, to_ind, weight, time] = [int(x) for x in line.split()]
+    uniqueVertexes.add(from_ind)
+    uniqueVertexes.add(to_ind)
+  uniqueVertexes = list(uniqueVertexes)
+  
+  #######
+  G.add_nodes_from(uniqueVertexes)
 
   for uv in ver:
     w = temporal_weight(ver[uv], t_min, t_max)
@@ -177,20 +193,30 @@ def calc_temporate_feauters(dataset, qs):
     G[uv[0]][uv[1]]['weight'] += [list(weight_exponetial.values())]
     G[uv[0]][uv[1]]['weight'] += [list(weight_square.values())]
 
-  ver.clear()
-  for i in range(3):
-    for j in G.edges:
-      ver[(j[0], j[1])] += topological_features(j[0], j[1], G, i)
 
-  y = [0] * len(ver)
+  ver.clear()
+
+  for i in range(3):
+    for edge in nonexistent_edges:
+      
+      ver[edge[0], edge[1]] += topological_features(edge[0], edge[1], G, i)
+
+  # for key, value in ver.items():
+  #   print(key, ":" ,value)
+
+  y = [0] * len(nonexistent_edges)
   j = 0
   print("len(ver):", len(ver))
   print("len(ver_after):", len(ver_after))
 
-  for i in ver:
-    if ([i[0], i[1]] in ver_after) or ([i[1],i[0]] in ver_after):
+  for edge in nonexistent_edges:
+    if ([edge[0],edge[1]] in ver_after) or ([edge[1],edge[0]] in ver_after):
       y[j] = 1
     j += 1
+  i=0
+  # for edge in nonexistent_edges:
+  #   print(edge, ':', y[i])
+  #   i += 1
 
   print("y.count(1):", y.count(1))
   print("y.count(0):", y.count(0))
