@@ -4,12 +4,16 @@ from math import inf
 from random import sample
 import numpy as np
 
+
+
 #Функция для нахождения максимальной по мощности компоненты слабой связности и числа компонент слабой связности
 def get_max_weakly_connected_component(graph: UndirectedGraph) -> Tuple[List[int], int]:
+
     max_component = []
     wcc_count=0
     # Проходися BFS'ом от вершины, которую ещё не посетили
     visited = {k: False for k in graph.edge_map.keys()}
+
     for k in graph.edge_map.keys():
         if not visited[k]:
             component = []
@@ -25,10 +29,14 @@ def get_max_weakly_connected_component(graph: UndirectedGraph) -> Tuple[List[int
             if len(component)>len(max_component):
                 max_component=list(component)
             wcc_count+=1
+
     return max_component, wcc_count
+
+
 
 #Функция для нахождения экцентриситета вершины и количества вершин, находящихся на расстоянии i от неё
 def calculate_eccentricity_and_ranges(graph: UndirectedGraph, start: int, random_part: List[int]) -> Tuple[int, List[int]]:
+
     ranges = [0]
     eccentricity = 0
     #Проходися BFS'ом и если натыкаемся на -1, значит обработка всех соседних вершин на расстоянии distance закончена
@@ -36,6 +44,7 @@ def calculate_eccentricity_and_ranges(graph: UndirectedGraph, start: int, random
     visited = set()
     visited.add(start)
     distance = 1
+
     while queue:
         next = queue.pop(0)
         if next == -1:
@@ -52,14 +61,19 @@ def calculate_eccentricity_and_ranges(graph: UndirectedGraph, start: int, random
                     ranges[-1] += 1
                 visited.add(neighbour)
                 queue.append(neighbour)
+
     return eccentricity, ranges
+
+
 
 #Функция для вычисления радиуса, диаметра, 90 процентиля расстояний
 def calculate_radius_diameter_percentile(graph: UndirectedGraph, nodes: List[int]) -> Tuple[int, int, int]:
+
     ranges = [] #Массив для хранения количества вершин на i позиции, до которых можно дойти за i+1 шаг из любой другой вершины
     radius = inf
     diameter = 0
     percentile=0
+
     for i in range(len(nodes)):
         eccentricity, node_ranges = calculate_eccentricity_and_ranges(graph, nodes[i], nodes)
         #Объединим два массива для дальнешего вычисления процентиля
@@ -69,6 +83,7 @@ def calculate_radius_diameter_percentile(graph: UndirectedGraph, nodes: List[int
             ranges += node_ranges[len(ranges):]
         radius = min(eccentricity, radius) #Радиус-минимальное из эксцентриситетов вершин
         diameter = max(eccentricity, diameter) #Диаметр-максимальное из эксцентриситетов вершин
+
     if len(nodes)<100:
         range_perc=[]
         for i in range(len(ranges)):
@@ -78,24 +93,33 @@ def calculate_radius_diameter_percentile(graph: UndirectedGraph, nodes: List[int
         percentile=np.quantile(range_perc,0.9)
     else:
         percentile = calculate_percentile(ranges)
+
     return radius, diameter, percentile
+
+
 
 #Функция для вычисления 90 процентиля расстояний (можно ещё посчитать, закинув)
 def calculate_percentile(ranges: List[int]) -> int:
+
     p=90
     n = sum(ranges)
     #Вычисляем индекс по формуле
     index = round(p * n / 100) - 1 
     #Ищем расстояние для 90% перцентиля по индексу
     part_sum_ranges = 0
+
     for j in range(len(ranges)):
         if part_sum_ranges <= index < part_sum_ranges + ranges[j]:
             return j + 1
         part_sum_ranges += ranges[j]
+
     return -1
+
+
 
 #Функция для вычисления среднего кластерного коэффициента в компоненте слабой связности (всё по формуле)
 def average_clustering(graph: UndirectedGraph, nodes: List[int]) -> float:
+
     Cl=0
     for node in nodes:
         neigbours=graph.edge_map[node].keys()
@@ -103,6 +127,7 @@ def average_clustering(graph: UndirectedGraph, nodes: List[int]) -> float:
         if node in neigbours:
             minus_if_loop=-1
         gamma=len(neigbours)+minus_if_loop
+
         if gamma>=2:
             visited = []
             visited.append(node)
@@ -113,14 +138,19 @@ def average_clustering(graph: UndirectedGraph, nodes: List[int]) -> float:
                         Lu+=1
                 visited.append(neigbour)
             Cl+=2*Lu/(gamma*(gamma-1))
+
     return Cl/graph.v
+
+
 
 #Функция для вычисления коэффициента корреляции Пирсона (всё по формуле)
 def calculate_coef_pirs(graph: UndirectedGraph, nodes: List[int]) -> float:
+
     R1=0
     R2=0
     R3=0
     Re=0
+
     for node_1 in nodes:
         neigbours=graph.edge_map[node_1].keys()
         minus_if_loop=0
@@ -130,6 +160,7 @@ def calculate_coef_pirs(graph: UndirectedGraph, nodes: List[int]) -> float:
         R1+=k_i
         R2+=(k_i**2)
         R3+=(k_i**3)
+
         for node_2 in nodes:
             if node_1==node_2:
                 continue
@@ -139,24 +170,34 @@ def calculate_coef_pirs(graph: UndirectedGraph, nodes: List[int]) -> float:
                     minus_if_loop=-1
                 k_j=len(graph.edge_map[node_2].keys())+minus_if_loop
                 Re+=(k_i*k_j)
+
     return (Re*R1-R2**2)/(R3*R1-R2**2)
 
+
+
 def get_snowball(graph: UndirectedGraph, start_node_list: List[int], start_nodes_count:int,number_of_nodes_in_list:int)->List[int]:
+
     start_list=sample(start_node_list,start_nodes_count)
     i=0
+
     while len(start_list)<min(number_of_nodes_in_list,len(start_node_list)):
         for v in graph.edge_map[start_list[i]].keys():
             if v not in start_list:
                 start_list.append(v)
         i+=1
+
     return start_list
 
+
+
 def get_snowball_for_regression(graph: UndirectedGraph, start_node_list: List[int], start_nodes_count:int,number_of_nodes_in_list:int,t_s:int)->List[int]:
+
     start_list=sample(start_node_list,start_nodes_count)
     queue=[]
     visited=[]
     queue.append(start_list[0])
     visited.append(start_list[0])
+
     while len(start_list)<min(number_of_nodes_in_list,len(start_node_list)) and queue:
         for v in graph.edge_map[queue[0]].keys():
             if v not in visited and min(graph.edge_map[queue[0]][v])<=t_s:
@@ -164,7 +205,10 @@ def get_snowball_for_regression(graph: UndirectedGraph, start_node_list: List[in
                 visited.append(v)  
                 queue.append(v)
         queue=queue[1:]
+
     return start_list
+
+
 
 # def get_snowball_for_regression(graph: UndirectedGraph, start_node_list: List[int], start_nodes_count:int,number_of_nodes_in_list:int,t_s:int)->List[int]:
 #     start_list=sample(start_node_list,start_nodes_count)

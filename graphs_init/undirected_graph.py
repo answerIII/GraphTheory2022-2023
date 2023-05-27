@@ -24,18 +24,22 @@ class UndirectedGraph:
             self.loops+=1
             return
         #добавляем вершины ребра в граф (если они уже были - они не добавятся)
+
         self.add_node(a)
         self.add_node(b)
+
         #если одна из вершин ребра уже присутствует в словаре от другой вершины - значит такое ребро уже было в графе
         if b in self.edge_map[a].keys():
             self.edge_map[a][b].append(t)
             self.edge_map[b][a].append(t)
+
         else:
             self.edge_map[a][b]=[t]
             self.edge_map[b][a]=[t]
             self.edge_map[a][b].sort()
             self.edge_map[b][a].sort()
             self.e += 1
+
         self.t_max=max(t,self.t_max)
         self.t_min=min(t,self.t_min)
         self.t_list.append(t)
