@@ -3,7 +3,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, roc_auc_score, roc_curve, auc
 from matplotlib import pyplot as plt
 
-from prepare_data import prepare_data_all, prepare_data_at_dist_2_static, prepare_data_at_dist_2_temp
+from prepare_data import prepare_data_all, prepare_data_at_dist_2
 from static_features import calc_four_static_properties
 from temporal_features import calc_temporate_feauters
 import pylab
@@ -37,7 +37,7 @@ def AUC(X_test, Y_test, logistic_model):
 
 def link_prediction(dataset, s):
 
-    [V, qs, adjList, nonexistent_edges, y] = prepare_data_at_dist_2_static(dataset, s, display_interm_results=False)
+    [V, qs, adjList, nonexistent_edges, y] = prepare_data_at_dist_2(dataset, s, display_interm_results=False)
 
     # for i in range(V):
     #     print(i, ":", end=" ")
@@ -72,7 +72,7 @@ def link_prediction(dataset, s):
     
 def link_prediction_temporal(dataset, s):
     
-    [V, qs, adjList, nonexistent_edges, y] = prepare_data_at_dist_2_temp(dataset, s, display_interm_results=False)
+    [V, qs, adjList, nonexistent_edges, y] = prepare_data_at_dist_2(dataset, s, display_interm_results=False)
 
 
 
