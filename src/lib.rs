@@ -1,16 +1,14 @@
 use pyo3::{exceptions, prelude::*, types::PyDict};
 use std::{
-    cmp::Reverse,
-    collections::{BinaryHeap, HashMap, HashSet, VecDeque},
+    collections::{HashMap, HashSet, VecDeque},
     fs::File,
     io::BufRead,
     io::BufReader,
     slice,
     sync::{Arc, Mutex},
     thread,
+    mem::swap
 };
-
-mod sorting;
 
 fn dfs(root: &usize, graph: &HashMap<usize, HashSet<usize>>, visited: &mut HashSet<usize>) {
     let mut stack = VecDeque::new();
@@ -56,30 +54,42 @@ fn biggest_component_root(
     max_root
 }
 
-fn dijkstra(root: &usize, graph: &HashMap<usize, HashSet<usize>>) -> HashMap<usize, i32> {
-    let mut dist = HashMap::new();
-    let mut heap = BinaryHeap::new();
-    heap.push(Reverse((0, *root)));
+fn bfs(root: &usize, graph: &HashMap<usize, HashSet<usize>>) -> Vec<usize> {
+    let mut dists = Vec::new();
+    let mut q_old = Vec::new();
+    let mut q_new = Vec::new();
     let mut visited = HashSet::new();
-    while !heap.is_empty() {
-        let (cur_len, cur_idx) = heap.pop().unwrap().0;
-        if visited.contains(&cur_idx) {
-            continue;
-        }
-        visited.insert(cur_idx);
-
-        for i in graph.get(&cur_idx).unwrap() {
-            let new_len = cur_len + 1;
-            if *dist.entry(*i).or_insert(i32::MAX) > new_len {
-                dist.entry(*i)
-                    .and_modify(|el| *el = new_len)
-                    .or_insert(new_len);
-                heap.push(Reverse((new_len, *i)));
+    
+    q_old.push(*root);
+    visited.insert(*root);
+    
+    while !q_old.is_empty() {
+        dists.push(q_old.len());
+        
+        for cur_idx in q_old.iter() {
+            
+            for neighbor_id in graph.get(&cur_idx).unwrap() {
+                if !visited.contains(neighbor_id) {
+                    visited.insert(*neighbor_id);
+                    q_new.push(*neighbor_id);
+                }
             }
         }
+        
+        q_old.clear();
+        swap(&mut q_new, &mut q_old);
     }
 
-    return dist;
+    return dists;
+}
+
+fn add_dists(base: &mut Vec<usize>, to_add: &mut Vec<usize>) {
+    if base.len() < to_add.len() {
+        swap(&mut *base, &mut *to_add);
+    }
+    for idx in 0..to_add.len() {
+        base[idx] += to_add[idx];
+    }
 }
 
 fn drq_full(
@@ -87,9 +97,9 @@ fn drq_full(
     mnz: &HashMap<usize, HashSet<usize>>,
     graph: Arc<HashMap<usize, HashSet<usize>>>,
     threads: usize,
-) -> (i32, i32, f64) {
-    let diam = Arc::new(Mutex::new(0 as i32));
-    let rad = Arc::new(Mutex::new(i32::MAX));
+) -> (usize, usize, usize) {
+    let diam = Arc::new(Mutex::new(0 as usize));
+    let rad = Arc::new(Mutex::new(usize::MAX));
 
     let tmp = mnz
         .get(&root)
@@ -98,7 +108,7 @@ fn drq_full(
         .map(|&el| el)
         .collect::<Vec<usize>>();
 
-    let dists = Arc::new(Mutex::new(Vec::with_capacity(tmp.len())));
+    let dists = Arc::new(Mutex::new(Vec::new()));
 
     
     let mut right = unsafe {
@@ -126,18 +136,16 @@ fn drq_full(
 
         d_threads.push(thread::spawn(move || {
             let mut cur_diam = 0;
-            let mut cur_rad = i32::MAX;
+            let mut cur_rad = usize::MAX;
 
-            let mut cur_dists: Vec<i32> = Vec::with_capacity(per_thread);
+            let mut cur_dists: Vec<usize> = Vec::new();
             for i in left {
-                let ans = dijkstra(i, &cur_graph);
-                let ans = ans.values().collect::<Vec<_>>();
-                let max_val = ans.iter().max().unwrap();
-                let tmp = **max_val;
-                cur_diam = cur_diam.max(tmp);
-                cur_rad = cur_rad.min(tmp);
-
-                cur_dists.extend(ans);
+                let mut ans = bfs(i, &cur_graph);
+                let max_val = ans.len() - 1;
+                cur_diam = cur_diam.max(max_val);
+                cur_rad = cur_rad.min(max_val);
+                
+                add_dists(&mut cur_dists, &mut ans);
             }
 
             {
@@ -151,7 +159,7 @@ fn drq_full(
 
             {
                 let mut dists = global_dist.lock().unwrap();
-                dists.extend(cur_dists);
+                add_dists(&mut dists, &mut cur_dists);
             };
         }));
     }
@@ -162,34 +170,36 @@ fn drq_full(
 
     let mut dists = dists.lock().unwrap().to_owned();
 
-    let q = 0.9;
-    let n = dists.len() as f64;
+    let q: f64 = 0.9;
+    dists[0] = 0;
+    let n = dists.iter().sum::<usize>() as f64;
 
-    sorting::quicksort_multi(&mut dists, threads);
-
-    let k = (q * n - 1.0).floor();
-    let q = if k + 1.0 < q * n {
-        dists[k as usize + 1] as f64
-    } else if (k + 1.0 - q * n).abs() < 1.0 / n {
-        (dists[k as usize] + dists[k as usize + 1]) as f64 / 2.0
-    } else {
-        dists[k as usize] as f64
-    };
+    let k = (q * n).floor() as usize;
+    let mut q = diam.lock().unwrap().to_owned();
+    let mut prev_len = 0;
+    for (dist, size) in dists.iter().enumerate() {
+        prev_len += size;
+        if prev_len >= k {
+            q = dist;
+            break;
+        }
+    }
+    
     let ans = (
         diam.lock().unwrap().to_owned(),
         rad.lock().unwrap().to_owned(),
         q,
     );
-    ans
+    
+    return ans;
 }
-
 
 #[pyfunction]
 fn find_drq(
     py: Python<'_>,
     graph_path: String,
     threads_count: Option<usize>,
-) -> PyResult<(i32, i32, f64)> {
+) -> PyResult<(usize, usize, usize)> {
     let threads_count = match threads_count {
         Some(x) => {
             if x < 1 {
