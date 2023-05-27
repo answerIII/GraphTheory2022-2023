@@ -1,0 +1,72 @@
+Manufacturing emails network, part of the Koblenz Network Collection
+===========================================================================
+
+This directory contains the TSV and related files of the radoslaw_email network: This is the internal email communication network between employees of a mid-sized manufacturing company. The network is directed and nodes represent employees. The left node represents the sender and the right node represents the recipient. Edges between two nodes are individual emails. 
+
+
+More information about the network is provided here: 
+http://konect.cc/networks/radoslaw_email
+
+Files: 
+    meta.radoslaw_email -- Metadata about the network 
+    out.radoslaw_email -- The adjacency matrix of the network in whitespace-separated values format, with one edge per line
+      The meaning of the columns in out.radoslaw_email are: 
+        First column: ID of from node 
+        Second column: ID of to node
+        Third column (if present): weight or multiplicity of edge
+        Fourth column (if present):  timestamp of edges Unix time
+        Third column: edge weight
+        Fourth column: timestamp of the edge
+
+
+Use the following References for citation:
+
+@MISC{konect:2017:radoslaw_email,
+    title = {Manufacturing emails network dataset -- {KONECT}},
+    month = oct,
+    year = {2017},
+    url = {http://konect.cc/networks/radoslaw_email}
+}
+
+@inproceedings{konect:radoslaw,
+	title = {Matching Organizational Structure and Social Network Extracted from Email Communication},
+	author = {Michalski, Rados{\l}aw and Palus, Sebastian and Kazienko, Przemys{\l}aw},
+	year = {2011},
+	booktitle = {Proc. Int. Conf. on Bus. Inf. Syst.},
+	pages = {197--206},
+}
+
+@inproceedings{konect:radoslaw,
+	title = {Matching Organizational Structure and Social Network Extracted from Email Communication},
+	author = {Michalski, Rados{\l}aw and Palus, Sebastian and Kazienko, Przemys{\l}aw},
+	year = {2011},
+	booktitle = {Proc. Int. Conf. on Bus. Inf. Syst.},
+	pages = {197--206},
+}
+
+
+@inproceedings{konect,
+	title = {{KONECT} -- {The} {Koblenz} {Network} {Collection}},
+	author = {Jérôme Kunegis},
+	year = {2013},
+	booktitle = {Proc. Int. Conf. on World Wide Web Companion},
+	pages = {1343--1350},
+	url = {http://dl.acm.org/citation.cfm?id=2488173},
+	url_presentation = {https://www.slideshare.net/kunegis/presentationwow},
+	url_web = {http://konect.cc/},
+	url_citations = {https://scholar.google.com/scholar?cites=7174338004474749050},
+}
+
+@inproceedings{konect,
+	title = {{KONECT} -- {The} {Koblenz} {Network} {Collection}},
+	author = {Jérôme Kunegis},
+	year = {2013},
+	booktitle = {Proc. Int. Conf. on World Wide Web Companion},
+	pages = {1343--1350},
+	url = {http://dl.acm.org/citation.cfm?id=2488173},
+	url_presentation = {https://www.slideshare.net/kunegis/presentationwow},
+	url_web = {http://konect.cc/},
+	url_citations = {https://scholar.google.com/scholar?cites=7174338004474749050},
+}
+
+

@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "graph-project-2023"
+version = "0.1.0"
+description = ""
+authors = ["mark47B <windachae47@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.12"
+pydantic = "^1.10.7"
+numpy = "^1.24.3"
+pydantic-numpy = "^2.2.1"
+pandas = "^2.0.1"
+jupyter = "^1.0.0"
+scikit-learn = "^1.2.2"
+
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.23.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

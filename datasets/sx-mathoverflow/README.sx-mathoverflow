@@ -1,0 +1,72 @@
+MathOverflow network, part of the Koblenz Network Collection
+===========================================================================
+
+This directory contains the TSV and related files of the sx-mathoverflow network: These are interactions from the StackExchange site "MathOverflow".  The network is between users, and directed edges represent three types of interactions:  answering a question of another user, commenting on another user's question, and commenting on another user's answer.  The network is temporal.  This network is part of a series of network from multiple StackExchange sites.
+
+
+More information about the network is provided here: 
+http://konect.cc/networks/sx-mathoverflow
+
+Files: 
+    meta.sx-mathoverflow -- Metadata about the network 
+    out.sx-mathoverflow -- The adjacency matrix of the network in whitespace-separated values format, with one edge per line
+      The meaning of the columns in out.sx-mathoverflow are: 
+        First column: ID of from node 
+        Second column: ID of to node
+        Third column (if present): weight or multiplicity of edge
+        Fourth column (if present):  timestamp of edges Unix time
+        Third column: edge weight
+        Fourth column: timestamp of the edge
+
+
+Use the following References for citation:
+
+@MISC{konect:2017:sx-mathoverflow,
+    title = {MathOverflow network dataset -- {KONECT}},
+    month = nov,
+    year = {2017},
+    url = {http://konect.cc/networks/sx-mathoverflow}
+}
+
+@misc{snap.stanford.edu,
+      title = {{Stanford} {Network} {Analysis} {Project}},
+      author = {Jure Leskovec},
+      month = {September},
+      year = {2014},
+      howpublished = {\url{http://snap.stanford.edu/}},
+}
+
+@misc{snap.stanford.edu,
+      title = {{Stanford} {Network} {Analysis} {Project}},
+      author = {Jure Leskovec},
+      month = {September},
+      year = {2014},
+      howpublished = {\url{http://snap.stanford.edu/}},
+}
+
+
+@inproceedings{konect,
+	title = {{KONECT} -- {The} {Koblenz} {Network} {Collection}},
+	author = {Jérôme Kunegis},
+	year = {2013},
+	booktitle = {Proc. Int. Conf. on World Wide Web Companion},
+	pages = {1343--1350},
+	url = {http://dl.acm.org/citation.cfm?id=2488173},
+	url_presentation = {https://www.slideshare.net/kunegis/presentationwow},
+	url_web = {http://konect.cc/},
+	url_citations = {https://scholar.google.com/scholar?cites=7174338004474749050},
+}
+
+@inproceedings{konect,
+	title = {{KONECT} -- {The} {Koblenz} {Network} {Collection}},
+	author = {Jérôme Kunegis},
+	year = {2013},
+	booktitle = {Proc. Int. Conf. on World Wide Web Companion},
+	pages = {1343--1350},
+	url = {http://dl.acm.org/citation.cfm?id=2488173},
+	url_presentation = {https://www.slideshare.net/kunegis/presentationwow},
+	url_web = {http://konect.cc/},
+	url_citations = {https://scholar.google.com/scholar?cites=7174338004474749050},
+}
+
+
