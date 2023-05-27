@@ -1,13 +1,1 @@
-{
-    "num_vertices": 3075,
-    "num_edges": 124610,
-    "density": 0.02636537230694363,
-    "conn_comps": 4,
-    "max_conn_comp_fraction": 0.9980487804878049,
-    "cl": 0.5643599750681114,
-    "r": 0.07841541140353704,
-    "full_time_secs": 8.87638521194458,
-    "diameter": 7,
-    "radius": 4,
-    "90th_percentile": 3.0
-}
+{"num_vertices": 3075, "num_edges": 124610, "density": 0.02636537230694363, "conn_comps": 4, "max_conn_comp_fraction": 0.9980487804878049, "cl": 0.5643599750681114, "r": 0.07841541140353704, "full_time_secs": 8.87638521194458, "diameter": 7, "radius": 4, "90th_percentile": 3.0, "static_features": [2.0, 0.3824839729980579, 0.011049723756906077, 8262.0]}
