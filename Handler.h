@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <fstream>
+#include <iomanip>
+#include <cmath>
 #include "StaticGraph.h"
 #include "TemporalGraph.h"
 
@@ -51,47 +53,137 @@ private:
         return 1;
     }
 
-    void staticTaskPrint(StaticGraph& graph)
+    void staticTaskPrint(StaticGraph& graph, std::string datasetName)
     {
-        std::cout << "Vertex count: ";
-        std::cout << graph.GetVertexCount() << '\n';
-        std::cout << "Edge count: ";
-        std::cout << graph.GetEdgeCount() << '\n';
-        std::cout << "Density: ";
-        std::cout << graph.GetDensity() << '\n';
-        std::cout << "Weak count: ";
-        std::cout << graph.GetWeakConnCount() << '\n';
-        std::cout << "Main comp to full graph: ";
-        std::cout << graph.GetMainCompToFull() << '\n';
+        std::cout << " ----------------------------------------" << '\n';
+        std::cout << " |";
+        int space = (37 - datasetName.size()) / 2;
+        for(int i = 0; i < space + !(datasetName.size() % 2); ++i)
+            std::cout << ' ';
+        std::cout << datasetName;
+        for(int i = 0; i < space; ++i)
+            std::cout << ' ';
+        std::cout << " |";
+        std::cout << '\n';
+        std::cout << std::setprecision(3) << std::fixed;
+        std::cout << " ----------------------------------------" << '\n';
+        std::cout << " |  Vertex count            |  ";
+        int vertexCount = graph.GetVertexCount();
+        std::cout << vertexCount;
+        for(int i = 0; i < 8 - std::log10(vertexCount); ++i)
+            std::cout << ' ';
+        std::cout << '|' << '\n';
+        std::cout << " ----------------------------------------" << '\n';
+        std::cout << " |  Edge count              |  ";
+        int edgeCount = graph.GetEdgeCount();
+        std::cout << edgeCount;
+        for(int i = 0; i < 8 - std::log10(edgeCount); ++i)
+            std::cout << ' ';
+        std::cout << '|' << '\n';
+        std::cout << " ----------------------------------------" << '\n';
+        std::cout << " |  Density                 |  ";
+        std::cout << graph.GetDensity() << "    |" << '\n';
+        std::cout << " ----------------------------------------" << '\n';
+        std::cout << " |  Weak comp. count        |  ";
+        int weakConnCount = graph.GetWeakConnCount();
+        std::cout << weakConnCount;
+        for(int i = 0; i < 8 - std::log10(weakConnCount); ++i)
+            std::cout << ' ';
+        std::cout << '|' << '\n';
+        std::cout << " ----------------------------------------" << '\n';
+        std::cout << " |  Main comp. to graph     |  ";
+        std::cout << graph.GetMainCompToFull() << "    |"<< '\n';
+        std::cout << " ----------------------------------------" << '\n';
 
-        std::cout << "Main component radius: ";
-        if(graph.GetRadius().second == 0) 
-            std::cout << graph.GetRadius().first << '\n';
+        std::cout << " |  Main component radius   |  ";
+        if(graph.GetRadius().second == 0){
+            int rad = graph.GetRadius().first;
+            std::cout << rad;
+            for(int i = 0; i < 8 - std::log10(rad); ++i)
+                std::cout << ' ';
+            std::cout << '|' << '\n';
+            std::cout << " ----------------------------------------" << '\n';
+        }
         else{
-            std::cout << '\n' << '\t' << "Random: " << graph.GetRadius().first << '\n';
-            std::cout << '\t' << "Snowball: " << graph.GetRadius().second << '\n';
+            std::cout << "Rand: ";
+            int rand = graph.GetRadius().first;
+            std::cout << rand;
+            for(int i = 0; i < 2 - std::log10(rand); ++i)
+                std::cout << ' ';
+            std::cout << '|' << '\n';
+            std::cout << " |  Main component radius   |  ";
+            std::cout << "Snow: ";
+            int snow = graph.GetRadius().second;
+            std::cout << snow;
+            for(int i = 0; i < 2 - std::log10(snow); ++i)
+                std::cout << ' ';
+            std::cout << '|' << '\n';
+            std::cout << " ----------------------------------------" << '\n';
         }
 
-        std::cout << "Main component diameter: ";
-        if(graph.GetDiameter().second == 0) 
-            std::cout << graph.GetDiameter().first << '\n';
+        std::cout << " |  Main component diameter |  ";
+        if(graph.GetDiameter().second == 0){
+            int diam = graph.GetDiameter().first;
+            std::cout << diam;
+            for(int i = 0; i < 8 - std::log10(diam); ++i)
+                std::cout << ' ';
+            std::cout << '|' << '\n';
+            std::cout << " ----------------------------------------" << '\n';
+        }
         else{
-            std::cout << '\n' << '\t' << "Random: " << graph.GetDiameter().first << '\n';
-            std::cout << '\t' << "Snowball: " << graph.GetDiameter().second << '\n';
+            std::cout << "Rand: ";
+            int rand = graph.GetDiameter().first;
+            std::cout << rand;
+            for(int i = 0; i < 2 - std::log10(rand); ++i)
+                std::cout << ' ';
+            std::cout << '|' << '\n';
+            std::cout << " |  Main component diameter |  ";
+            std::cout << "Snow: ";
+            int snow = graph.GetDiameter().second;
+            std::cout << snow;
+            for(int i = 0; i < 2 - std::log10(snow); ++i)
+                std::cout << ' ';
+            std::cout << '|' << '\n';
+            std::cout << " ----------------------------------------" << '\n';
         }
         
-        std::cout << "Main component perc90: ";
-        if(graph.GetPerc90().second == 0) 
-            std::cout << graph.GetPerc90().first << '\n';
+        std::cout << " |  Main component 90%      |  ";
+        if(graph.GetPerc90().second == 0){
+            int perc = graph.GetPerc90().first;
+            std::cout << perc;
+            for(int i = 0; i < 8 - std::log10(perc); ++i)
+                std::cout << ' ';
+            std::cout << '|' << '\n';
+            std::cout << " ----------------------------------------" << '\n';
+        }
         else{
-            std::cout << '\n' << '\t' << "Random: " << graph.GetPerc90().first << '\n';
-            std::cout << '\t' << "Snowball: " << graph.GetPerc90().second << '\n';
+            std::cout << "Rand: ";
+            int rand = graph.GetPerc90().first;
+            std::cout << rand;
+            for(int i = 0; i < 2 - std::log10(rand); ++i)
+                std::cout << ' ';
+            std::cout << '|' << '\n';
+            std::cout << " |  Main component 90%      |  ";
+            std::cout << "Snow: ";
+            int snow = graph.GetPerc90().second;
+            std::cout << snow;
+            for(int i = 0; i < 2 - std::log10(snow); ++i)
+                std::cout << ' ';
+            std::cout << '|' << '\n';
+            std::cout << " ----------------------------------------" << '\n';
         }
 
-        std::cout << "Cl koef: ";
-        std::cout << graph.GetAvgClCoeff() << '\n';
-        std::cout << "Assort koef: ";
-        std::cout << graph.GetAssortCoeff() << '\n';
+        std::cout << " | Cl koef                  |  ";
+        std::cout << graph.GetAvgClCoeff() << "    |"<< '\n';
+        std::cout << " ----------------------------------------" << '\n';
+        std::cout << " | Assort koef              |  ";
+        double assCoeff = graph.GetAssortCoeff();
+        std::cout << assCoeff;
+        if(assCoeff >= 0)
+            std::cout << "    |" << '\n';
+        else
+            std::cout << "   |" << '\n';
+        std::cout << " ----------------------------------------" << '\n';
     }
 
     void temporalGraphPrint(TemporalGraph& graph)
@@ -104,29 +196,63 @@ private:
     void taskMenuPrint(std::string datasetName)
     {
         system("clear");
-        std::cout << datasetName << '\n';
-        std::cout << "1) Static task" << '\n';
-        std::cout << "2) Temporal task" << '\n';
-        std::cout << '\n' << "3) go to dataset list" << '\n';
-        std::cout << "4) exit program" << '\n';
-        std::cout << "Input number: ";
+        std::cout << '\n';
+        std::cout << " -----------------------" << '\n';
+        std::cout << " |";
+        int space = (21 - datasetName.size()) / 2;
+        for(int i = 0; i < space + !(datasetName.size() % 2); ++i)
+            std::cout << ' ';
+        std::cout << datasetName;
+        for(int i = 0; i < space; ++i)
+            std::cout << ' ';
+        std::cout << "|" << '\n';
+        std::cout << " -----------------------" << '\n';
+        std::cout << " | 1 |   Static task   |" << '\n';
+        std::cout << " -----------------------" << '\n';
+        std::cout << " | 2 |  Temporal task  |" << '\n';
+        std::cout << " -----------------------" << '\n';
+        std::cout << '\n'; 
+        std::cout << " -----------------------" << '\n';
+        std::cout << " | 3 | Go to datasets  |" << '\n';
+        std::cout << " -----------------------" << '\n';
+        std::cout << " | 0 |  Exit program   |" << '\n';
+        std::cout << " -----------------------" << '\n';
+        std::cout << "\n Input number: ";
     }
 
     void datasetNamePrint(std::vector<std::string> datasetName)
     {
         system("clear");
-        std::cout << "Choose dataset:" << '\n';
-        for(int i = 1; i <= datasetName.size(); ++i)
-            std::cout << i << ") " << datasetName[i - 1] << '\n';
-        std::cout << '\n' << "0) exit program" << '\n';
-        std::cout << "Input number: ";
+        std::cout << '\n';
+        std::cout << " -----------------------" << '\n';
+        std::cout << " | № |     Dataset     |" << '\n';
+        std::cout << " -----------------------" << '\n';
+        for(int i = 1; i <= datasetName.size(); ++i){
+            std::cout << " | "<< i << " | ";
+            std::cout << datasetName[i - 1];
+            for(int j = 0; j < 16 - datasetName[i - 1].size(); ++j)
+                std::cout << ' ';
+            std::cout << "|" << '\n'; 
+            std::cout << " -----------------------" << '\n';
+        }
+        std::cout << '\n'; 
+        std::cout << " -----------------------" << '\n';
+        std::cout << " | 0 |  exit program   |" << '\n';
+        std::cout << " -----------------------" << '\n';
+        std::cout << '\n';
+        std::cout << " Input number: ";
     }
 
     void taskExitList()
     {
-        std::cout << '\n' << "1) go task list" << '\n';
-        std::cout << "2) exit program" << '\n';
-        std::cout << "Input number: ";
+        std::cout << '\n'; 
+        std::cout << " -----------------------" << '\n';
+        std::cout << " | 1 |  go task list   |" << '\n';
+        std::cout << " -----------------------" << '\n';
+        std::cout << " | 0 |  exit program   |" << '\n';
+        std::cout << " -----------------------" << '\n';
+        std::cout << '\n';
+        std::cout << " Input number: ";
     }
 
 public:
@@ -171,8 +297,7 @@ public:
                     StaticGraph graph;
                     if(!dataReader(datasetPath[controlNum], graph))
                         return 1;
-                    std::cout << datasetName[controlNum] << '\n';
-                    staticTaskPrint(graph);
+                    staticTaskPrint(graph, datasetName[controlNum]);
                 }
                 if(control == '2'){
                     TemporalGraph graph;
@@ -183,16 +308,16 @@ public:
                 }
                 if(control == '3')
                     break;
-                if(control == '4'){
+                if(control == '0'){
                     system("clear");
                     return -1;
                 }
-                if(control < '0' || control > '4')
+                if(control < '0' || control > '3')
                     continue;
 
                 taskExitList();
                 std::cin >> control;
-                if(control == '2'){
+                if(control == '0'){
                     system("clear");
                     return -1;
                 }
