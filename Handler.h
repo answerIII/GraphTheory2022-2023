@@ -188,8 +188,13 @@ private:
 
     void temporalGraphPrint(TemporalGraph& graph)
     {
-        graph.CalcStaticFeatures();
-        graph.CalcTemporalFeatures();
+        graph.GenerateGraphSlice();
+        graph.GenerateTrainPairs();
+        //graph.CalcStaticFeatures();
+        graph.CalcTemporalWeights();
+        graph.Aggregate();
+        graph.Combine();
+        graph.LogisticRegression();
         std::cout << "Static graph features calculated" << '\n';
     }
 
