@@ -1,7 +1,6 @@
 from logistic_regression import link_prediction, link_prediction_temporal
 from basic_features import print_basic_properties
 
-
 datasets = {
     1:'Rado', 2:'UC', 5:'bitA', 6: 'bitOT', 4: 'Dem',
     8:'D-rep', 7:'SX-MO', 10:'loans', 
@@ -14,6 +13,7 @@ print("Выбранный датасет:", datasets[n])
 
 f = open('datasets\\' + datasets[n] + '.txt', 'r')
 dataset = f.readlines()
+s = 66
 
 while True:
     print("****************** \n1 - посчитать статические свойства \n2 - запустить логистическую регрессию со статическими признаками \n" +
@@ -25,10 +25,10 @@ while True:
             print_basic_properties(dataset)
         case "2":
             print("Проводим рассчеты...")
-            link_prediction(dataset, 50)
+            link_prediction(dataset, s)
         case "3":
             print("Проводим рассчеты...")
-            link_prediction_temporal(dataset, 20)
+            link_prediction_temporal(dataset, s)
         case "4":
             print("Введите номер датасета: ", end="")
             n = int(input())

@@ -43,8 +43,8 @@ def calc_temporate_feauters(dataset, nonexistent_edges, qs):
     CN = np.zeros(8)
 
     for z in z_arr:
-      if len(graph[z]) > 0:
-        CN = CN + np.array(graph[u][z]['weight'][number]) + np.array(graph[v][z]['weight'][number])
+      # if len(graph[z]) > 0:
+      CN = CN + np.array(graph[u][z]['weight'][number]) + np.array(graph[v][z]['weight'][number])
 
     return CN
 
@@ -54,13 +54,13 @@ def calc_temporate_feauters(dataset, nonexistent_edges, qs):
     y = np.zeros(n)
     JC = np.zeros(n)
 
-    if len(graph[u]) > 0:
-      for i in graph[u]:
-        x += np.array(graph[u][i]['weight'][number])
+    # if len(graph[u]) > 0:
+    for i in graph[u]:
+      x += np.array(graph[u][i]['weight'][number])
 
-    if len(graph[v]) > 0:
-      for i in graph[v]:
-        y += np.array(graph[v][i]['weight'][number])
+    # if len(graph[v]) > 0:
+    for i in graph[v]:
+      y += np.array(graph[v][i]['weight'][number])
 
     tmp = x + y
     b = False
@@ -68,8 +68,8 @@ def calc_temporate_feauters(dataset, nonexistent_edges, qs):
       tmp[-1] = 1 #?????
       b = True
     for z in z_arr:
-      if len(graph[z]) > 0:
-        JC = JC + (np.array(graph[u][z]['weight'][number]) + np.array(graph[v][z]['weight'][number])) / tmp
+      # if len(graph[z]) > 0:
+      JC = JC + (np.array(graph[u][z]['weight'][number]) + np.array(graph[v][z]['weight'][number])) / tmp
     if b:
       JC[-1] = 0
     return JC
@@ -83,13 +83,13 @@ def calc_temporate_feauters(dataset, nonexistent_edges, qs):
     x = np.zeros(n)
     y = np.zeros(n)
 
-    if (len(graph[u]) > 0):
-      for i in graph[u]:
-        x += np.array(graph[u][i]['weight'][number])
+    # if (len(graph[u]) > 0):
+    for i in graph[u]:
+      x += np.array(graph[u][i]['weight'][number])
 
-    if (len(graph[v]) > 0):
-      for i in graph[v]:
-        y += np.array(graph[v][i]['weight'][number])
+    # if (len(graph[v]) > 0):
+    for i in graph[v]:
+      y += np.array(graph[v][i]['weight'][number])
 
     PA = x * y
 
@@ -152,19 +152,20 @@ def calc_temporate_feauters(dataset, nonexistent_edges, qs):
 
   ver = defaultdict(list)
   all_time = []
-  ver_after = []
 
   for line in dataset:
       [from_ind, to_ind, weight, time] = [int(x) for x in line.split()]
       if time <= qs: 
         all_time.append(time)
         ver[(min(from_ind, to_ind), max(from_ind, to_ind))].append(time)
-      else:
-        ver_after.append([from_ind, to_ind])
+  
+
+  print("reading is done")
+  # for key, value in ver.items():
+  #   print(key, ":", value)
 
   t_min = min(all_time)
   t_max = max(all_time)
-
 
   for key, value in ver.items():
     ver[key] = list(set(value))
@@ -172,7 +173,6 @@ def calc_temporate_feauters(dataset, nonexistent_edges, qs):
 
   G = nx.Graph()
 
-  
   uniqueVertexes = set()
   for line in dataset:
     [from_ind, to_ind, weight, time] = [int(x) for x in line.split()]
@@ -180,9 +180,8 @@ def calc_temporate_feauters(dataset, nonexistent_edges, qs):
     uniqueVertexes.add(to_ind)
   uniqueVertexes = list(uniqueVertexes)
   
-  #######
+  
   G.add_nodes_from(uniqueVertexes)
-
   for uv in ver:
     w = temporal_weight(ver[uv], t_min, t_max)
     weight_liner = past_event_aggregation(w['linear'])
@@ -193,32 +192,15 @@ def calc_temporate_feauters(dataset, nonexistent_edges, qs):
     G[uv[0]][uv[1]]['weight'] += [list(weight_exponetial.values())]
     G[uv[0]][uv[1]]['weight'] += [list(weight_square.values())]
 
+  print("weights are done")
 
-  ver.clear()
-
-  for i in range(3):
-    for edge in nonexistent_edges:
-      
-      ver[edge[0], edge[1]] += topological_features(edge[0], edge[1], G, i)
-
-  # for key, value in ver.items():
-  #   print(key, ":" ,value)
-
-  y = [0] * len(nonexistent_edges)
-  j = 0
-  print("len(ver):", len(ver))
-  print("len(ver_after):", len(ver_after))
-
+  X = []
   for edge in nonexistent_edges:
-    if ([edge[0],edge[1]] in ver_after) or ([edge[1],edge[0]] in ver_after):
-      y[j] = 1
-    j += 1
-  i=0
-  # for edge in nonexistent_edges:
-  #   print(edge, ':', y[i])
-  #   i += 1
+      features = []
+      for i in range(3):
+        features += topological_features(edge[0], edge[1], G, i)
+      X.append(features)
+  
+  print("features are done")
 
-  print("y.count(1):", y.count(1))
-  print("y.count(0):", y.count(0))
-
-  return ver, y
+  return X
