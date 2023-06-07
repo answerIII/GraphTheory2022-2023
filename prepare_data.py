@@ -3,6 +3,7 @@ import queue
 import networkx as nx
 import matplotlib.pyplot as plt
 import random
+from collections import defaultdict
 
 def number_of_vertexes(dataset):
     uniqueVertexes = set()
@@ -10,7 +11,9 @@ def number_of_vertexes(dataset):
         [from_ind, to_ind, weight, time] = [int(x) for x in line.split()]
         uniqueVertexes.add(from_ind)
         uniqueVertexes.add(to_ind)
-    return len(uniqueVertexes) + 1
+
+    # return len(uniqueVertexes) + 1
+    return max(uniqueVertexes) + 1
 
 def get_edgeList(dataset):
      edgeList = []
@@ -67,7 +70,7 @@ def prepare_data_at_dist_2(dataset, s = 75, display_interm_results = False):
             for v in adjList[u]:
                 weight = 1
 
-                if distance[v] > distance[u] + weight:
+                if distance[v] > distance[u] + weight and distance[u] < 2:
                     distance[v] = distance[u] + weight
                     min_queue.put((distance[v], v))
 
@@ -85,6 +88,7 @@ def prepare_data_at_dist_2(dataset, s = 75, display_interm_results = False):
 
         return pairs_of_vertexes
     
+    
     V = number_of_vertexes(dataset)
     edgeList = get_edgeList(dataset)
 
@@ -98,8 +102,7 @@ def prepare_data_at_dist_2(dataset, s = 75, display_interm_results = False):
     print("qs:", qs)
     
 
-    adjList = [[] for _ in range(V)]
-    # transform directed graph to undirected
+    adjList = defaultdict(list)
     for line in dataset:
         [from_ind, to_ind, weight, time] = [int(x) for x in line.split()]
         if time <= qs:
@@ -112,28 +115,15 @@ def prepare_data_at_dist_2(dataset, s = 75, display_interm_results = False):
         adjList[i] = list(_set)
 
 
-    adjM_till_qs = np.full((V, V), 0)
-    adjM_after_qs = np.full((V, V), 0)
+    edgeL_till_qs = set()
+    edgeL_after_qs = set()
     for line in dataset:
         [from_ind, to_ind, weight, time] = [int(x) for x in line.split()]
-        if time <= qs:
-            adjM_till_qs[from_ind][to_ind] = 1
-            adjM_till_qs[to_ind][from_ind] = 1
+        if time <= qs: 
+            edgeL_till_qs.add((min(from_ind, to_ind), max(from_ind, to_ind)))
         else:
-            adjM_after_qs[from_ind][to_ind] = 1
-            adjM_after_qs[to_ind][from_ind] = 1
+            edgeL_after_qs.add((min(from_ind, to_ind), max(from_ind, to_ind)))
 
-
-    edgeL_till_qs = []
-    edgeL_after_qs = []
-    for i in range(1, V):
-        for j in range(i + 1, V):
-            if adjM_till_qs[i][j] == 1:
-                edgeL_till_qs.append((i,j))
-            if adjM_after_qs[i][j] == 1:
-                edgeL_after_qs.append((i,j))
-
-    edgeL_after_qs = [item for item in edgeL_after_qs if item not in edgeL_till_qs]
 
     if display_interm_results: print("edgeL_till_qs:", edgeL_till_qs)
     print("size of edgeL_till_qs:", len(edgeL_till_qs), end='\n\n')
@@ -141,7 +131,6 @@ def prepare_data_at_dist_2(dataset, s = 75, display_interm_results = False):
     if display_interm_results: print("edgeL_after_qs:", edgeL_after_qs)
     print("size of edgeL_after_qs:", len(edgeL_after_qs), end='\n\n')
 
-    
 
     # Выборка пар вершин, расстояние между которыми равно 2
     # без симметричных ребер, так как граф неориентированный и статические метрики симметричные

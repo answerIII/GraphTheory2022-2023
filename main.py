@@ -2,8 +2,8 @@ from logistic_regression import link_prediction, link_prediction_temporal
 from basic_features import print_basic_properties
 
 datasets = {
-    1:'Rado', 2:'UC', 5:'bitA', 6: 'bitOT', 4: 'Dem',
-    8:'D-rep', 7:'SX-MO', 10:'loans', 
+    1:'Rado', 2:'UC', 3:'EU', 4:'Dem', 5:'bitA', 6: 'bitOT',
+    7:'SX-MO', 8:'D-rep', 10:'loans', 
     21:'small-graph', 22:'assortativity-example'
 }
 
