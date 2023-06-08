@@ -35,7 +35,8 @@ private:
     std::vector<std::set<int>> _trainingStaticGraph;
 
     std::vector<std::pair<int,int>> _trainPairs;
-    std::map<std::pair<int, int>, int> _yTrainPairs;
+    std::map<std::pair<int, int>, int> _yTrainPairs; // 75% and 25%
+    std::map<std::pair<int,int>, int> _yTestPairs;
 
     //for training pairs
     std::map<std::pair<int,int>, std::vector<std::vector<double>>> _weightedEgde;
@@ -160,6 +161,36 @@ public:
         }
     }
 
+    /*void CalcStaticFeatures(){
+        double unionUV = 0, intersectUV = 0, nu = 0, nv = 0, aa;
+        for (int u = 1; u < _staticGraph.size(); ++u){
+            for (int v: _staticGraph[u]){
+                std::pair uv(u,v);
+                if (_featureGraph[uv].size() == 0){
+                    aa = 0.0;
+                    nu = _staticGraph[u].size();
+                    nv = _staticGraph[v].size();
+                    std::vector<int> intersect;
+                    std::set_intersection(_staticGraph[u].begin(),
+                                      _staticGraph[u].end(),
+                                      _staticGraph[v].begin(),
+                                      _staticGraph[v].end(),
+                                      std::back_inserter(intersect));
+                    for (int i = 0; i < intersect.size(); ++i)
+                            aa += 1.0 / log10(_staticGraph[intersect[i]].size());
+                    intersectUV = intersect.size();
+                    unionUV = nu + nv - intersectUV; 
+                    std::vector<double> features;
+                    features.push_back(intersectUV);
+                    features.push_back(aa);
+                    features.push_back(intersectUV / unionUV);
+                    features.push_back(nu * nv);
+                    _featureGraph[uv].push_back(features);
+                }
+            }
+        }
+    }*/
+
     void CalcTemporalWeights(){ 
         for (const auto& [uv, timestamps]: _temporalGraph){
             for (auto t: timestamps){
@@ -213,6 +244,23 @@ public:
         }
     }
 
+    void MakeTestPairs(){
+        // divide yTrainPairs to yTrainPairs and yTestPairs
+        int c = _yTrainPairs.size() / 4;
+        srand(time(NULL));
+        for (const auto& [uv, tf]: _yTrainPairs){
+            if (c < 0)
+                break;
+            if (rand() % 4 == 0) {
+                _yTestPairs[uv] = tf;
+                --c;
+            }
+        }
+        for (const auto& [uv, _]: _yTestPairs){
+            _yTrainPairs.erase(uv);
+        }
+    }
+
     void LogisticRegression(){
         arma::mat X(84, _yTrainPairs.size());
         arma::Row<size_t> y(_yTrainPairs.size());
@@ -220,7 +268,7 @@ public:
 
         for (const auto& [uv, tf]: _yTrainPairs){
             if (_combinedEdge[uv].size() == 84){
-                arma::vec xi(_combinedEdge[uv]);
+                arma::vec xi(_combinedEdge[uv]); // +15 social credits
                 X.insert_cols(counter, xi);
                 y.insert_cols(counter, tf);
                 ++counter;

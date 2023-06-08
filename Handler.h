@@ -192,6 +192,8 @@ private:
         graph.CalcTemporalWeights();
         graph.Aggregate();
         graph.Combine();
+
+        graph.MakeTestPairs();
         graph.LogisticRegression();
         std::cout << "Static graph features calculated" << '\n';
     }
