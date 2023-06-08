@@ -185,17 +185,50 @@ private:
         std::cout << " ----------------------------------------" << '\n';
     }
 
-    void temporalGraphPrint(TemporalGraph& graph){
+    void temporalGraphPrint(TemporalGraph& graph, std::string datasetName){
+        std::cout << '\n';
+        std::cout << " ----------------------------------" << '\n';
+        std::cout << " |        work in progress        |" << '\n';
+        std::cout << " ----------------------------------" << '\n';
+        std::cout << " |        graph slice gen         |" << '\n';
+        std::cout << " ----------------------------------" << '\n';
         graph.GenerateGraphSlice();
+        std::cout << " |        train pairs gen         |" << '\n';
+        std::cout << " ----------------------------------" << '\n';
         graph.GenerateTrainPairs();
+        std::cout << " |       calc temp weights       |" << '\n';
+        std::cout << " ----------------------------------" << '\n';
         //graph.CalcStaticFeatures();
         graph.CalcTemporalWeights();
+        std::cout << " |           aggregate            |" << '\n';
+        std::cout << " ----------------------------------" << '\n';
         graph.Aggregate();
+        std::cout << " |            combine             |" << '\n';
+        std::cout << " ----------------------------------" << '\n';
         graph.Combine();
-
+        std::cout << " |        make test pairs         |" << '\n';
+        std::cout << " ----------------------------------" << '\n';
         graph.MakeTestPairs();
-        graph.LogisticRegression();
-        std::cout << "Static graph features calculated" << '\n';
+        std::cout << " |           log reg run          |" << '\n';
+        std::cout << " ----------------------------------" << '\n';
+        graph.MakeTestPairs();
+        double tempAccuracy = graph.LogisticRegressionTemporal();
+        system("clear");
+        
+        std::cout << '\n';
+        std::cout << " ----------------------------------------" << '\n';
+        std::cout << " |";
+        int space = (37 - datasetName.size()) / 2;
+        for(int i = 0; i < space + !(datasetName.size() % 2); ++i)
+            std::cout << ' ';
+        std::cout << datasetName;
+        for(int i = 0; i < space; ++i)
+            std::cout << ' ';
+        std::cout << " |" << '\n';
+        std::cout << " ----------------------------------------" << '\n';
+        std::cout << " | Temporal accuracy    |       "; 
+        std::cout << int(tempAccuracy*100) << "%     |" << '\n';
+        std::cout << " ----------------------------------------" << '\n';
     }
 
     void taskMenuPrint(std::string datasetName){
@@ -304,8 +337,7 @@ public:
                     TemporalGraph graph;
                     if(!dataReader(datasetPath[controlNum], graph))
                         return 1;
-                    std::cout << datasetName[controlNum] << '\n';
-                    temporalGraphPrint(graph);
+                    temporalGraphPrint(graph, datasetName[controlNum]);
                 }
                 if(control == '3')
                     break;

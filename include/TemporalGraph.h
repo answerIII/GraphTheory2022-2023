@@ -261,24 +261,41 @@ public:
         }
     }
 
-    void LogisticRegression(){
-        arma::mat X(84, _yTrainPairs.size());
-        arma::Row<size_t> y(_yTrainPairs.size());
-        int counter = 1;
+    double LogisticRegressionTemporal(){
+        arma::mat trainX(84, _yTrainPairs.size());
+        arma::Row<size_t> trainY(_yTrainPairs.size());
 
+        int counter = 1;
         for (const auto& [uv, tf]: _yTrainPairs){
             if (_combinedEdge[uv].size() == 84){
-                arma::vec xi(_combinedEdge[uv]); // +15 social credits
-                X.insert_cols(counter, xi);
-                y.insert_cols(counter, tf);
+                arma::vec xi(_combinedEdge[uv]);
+                trainX.insert_cols(size_t(counter), xi);
+                trainY(size_t(counter)) = size_t(tf);
                 ++counter;
             }
         }
-        X.resize(84, counter);
-        y.resize(counter);
+        trainX = reshape(trainX, 84, counter);
+        trainY = reshape(trainY, 1, counter);
 
         mlpack::regression::LogisticRegression logReg;
-        logReg.Train(X, y);
+        logReg.Train(trainX, trainY);
+        
+        arma::mat testX(84, _yTestPairs.size());
+        arma::Row<size_t> testY(_yTestPairs.size());
+        counter = 1;
+        for (const auto& [uv, tf]: _yTestPairs){
+            if (_combinedEdge[uv].size() == 84){
+                arma::vec xi(_combinedEdge[uv]); 
+                testX.insert_cols(size_t(counter), xi);
+                testY(size_t(counter)) = size_t(tf);
+                ++counter;
+            }
+        }
+        testX = reshape(testX, 84, counter);
+        testY = reshape(testY, 1, counter);
+
+        double accuracy = mlpack::Accuracy::Evaluate(logReg, testX, testY);
+        return accuracy;
     }
 };
 
