@@ -1,10 +1,7 @@
-all: compil clean start
+all: compil start
 
-compil: main.o
-	g++ -std=c++20 main.o -o a.out -larmadillo
-
-main.o:
-	g++ -std=c++20 -c main.cpp 
+compil: 
+	g++ -std=c++20 main.cpp -o a.out -larmadillo 
 
 start:
 	./a.out

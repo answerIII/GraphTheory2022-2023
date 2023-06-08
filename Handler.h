@@ -53,8 +53,7 @@ private:
         return 1;
     }
 
-    void staticTaskPrint(StaticGraph& graph, std::string datasetName)
-    {
+    void staticTaskPrint(StaticGraph& graph, std::string datasetName){
         std::cout << " ----------------------------------------" << '\n';
         std::cout << " |";
         int space = (37 - datasetName.size()) / 2;
@@ -186,8 +185,7 @@ private:
         std::cout << " ----------------------------------------" << '\n';
     }
 
-    void temporalGraphPrint(TemporalGraph& graph)
-    {
+    void temporalGraphPrint(TemporalGraph& graph){
         graph.GenerateGraphSlice();
         graph.GenerateTrainPairs();
         //graph.CalcStaticFeatures();
@@ -198,8 +196,7 @@ private:
         std::cout << "Static graph features calculated" << '\n';
     }
 
-    void taskMenuPrint(std::string datasetName)
-    {
+    void taskMenuPrint(std::string datasetName){
         system("clear");
         std::cout << '\n';
         std::cout << " -----------------------" << '\n';
@@ -225,8 +222,7 @@ private:
         std::cout << "\n Input number: ";
     }
 
-    void datasetNamePrint(std::vector<std::string> datasetName)
-    {
+    void datasetNamePrint(std::vector<std::string> datasetName){
         system("clear");
         std::cout << '\n';
         std::cout << " -----------------------" << '\n';
@@ -248,8 +244,7 @@ private:
         std::cout << " Input number: ";
     }
 
-    void taskExitList()
-    {
+    void taskExitList(){
         std::cout << '\n'; 
         std::cout << " -----------------------" << '\n';
         std::cout << " | 1 |  go task list   |" << '\n';
@@ -263,8 +258,7 @@ private:
 public:
     Handler(std::string filePath) : _dataFilePath(filePath) {}
 
-    int ConsoleHandlerStart()
-    {
+    int ConsoleHandlerStart(){
         std::ifstream inFile(_dataFilePath);
         if(!inFile)
             return 0;

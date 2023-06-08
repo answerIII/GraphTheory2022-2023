@@ -12,8 +12,7 @@
 #include <climits>
 #include <algorithm>
 #include <iostream>
-#include "mlpack.hpp"
-#include <mlpack/methods/logistic_regression/logistic_regression.hpp>
+#include <mlpack.hpp>
 
 typedef double (*comb)(double, double);
 typedef double (*agg)(std::vector<double>&);
@@ -160,37 +159,7 @@ public:
             }
         }
     }
-/*
-    void CalcStaticFeatures(){
-        double unionUV = 0, intersectUV = 0, nu = 0, nv = 0, aa;
-        for (int u = 1; u < _staticGraph.size(); ++u){
-            for (int v: _staticGraph[u]){
-                std::pair uv(u,v);
-                if (_featureGraph[uv].size() == 0){
-                    aa = 0.0;
-                    nu = _staticGraph[u].size();
-                    nv = _staticGraph[v].size();
-                    std::vector<int> intersect;
-                    std::set_intersection(_staticGraph[u].begin(),
-                                      _staticGraph[u].end(),
-                                      _staticGraph[v].begin(),
-                                      _staticGraph[v].end(),
-                                      std::back_inserter(intersect));
-                    for (int i = 0; i < intersect.size(); ++i)
-                            aa += 1.0 / log10(_staticGraph[intersect[i]].size());
-                    intersectUV = intersect.size();
-                    unionUV = nu + nv - intersectUV; 
-                    std::vector<double> features;
-                    features.push_back(intersectUV);
-                    features.push_back(aa);
-                    features.push_back(intersectUV / unionUV);
-                    features.push_back(nu * nv);
-                    _featureGraph[uv].push_back(features);
-                }
-            }
-        }
-    }
-*/
+
     void CalcTemporalWeights(){ 
         for (const auto& [uv, timestamps]: _temporalGraph){
             for (auto t: timestamps){
@@ -242,40 +211,27 @@ public:
                 }
             }
         }
-        /*for (const auto& [uv,feature]:_combinedEdge){
-            std::cout << uv.first << ' ' << uv.second << '\n';
-            for(double f: feature)
-                std::cout << f << ' ';
-            std::cout << '\n';
-        }*/
     }
 
     void LogisticRegression(){
-        mlpack::regression::LogisticRegression lr;
         arma::mat X(84, _yTrainPairs.size());
-        std::cout << X.n_cols << ' ' << X.n_rows << '\n';
-        int i = 1;
-        for (const auto& [uv, t]: _yTrainPairs){
+        arma::Row<size_t> y(_yTrainPairs.size());
+        int counter = 1;
+
+        for (const auto& [uv, tf]: _yTrainPairs){
             if (_combinedEdge[uv].size() == 84){
                 arma::vec xi(_combinedEdge[uv]);
-                X.insert_cols(i, xi);
-                ++i;
+                X.insert_cols(counter, xi);
+                y.insert_cols(counter, tf);
+                ++counter;
             }
         }
-        std::cout << i;
-        /*arma::Row<size_t> y(_yTrainPairs.size());
-        i = 1;
-        for (const auto& [uv, tf]: _yTrainPairs){
-            y.insert_cols(i, tf);
-            ++i;
-        }
-        //std::cout << X.n_cols;
-        double trained = lr.Train(X,y);
-        std::cout << trained << '\n';*/
+        X.resize(84, counter);
+        y.resize(counter);
 
+        mlpack::regression::LogisticRegression logReg;
+        logReg.Train(X, y);
     }
-
-
 };
 
 #endif
