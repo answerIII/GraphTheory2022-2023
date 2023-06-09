@@ -124,7 +124,7 @@ def print_basic_properties(dataset, display_interm_results = False) -> None:
 
       # print('k',distance) 
       distance[0] = 0
-      if np.inf in distance: 
+      while np.inf in distance: 
         distance[distance.index(np.inf)] = 0 
       # print(distance)     
       return max(distance), distance
