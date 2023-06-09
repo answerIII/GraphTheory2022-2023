@@ -275,9 +275,7 @@ public:
 
     double GetDensity(){
         double out = (double)GetEdgeCount() / 
-            ((GetVertexCount() * (GetVertexCount() - 1)) / 2);
-        if (out < 0)
-            return 0;
+            (((double)GetVertexCount() * (GetVertexCount() - 1)) / 2);
         return out;
     }
 
