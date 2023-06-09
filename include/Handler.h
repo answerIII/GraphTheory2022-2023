@@ -261,12 +261,15 @@ private:
         system("clear");
         std::cout << '\n';
         std::cout << " -----------------------" << '\n';
-        std::cout << " | № |     Dataset     |" << '\n';
+        std::cout << " | №  |   Dataset      |" << '\n';
         std::cout << " -----------------------" << '\n';
         for(int i = 1; i <= datasetName.size(); ++i){
-            std::cout << " | "<< i << " | ";
+            std::cout << " | "<< i;
+            if(i < 10)
+                std::cout << ' ';
+            std::cout << " | ";
             std::cout << datasetName[i - 1];
-            for(int j = 0; j < 16 - datasetName[i - 1].size(); ++j)
+            for(int j = 0; j < 15 - datasetName[i - 1].size(); ++j)
                 std::cout << ' ';
             std::cout << "|" << '\n'; 
             std::cout << " -----------------------" << '\n';
@@ -311,46 +314,46 @@ public:
         }
         inFile.close();
 
-        char control;
+        int control;
         while(true){
             datasetNamePrint(datasetName);
             std::cin >> control; 
-            if(control == '0'){
+            if(control == 0){
                 system("clear");
                 return -1;
             }
-            if(control < '0' || control > datasetName.size() + '0')
+            if(control < 0 || control > datasetName.size())
                 continue;
 
-            int controlNum = control - '0' - 1;
+            int controlNum = control - 1;
             while(true){
                 taskMenuPrint(datasetName[controlNum]);
                 std::cin >> control; 
                 system("clear");
-                if(control == '1'){
+                if(control == 1){
                     StaticGraph graph;
                     if(!dataReader(datasetPath[controlNum], graph))
                         return 1;
                     staticTaskPrint(graph, datasetName[controlNum]);
                 }
-                if(control == '2'){
+                if(control == 2){
                     TemporalGraph graph;
                     if(!dataReader(datasetPath[controlNum], graph))
                         return 1;
                     temporalGraphPrint(graph, datasetName[controlNum]);
                 }
-                if(control == '3')
+                if(control == 3)
                     break;
-                if(control == '0'){
+                if(control == 0){
                     system("clear");
                     return -1;
                 }
-                if(control < '0' || control > '3')
+                if(control < 0 || control > 3)
                     continue;
 
                 taskExitList();
                 std::cin >> control;
-                if(control == '0'){
+                if(control == 0){
                     system("clear");
                     return -1;
                 }

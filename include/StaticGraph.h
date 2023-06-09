@@ -274,8 +274,11 @@ public:
     }
 
     double GetDensity(){
-        return (double)GetEdgeCount() / 
+        double out = (double)GetEdgeCount() / 
             ((GetVertexCount() * (GetVertexCount() - 1)) / 2);
+        if (out < 0)
+            return 0;
+        return out;
     }
 
     int GetWeakConnCount(){

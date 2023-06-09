@@ -1,8 +1,0 @@
-datasets/radoslaw_email.tsv
-radoslaw_email
-datasets/bitcoinalpha.tsv
-bitcoinalpha
-datasets/opsahl_ucsocial.tsv
-opsahl_ucsocial
-datasets/mathoverflow.tsv
-mathoverflow

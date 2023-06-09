@@ -3,7 +3,7 @@
 
 int main()
 {
-    std::string dataFilePath = "datafile.txt";
+    std::string dataFilePath = "datasets/namefile.txt";
 
     Handler mainHandler(dataFilePath);
 
