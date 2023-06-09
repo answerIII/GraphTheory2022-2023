@@ -54,6 +54,7 @@ private:
     }
 
     void staticTaskPrint(StaticGraph& graph, std::string datasetName){
+        std::cout << '\n';
         std::cout << " ----------------------------------------" << '\n';
         std::cout << " |";
         int space = (37 - datasetName.size()) / 2;
@@ -172,10 +173,10 @@ private:
             std::cout << " ----------------------------------------" << '\n';
         }
 
-        std::cout << " | Cl koef                  |  ";
+        std::cout << " |  Cl koef                 |  ";
         std::cout << graph.GetAvgClCoeff() << "    |"<< '\n';
         std::cout << " ----------------------------------------" << '\n';
-        std::cout << " | Assort koef              |  ";
+        std::cout << " |  Assort koef             |  ";
         double assCoeff = graph.GetAssortCoeff();
         std::cout << assCoeff;
         if(assCoeff >= 0)
@@ -191,14 +192,13 @@ private:
         std::cout << " |        work in progress        |" << '\n';
         std::cout << " ----------------------------------" << '\n';
         std::cout << " |        graph slice gen         |" << '\n';
-        std::cout << " ----------------------------------" << '\n';
         graph.GenerateGraphSlice();
+        std::cout << " ----------------------------------" << '\n';
         std::cout << " |        train pairs gen         |" << '\n';
-        std::cout << " ----------------------------------" << '\n';
         graph.GenerateTrainPairs();
-        std::cout << " |       calc temp weights       |" << '\n';
         std::cout << " ----------------------------------" << '\n';
-        //graph.CalcStaticFeatures();
+        std::cout << " |       calc temp weights        |" << '\n';
+        std::cout << " ----------------------------------" << '\n';
         graph.CalcTemporalWeights();
         std::cout << " |           aggregate            |" << '\n';
         std::cout << " ----------------------------------" << '\n';
@@ -206,12 +206,17 @@ private:
         std::cout << " |            combine             |" << '\n';
         std::cout << " ----------------------------------" << '\n';
         graph.Combine();
+        std::cout << " |      calc static features      |" << '\n';
+        graph.CalcStaticFeatures();
+        std::cout << " ----------------------------------" << '\n';
         std::cout << " |        make test pairs         |" << '\n';
         std::cout << " ----------------------------------" << '\n';
         graph.MakeTestPairs();
-        std::cout << " |           log reg run          |" << '\n';
+        std::cout << " |          log reg stat          |" << '\n';
         std::cout << " ----------------------------------" << '\n';
-        graph.MakeTestPairs();
+        double statAccuracy = graph.LogisticRegressionStatic();
+        std::cout << " |          log reg temp          |" << '\n';
+        std::cout << " ----------------------------------" << '\n';
         double tempAccuracy = graph.LogisticRegressionTemporal();
         system("clear");
         
@@ -226,9 +231,37 @@ private:
             std::cout << ' ';
         std::cout << " |" << '\n';
         std::cout << " ----------------------------------------" << '\n';
+        std::cout << " | Static accuracy      |       "; 
+        std::cout << int(statAccuracy*100) << "%     |" << '\n';
+        std::cout << " ----------------------------------------" << '\n';
         std::cout << " | Temporal accuracy    |       "; 
         std::cout << int(tempAccuracy*100) << "%     |" << '\n';
         std::cout << " ----------------------------------------" << '\n';
+    }
+
+    void showFeatures(TemporalGraph& graph, std::string datasetName){
+        std::vector<double> featVec;
+        graph.GetFeatures(featVec);
+        std::cout << '\n';
+        std::cout << " ------------------------------" << '\n';
+        std::cout << " |";
+        int space = (27 - datasetName.size()) / 2;
+        for(int i = 0; i < space + !(datasetName.size() % 2); ++i)
+            std::cout << ' ';
+        std::cout << datasetName;
+        for(int i = 0; i < space; ++i)
+            std::cout << ' ';
+        std::cout << " |" << '\n';
+        std::cout << " ------------------------------" << '\n';
+        std::cout << '\n';
+        std::cout << " CN: ";
+        std::cout << featVec[0] << '\n'; 
+        std::cout << " AA: ";
+        std::cout << featVec[1] << '\n';
+        std::cout << " JC: ";
+        std::cout << featVec[2] << '\n';
+        std::cout << " PA: ";
+        std::cout << featVec[3] << '\n';
     }
 
     void taskMenuPrint(std::string datasetName){
@@ -248,9 +281,11 @@ private:
         std::cout << " -----------------------" << '\n';
         std::cout << " | 2 |  Temporal task  |" << '\n';
         std::cout << " -----------------------" << '\n';
+        std::cout << " | 3 |  Show features  |" << '\n';
+        std::cout << " -----------------------" << '\n';
         std::cout << '\n'; 
         std::cout << " -----------------------" << '\n';
-        std::cout << " | 3 | Go to datasets  |" << '\n';
+        std::cout << " | 4 | Go to datasets  |" << '\n';
         std::cout << " -----------------------" << '\n';
         std::cout << " | 0 |  Exit program   |" << '\n';
         std::cout << " -----------------------" << '\n';
@@ -342,7 +377,13 @@ public:
                         return 1;
                     temporalGraphPrint(graph, datasetName[controlNum]);
                 }
-                if(control == 3)
+                if(control == 3){
+                    TemporalGraph graph;
+                    if(!dataReader(datasetPath[controlNum], graph))
+                        return 1;
+                    showFeatures(graph, datasetName[controlNum]);
+                }
+                if(control == 4)
                     break;
                 if(control == 0){
                     system("clear");

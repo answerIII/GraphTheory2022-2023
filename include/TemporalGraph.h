@@ -29,7 +29,7 @@ private:
     std::vector<std::set<int>> _staticGraph;
     std::map<std::pair<int, int>, std::set<int>> _temporalGraph;
     
-    std::map<std::pair<int,int>, std::vector<int>> _staticFeatures; 
+    std::map<std::pair<int,int>, std::vector<double>> _featureGraph; 
  
     std::map<std::pair<int,int>, std::set<int>> _trainingGraph;
     std::vector<std::set<int>> _trainingStaticGraph;
@@ -161,11 +161,11 @@ public:
         }
     }
 
-    /*void CalcStaticFeatures(){
+    void CalcStaticFeatures(){
         double unionUV = 0, intersectUV = 0, nu = 0, nv = 0, aa;
-        for (int u = 1; u < _staticGraph.size(); ++u){
-            for (int v: _staticGraph[u]){
-                std::pair uv(u,v);
+        for (int u = 1; u < _trainingStaticGraph.size()-1; ++u){
+            for (int v = u + 1; v < _trainingStaticGraph.size(); ++v){
+                std::pair<int, int> uv(u,v);
                 if (_featureGraph[uv].size() == 0){
                     aa = 0.0;
                     nu = _staticGraph[u].size();
@@ -177,19 +177,17 @@ public:
                                       _staticGraph[v].end(),
                                       std::back_inserter(intersect));
                     for (int i = 0; i < intersect.size(); ++i)
-                            aa += 1.0 / log10(_staticGraph[intersect[i]].size());
+                            aa += 1.0 / log(_staticGraph[intersect[i]].size());
                     intersectUV = intersect.size();
                     unionUV = nu + nv - intersectUV; 
-                    std::vector<double> features;
-                    features.push_back(intersectUV);
-                    features.push_back(aa);
-                    features.push_back(intersectUV / unionUV);
-                    features.push_back(nu * nv);
-                    _featureGraph[uv].push_back(features);
+                    _featureGraph[uv].push_back(intersectUV);
+                    _featureGraph[uv].push_back(aa);
+                    _featureGraph[uv].push_back(intersectUV / unionUV);
+                    _featureGraph[uv].push_back(nu * nv);
                 }
             }
         }
-    }*/
+    }
 
     void CalcTemporalWeights(){ 
         for (const auto& [uv, timestamps]: _temporalGraph){
@@ -245,7 +243,6 @@ public:
     }
 
     void MakeTestPairs(){
-        // divide yTrainPairs to yTrainPairs and yTestPairs
         int c = _yTrainPairs.size() / 4;
         srand(time(NULL));
         for (const auto& [uv, tf]: _yTrainPairs){
@@ -261,9 +258,46 @@ public:
         }
     }
 
+    double LogisticRegressionStatic(){
+        arma::mat trainX(4, _yTrainPairs.size() + 1);
+        arma::Row<size_t> trainY(_yTrainPairs.size() + 1);
+
+        int counter = 1;
+        for (const auto& [uv, tf]: _yTrainPairs){
+            if (_combinedEdge[uv].size() == 84){ 
+                arma::vec xi(_featureGraph[uv]);
+                trainX.insert_cols(size_t(counter), xi);
+                trainY(size_t(counter)) = size_t(tf);
+                ++counter;
+            }
+        }
+        trainX = reshape(trainX, 4, counter);
+        trainY = reshape(trainY, 1, counter);
+
+        mlpack::regression::LogisticRegression logReg;
+        logReg.Train(trainX, trainY);
+        
+        arma::mat testX(4, _yTestPairs.size() + 1);
+        arma::Row<size_t> testY(_yTestPairs.size() + 1);
+        counter = 1;
+        for (const auto& [uv, tf]: _yTestPairs){
+            if (_combinedEdge[uv].size() == 84){ 
+                arma::vec xi(_featureGraph[uv]); 
+                testX.insert_cols(size_t(counter), xi);
+                testY(size_t(counter)) = size_t(tf);
+                ++counter;
+            }
+        }
+        testX = reshape(testX, 4, counter);
+        testY = reshape(testY, 1, counter);
+
+        double accuracy = mlpack::Accuracy::Evaluate(logReg, testX, testY);
+        return accuracy;
+    }
+
     double LogisticRegressionTemporal(){
-        arma::mat trainX(84, _yTrainPairs.size());
-        arma::Row<size_t> trainY(_yTrainPairs.size());
+        arma::mat trainX(84, _yTrainPairs.size() + 1);
+        arma::Row<size_t> trainY(_yTrainPairs.size() + 1);
 
         int counter = 1;
         for (const auto& [uv, tf]: _yTrainPairs){
@@ -280,8 +314,8 @@ public:
         mlpack::regression::LogisticRegression logReg;
         logReg.Train(trainX, trainY);
         
-        arma::mat testX(84, _yTestPairs.size());
-        arma::Row<size_t> testY(_yTestPairs.size());
+        arma::mat testX(84, _yTestPairs.size() + 1);
+        arma::Row<size_t> testY(_yTestPairs.size() + 1);
         counter = 1;
         for (const auto& [uv, tf]: _yTestPairs){
             if (_combinedEdge[uv].size() == 84){
@@ -296,6 +330,27 @@ public:
 
         double accuracy = mlpack::Accuracy::Evaluate(logReg, testX, testY);
         return accuracy;
+    }
+
+    void GetFeatures(std::vector<double>& vec){
+        int u = 1, v = 2;
+        double aa = 0.0;
+        double nu = _staticGraph[u].size();
+        double nv = _staticGraph[v].size();
+        std::vector<int> intersect;
+        std::set_intersection(_staticGraph[u].begin(),
+                              _staticGraph[u].end(),
+                              _staticGraph[v].begin(),
+                              _staticGraph[v].end(),
+                              std::back_inserter(intersect));
+        for (int i = 0; i < intersect.size(); ++i)
+            aa += 1.0 / log(_staticGraph[intersect[i]].size());
+        double intersectUV = intersect.size();
+        double unionUV = nu + nv - intersectUV; 
+        vec.push_back(intersectUV);
+        vec.push_back(aa);
+        vec.push_back(intersectUV / unionUV);
+        vec.push_back(nu * nv);
     }
 };
 
