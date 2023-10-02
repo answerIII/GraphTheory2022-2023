@@ -1,0 +1,13 @@
+Number of vertices: 1899
+Number of edges: 13838
+Density: 0.007678601848568738
+Number of components: 4
+Max component part: 0.9968404423380727
+
+---------------FOR MAX COMPONENT---------------
+
+Radius: 4
+Diameter: 8
+90 percentile: 4
+Average cluster coefficient: 0.10974567163130962
+Pearson coefficient: -0.18801771829844763
