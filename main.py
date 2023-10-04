@@ -6,11 +6,18 @@ from pathlib import Path
 
 
 def main(path='data/digg-friends.txt'):
+    test_flag = False
+    tmp = path.split('/')
+    if tmp[1] == 'test':
+        test_flag = True
     path = Path(path)
     name = path.name.split('.')[0]
     print(name)
     print("Reading graph data...")
-    v_num, e_num, edges = file_interaction.read_file(path)
+    if test_flag:
+        v_num, e_num, edges = file_interaction.read_test_file(path)
+    else:
+        v_num, e_num, edges = file_interaction.read_file(path)
     print("Reading completed")
     print("Creating graph...")
     g = Graph(list(range(1, v_num+1)), edges)
@@ -30,9 +37,12 @@ def main(path='data/digg-friends.txt'):
                                   diameter=sub_g.get_diameter(),
                                   percentile_90=sub_g.get_percentile(),
                                   average_cluster_coefficient=sub_g.get_average_cluster_coefficient(),
-                                  pearson_coefficient=sub_g.get_pearson_coefficient())
+                                  pearson_coefficient=sub_g.get_pearson_coefficient(),
+                                  test_flag=test_flag)
 
     print('Characteristics saved')
+    if test_flag:
+        return
 
     parted_g = PartedGraph(list(range(1, v_num+1)), edges)
     print("Setting static features...")
@@ -56,7 +66,7 @@ def main(path='data/digg-friends.txt'):
 
 
 try:
-    main('data/munmun_digg_reply.txt')
+    main('data/test/testgraph_7.txt')
 except Exception as err:
     print('Something went wrong, all collected results saved. Error message:')
     raise err

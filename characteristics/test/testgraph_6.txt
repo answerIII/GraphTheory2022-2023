@@ -1,0 +1,13 @@
+Number of vertices: 19428
+Number of edges: 96662
+Density: 0.000512214581272078
+Number of components: 23
+Max component part: 0.996757257566399
+
+---------------FOR MAX COMPONENT---------------
+
+Radius: 6
+Diameter: 10
+90 percentile: 6
+Average cluster coefficient: 0.0
+Pearson coefficient: -0.19168391946867722
