@@ -1,0 +1,2 @@
+NumVerts    ,NumEdges    ,GrDens  ,NumComp   ,MC_ShareVerts ,MC_NumVerts ,MC_NumEdges ,MC_GrDens ,MC_Rad   ,MC_RS_Rad ,MC_SS_Rad ,MC_Diam  ,MC_RS_Diam ,MC_SS_Diam ,MC_90P   ,MC_RS_90P ,MC_SS_90P ,MC_CC   ,MC_RS_CC ,MC_SS_CC ,MC_PC
+30360.00000 ,85155.00000 ,0.00018 ,335.00000 ,      0.97668 ,29652.00000 ,84781.00000 ,  0.00019 ,-1.00000 ,  7.00000 ,  7.00000 ,-1.00000 ,  11.00000 ,  12.00000 ,-1.00000 ,  6.00000 ,  6.00000 ,0.00542 , 0.00262 , 0.01035 ,0.00265
