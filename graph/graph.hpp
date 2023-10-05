@@ -95,6 +95,9 @@ namespace Graph
         void setTime(size_t time)
         {
             time_ = time;
+            neighbours_buffer_.clear();
+            common_neighbours_buffer_.clear();
+            eccentricity_buffer_.assign(adj_list_.size(), -1);
             for (auto& adj: adj_list_)
             {
                 adj.clear();
@@ -232,7 +235,7 @@ namespace Graph
         }
 
         // O(n^2 + n*m)
-        size_t getRadius() const
+        size_t getRadius()
         {
             size_t ans = adj_list_.size();
             for (Index index = 0; index < adj_list_.size(); ++index)
@@ -257,7 +260,7 @@ namespace Graph
         }
 
         // O(n^2 + n*m)
-        size_t getDiameter() const
+        size_t getDiameter()
         {
             size_t ans = 0;
             for (Index index = 0; index < adj_list_.size(); ++index)
@@ -662,7 +665,7 @@ namespace Graph
             std::vector<Index> indices;
             if (vertices.empty())
             {
-                for (Index index = 0; index <= adj_list_.size(); ++index)
+                for (Index index = 0; index < adj_list_.size(); ++index)
                 {
                     indices.emplace_back(index);
                 }
@@ -683,18 +686,19 @@ namespace Graph
 
             for (Index index: indices)
             {
-                size_t exc = 0;
+                size_t ecc = 0;
                 for (int dist: getDistances_(index))
                 {
                     if (dist > 0)
                     {
-                        exc = std::max(exc, (size_t)dist);
+                        ecc = std::max(ecc, (size_t)dist);
                         ++count_dists[dist];
                         ++count;
                     }
                 }
-                radius = std::min(radius, exc);
-                diameter = std::max(diameter, exc);
+                eccentricity_buffer_[index] = ecc;
+                radius = std::min(radius, ecc);
+                diameter = std::max(diameter, ecc);
                 progress.update();
             }
 
@@ -861,8 +865,12 @@ namespace Graph
         }
 
         // O(n + m)
-        int getEccentricity_(Index index) const
+        int getEccentricity_(Index index)
         {
+            if (eccentricity_buffer_[index] != -1)
+            {
+                return eccentricity_buffer_[index];
+            }
             std::vector<int> dists = getDistances_(index);
             int ans = -1;
             for (int dist: dists)
@@ -873,8 +881,7 @@ namespace Graph
                 }
                 ans = std::max(ans, dist);
             }
-            
-            return ans;
+            return eccentricity_buffer_[index] = ans;
         }
 
         size_t time_;
@@ -884,6 +891,7 @@ namespace Graph
         std::unordered_map<Vertex, Index> accord_m_;
         std::map<Edge, std::vector<Vertex>> common_neighbours_buffer_;
         std::map<Vertex, std::vector<Vertex>> neighbours_buffer_;
+        std::vector<int> eccentricity_buffer_;
     };
 
 }
