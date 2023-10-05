@@ -8,9 +8,10 @@ RESULTS_SUFIX = ".csv"
 PROJECT_PATH = Path("")
 RESULTS_PATH = PROJECT_PATH.joinpath("results")
 GRAPH_PATH = PROJECT_PATH.joinpath("graph")
-DATA_PATH = PROJECT_PATH.joinpath("data")
+DATA_PATH = PROJECT_PATH.joinpath("tmp_test_data")
 FILE_PREF = "GRAPH-INFO-"
 EXE_FILE_NAME = "part1"
+ALL = False
 
 
 def calc_all(dir_path: Path = DATA_PATH):
@@ -23,8 +24,15 @@ def get_info(file_path: Path):
     file_name = file_path.parts[-1][:-len(DATA_SUFFIX)]
     result_data = RESULTS_PATH.joinpath(FILE_PREF + file_name + RESULTS_SUFIX)
     
-    res = os.system(f"{GRAPH_PATH.joinpath(EXE_FILE_NAME)} {file_path} {result_data}")
+    if ALL:
+        command = f"{GRAPH_PATH.joinpath(EXE_FILE_NAME)} {file_path} {result_data} -all"
+    else:
+        command = f"{GRAPH_PATH.joinpath(EXE_FILE_NAME)} {file_path} {result_data}"
     
+    print('\n', command, '\n')
+    
+    res = os.system(command)
+        
     if (res != 0):
         raise Exception(f"graph error code: {res}")
         exit()

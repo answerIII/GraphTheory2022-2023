@@ -160,8 +160,8 @@ cython_debug/
 #.idea/
 
 features/
+files/
 
 *.exe
-*.pdf
 *.txt
 *.json

@@ -32,8 +32,8 @@ std::vector<std::string> splitString(const std::string& str)
 
 void preprocData_(std::string file_name)
 {
-    std::filesystem::path row_data_path("D:\\VScodeProjects\\graphTheory\\core2\\row-data\\" + file_name);
-    std::filesystem::path data_path("D:\\VScodeProjects\\graphTheory\\core2\\data\\" + file_name);
+    std::filesystem::path row_data_path("D:\\VScodeProjects\\GraphTheory2022-2023\\row-data\\" + file_name);
+    std::filesystem::path data_path("D:\\VScodeProjects\\GraphTheory2022-2023\\test_data\\" + file_name);
 
     std::ifstream in(row_data_path);
     size_t num_vertices, num_edges;
@@ -54,11 +54,17 @@ void preprocData_(std::string file_name)
         {
             continue;
         }
-        if (split_string.size() < 3)
+        if (split_string.size() < 2)
         {
             throw std::exception();
         }
-        if (split_string.size() == 3)
+        else if (split_string.size() == 2)
+        {
+            v1 = std::stoull(split_string[0]);
+            v2 = std::stoull(split_string[1]);
+            time = 1;
+        }
+        else if (split_string.size() == 3)
         {
             v1 = std::stoull(split_string[0]);
             v2 = std::stoull(split_string[1]);

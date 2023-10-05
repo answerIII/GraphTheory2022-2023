@@ -1,4 +1,4 @@
-// #define DEBUG
+#define DEBUG
 
 #include "graph.hpp"
 #include "graph-reader.hpp"
@@ -15,13 +15,19 @@ int main(int argc, char* argv[])
     std::string str_graph_path;
     std::string str_out_path;
     std::ofstream out;
+    bool all = false;
 
     #ifdef DEBUG
-        str_graph_path = "../data/radoslaw_email_email.txt";
-        str_out_path = "DEBUG_log.csv";
+        str_graph_path = "../test_data/testgraph_6.txt";
+        str_out_path = "../results/GRAPH-INFO-testgraph_6.csv";
+        all = true;
     #else
         str_graph_path = argv[1];
         str_out_path = argv[2];
+        if (argc == 4 && std::string(argv[3]) == "-all")
+        {
+            all = true;
+        }
     #endif
 
     out.open(str_out_path);
@@ -44,6 +50,7 @@ int main(int argc, char* argv[])
 
     std::vector<std::vector<Graph::Vertex>> components = graph.getWeakComponents();
     size_t max_graph_id = 0;
+    
     for (size_t i = 1; i < components.size(); ++i)
     {
         if (components[i].size() > components[max_graph_id].size())
@@ -53,7 +60,7 @@ int main(int argc, char* argv[])
     }
 
     Graph::Graph max_component = graph.extractSubgraph(components[max_graph_id]);
-    
+
     res[0].emplace_back(components.size());
     res[0].emplace_back((double)max_component.getNumVertices() / graph.getNumVertices());
     res[0].emplace_back(max_component.getNumVertices());
@@ -65,14 +72,25 @@ int main(int argc, char* argv[])
     column_names.emplace_back("MC_NumVerts");
     column_names.emplace_back("MC_NumEdges");
     column_names.emplace_back("MC_GrDens");
-    
+
     std::vector<Graph::Vertex> random_subgraph = max_component.getRandomSubgraph(500);
     std::vector<Graph::Vertex> snowball_subgraph = max_component.getSnowballSubgraph(500);
+    std::vector<size_t> static_data;
+
+    if (all)
+    {
+        static_data = max_component.getStaticData();
+    }
 
     std::vector<size_t> static_data_rand = max_component.getStaticData(random_subgraph);
     std::vector<size_t> static_data_snow = max_component.getStaticData(snowball_subgraph);
     
-    if (max_component.getNumVertices() < 4000 && max_component.getNumEdges() * max_component.getNumVertices() < 10'000'000)
+
+    if (all)
+    {
+        res[0].emplace_back(static_data[0]);
+    }
+    else if (max_component.getNumVertices() < 4000 && max_component.getNumEdges() * max_component.getNumVertices() < 10'000'000)
     {
         res[0].emplace_back(max_component.getRadius());
     }
@@ -87,7 +105,11 @@ int main(int argc, char* argv[])
     column_names.emplace_back("MC_RS_Rad");
     column_names.emplace_back("MC_SS_Rad");
     
-    if (max_component.getNumVertices() < 4000 && max_component.getNumEdges() * max_component.getNumVertices() < 10'000'000)
+    if (all)
+    {
+        res[0].emplace_back(static_data[1]);
+    }
+    else if (max_component.getNumVertices() < 4000 && max_component.getNumEdges() * max_component.getNumVertices() < 10'000'000)
     {
         res[0].emplace_back(max_component.getDiameter());
     }
@@ -102,7 +124,11 @@ int main(int argc, char* argv[])
     column_names.emplace_back("MC_RS_Diam");
     column_names.emplace_back("MC_SS_Diam");
 
-    if (max_component.getNumVertices() < 4000 && max_component.getNumEdges() * max_component.getNumVertices() < 10'000'000)
+    if (all)
+    {
+        res[0].emplace_back(static_data[2]);
+    }
+    else if (max_component.getNumVertices() < 4000 && max_component.getNumEdges() * max_component.getNumVertices() < 10'000'000)
     {
        res[0].emplace_back(max_component.getPercentile(90));
     }
@@ -117,7 +143,7 @@ int main(int argc, char* argv[])
     column_names.emplace_back("MC_RS_90P");
     column_names.emplace_back("MC_SS_90P");
     
-    if (max_component.getR2() < 10'000'000)
+    if (all || max_component.getR2() < 10'000'000)
     {
         res[0].emplace_back(max_component.getClusteringCoefficient());
     }
