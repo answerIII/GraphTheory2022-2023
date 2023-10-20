@@ -15,14 +15,14 @@ def calc_static_features(file):
         RightVertex =set([])
         LeftVertex = set([])
 
-    AllVertex, LeftVertex, RightVertex = build_vertex_adjacency(data, dvudol)
+    AllVertex, LeftVertex, RightVertex = build_vertex_adjacency(data, dvudol) #вычисление вершин, учитывается двудольность графа
     countVertex = len(AllVertex)
     print('----1.1----')
     print('Количество вершин в графе: ' + str(countVertex))
     M = calculate_edge_count(AllVertex)
     print('Количество ребер в графе: ' + str(M))
     sys.setrecursionlimit(1000000)
-    density = calculate_density(M, LeftVertex, RightVertex, countVertex)
+    density = calculate_density(M, LeftVertex, RightVertex, countVertex) #вычисление плотности графа
     print ('Плотность графа: ' + str(density))
 
     # Использование функций для поиска компонент и вычисления доли вершин в максимальной компоненте
@@ -46,8 +46,8 @@ def calc_static_features(file):
     
         print('Метрики расстояний на случайном подграфе: ')
         random_diameter, random_radius, random_percentile = calculate_graph_metrics(random_component, AllVertex)
-        print(f'Диаметр графа: {random_diameter}')
-        print(f'Радиус графа: {random_radius}')
+        print(f'Диаметр графа: {random_diameter}') #наибольшее расстояние между всеми парами вершин графа
+        print(f'Радиус графа: {random_radius}') #минимальный эксцентриситет среди всех вершин графа
         print(f'90 процентиль расстояния в графе: {random_percentile}')
     
         print('Метрики расстояний на подграфе методом снежный ком:')
@@ -55,7 +55,7 @@ def calc_static_features(file):
         print(f'Диаметр графа: {snow_diameter}')
         print(f'Радиус графа: {snow_radius}')
         print(f'90 процентиль расстояния в графе: {snow_percentile}')
-    else: # В противном случае рассчитываем метрики для всего компонентаv
+    else: # В противном случае рассчитываем метрики для макс компоненты
     
         diameter, radius, percentile = calculate_graph_metrics(max_component, AllVertex)
         print('Метрики расстояний на компоненте:')

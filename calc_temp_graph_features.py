@@ -255,13 +255,13 @@ def calc_temp_features2(file):
                         'cnwe': [], 'aawe': [], 'jcwe': [], 'pawe': [],'time':[]})
 
 
-    def wtfl(graph,a,b,tmin,tmax): #wt f linear
+    def wtfl(graph,a,b,tmin,tmax): #wt func linear
         t = int(graph[a]['time'][graph[a]['neigh'].index(b)])
         return l+(1-l)*(t-tmin)/(tmax-tmin)
-    def wtfe(graph,a,b,tmin,tmax): #wt f exponential
+    def wtfe(graph,a,b,tmin,tmax): #wt func exponential
         t = int(graph[a]['time'][graph[a]['neigh'].index(b)])
         return l+(1-l)*(math.exp(3*(t-tmin)/(tmax-tmin))-1)/(math.e**3-1)
-    def wtfs(graph,a,b,tmin,tmax): #wt f square root
+    def wtfs(graph,a,b,tmin,tmax): #wt func square root
         t = int(graph[a]['time'][graph[a]['neigh'].index(b)])
         return l+(1-l)*(math.sqrt((t-tmin)/(tmax-tmin)))
 
@@ -301,9 +301,7 @@ def calc_temp_features2(file):
 
 
             for k in graph[i]['neigh']:
-                #print (k)
                 if k in graph[j]['neigh']:
-
 
                     aal1=0
                     aas1=0
@@ -370,5 +368,4 @@ def calc_temp_features2(file):
 
 
     print(df.loc[1])
-
     plt.show()    
