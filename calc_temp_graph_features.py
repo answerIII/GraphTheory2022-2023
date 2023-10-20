@@ -7,6 +7,9 @@ from sklearn import metrics
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 
+
+
+
 # Загрузить граф из CSV файла
 def calc_temp_features(file):
 
