@@ -1,21 +1,14 @@
 
 import numpy as np
-
-
 from first_task_functions.data_preporating import prep
 from first_task_functions.calc_graph_features import calc_static_features
-from calc_temp_graph_features import calc_temp_features
-from calc_temp_graph_features import calc_temp_features2
-from calc_temp_graph_features import calc_temp_features1
 from second_task_functions.calc_temp_graph_features import feature_vector_construction
 from second_task_functions.bin_clasification import bin_clasification
 
 
 print('Выберите датасет (введите название): ')
 file = input()
-
 print('Вычисление...')
-
 
 
 #1 Вычисление статических признаков
@@ -27,9 +20,9 @@ print('Вычисление...')
 
 
   # Задание 2.1
-feature_vector_construction(file)
+#feature_vector_construction(file)
   # Задание 2.2 Построение ROC AUC кривой
-#bin_clasification(file)
+bin_clasification(file)
 
 
 
