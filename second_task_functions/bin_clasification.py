@@ -7,12 +7,15 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn import metrics
 import matplotlib.pyplot as plt
+from sklearn.metrics import roc_auc_score, RocCurveDisplay
+
 
 def bin_clasification(file):
 
     print('----2.2----')
     filename = 'datasets/' + file + '.csv'
     graph, count_node, count_edge, tmin, tmax = read_edge_for_bin(filename)
+    print (graph)
 
     df = pd.DataFrame({'def': [], 'u': [], 'v': [],
                        'cnwl': [], 'aawl': [], 'jcwl': [], 'pawl': [],
@@ -22,6 +25,7 @@ def bin_clasification(file):
 
 
     for i in graph:
+
         jaccard_linear1 = 0
         jaccard_exp1 = 0
         jaccard_square1 = 0
@@ -51,7 +55,7 @@ def bin_clasification(file):
             adamic_square = 0
             jaccard_square = 0
             preferential_square = 0
-
+            
             for k in graph[i]['neigh']:
                 if k in graph[j]['neigh']:
                     adamic_linear1 = 0
@@ -85,37 +89,45 @@ def bin_clasification(file):
                     preferential_square = jaccard_square1 * jaccard_square2
                     preferential_exp = jaccard_exp1 * jaccard_exp2
 
-            if j in graph[i]['neigh']:
+            if  j in graph[i]['neigh']:
                 new_row = pd.DataFrame({'def': [1], 'u': [i], 'v': [j],
                                 'cnwl': [common_neigh_linear], 'aawl': [adamic_linear], 'jcwl': [jaccard_linear], 'pawl': [preferential_linear],
                                 'cnws': [common_neigh_square], 'aaws': [adamic_square], 'jcws': [jaccard_square], 'paws': [preferential_square],
                                 'cnwe': [common_neigh_exp], 'aawe': [adamic_exp], 'jcwe': [jaccard_exp], 'pawe': [preferential_exp], 'time': [graph[j]['time'][graph[j]['neigh'].index(i)]]})
                 df = pd.concat([df, new_row], ignore_index=True)
-                if (i == 1 and j == 2) or (i == 2 and j == 1):
-                    print(new_row)
+                #if (i == 1 and j == 2) or (i == 2 and j == 1):
+                    #print(new_row)
             else:
                 new_row = pd.DataFrame({'def': [0], 'u': [i], 'v': [j],
                                         'cnwl': [common_neigh_linear], 'aawl': [adamic_linear], 'jcwl': [jaccard_linear], 'pawl': [preferential_linear],
                                         'cnws': [common_neigh_square], 'aaws': [adamic_square], 'jcws': [jaccard_square], 'paws': [preferential_square],
                                         'cnwe': [common_neigh_exp], 'aawe': [adamic_exp], 'jcwe': [jaccard_exp], 'pawe': [preferential_exp], 'time': [0]})
-                if (i == 1 and j == 2) or (i == 2 and j == 1):
-                    print(new_row)
+                #if (i == 1 and j == 2) or (i == 2 and j == 1):
+                    #print(new_row)
                 df = pd.concat([df, new_row], ignore_index=True)
+            
+    
+
+
 
     print('start log')
+    
     df = df.sort_values(by='time')
     X = df[['cnwl', 'aawl', 'jcwl', 'pawl', 'cnws', 'aaws', 'jcws', 'paws', 'cnwe', 'aawe', 'jcwe', 'pawe']]
     y = df['def']
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=0)
-    log_regression = LogisticRegression()
-    log_regression.fit(X_train, y_train)
-    y_pred = log_regression.predict(X_test)
-    y_pred_proba = log_regression.predict_proba(X_test)[:, 1]
-    fpr, tpr, _ = metrics.roc_curve(y_test, y_pred_proba)
-    auc = metrics.roc_auc_score(y_test, y_pred_proba)
-    plt.plot(fpr, tpr, label="AUC=" + str(auc))
-    plt.legend(loc=4)
 
-    print(df.iloc[1])
+    #  X_train набор обучающих признаков, который будет использоваться для обучения модели
+    #  X_test  набор тестовых признаков, который будет использоваться для оценки производительности модели
+    #  y_train набор обучающих меток (целевой переменной), соответствующих обучающим признакам
+    #  y_test  набор тестовых меток (целевой переменной), соответствующих тестовым признакам
+    #  75% данных используется для обучения и 25% данных используется для тестирования
+    X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.75, test_size=0.25)
+
+    lin_reg = LogisticRegression()
+    y_score = lin_reg.fit(X_train, y_train).predict_proba(X_test)
+    print(roc_auc_score(y_test,y_score[:,1]))
+    RocCurveDisplay.from_predictions(y_test, y_score[:,1])
     plt.show()
+
+
 

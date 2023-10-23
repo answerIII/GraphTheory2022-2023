@@ -4,29 +4,35 @@ from math import log
 from second_task_functions.data_preporating import read_graph_edges_from_csv, write_results_to_csv, read_edge_features_from_csv
 from second_task_functions.static_topological_features import common_neighbors, adamic_adar, jaccard_coefficient, preferential_attachment, calculate_aggregated_features_for_edges
 from second_task_functions.bin_clasification import bin_clasification
+from itertools import combinations
+import time
+from itertools import product
 
-
-def feature_vector_construction(filename):
+def calc_static_feature(filename):
 
     file = 'datasets/'+ filename +'.csv'   
      # Чтение ребер графа из CSV-файла
     graph_edges = read_graph_edges_from_csv(file)
-    # Создание структуры данных для представления графа в виде списка смежности
+
+   
     graph = defaultdict(list)
-    for edge in graph_edges:
+    for edge in graph_edges: #Преобразуем ориентированный граф в неориентированный, добавляя обратные ребра
         graph[edge[0]].append(edge[1])
         graph[edge[1]].append(edge[0])
     results = []
     
+    
     print('----2.1.1----')
-    for node1 in graph:
-        for node2 in graph:
-            if node1 != node2:
+
+    start_time1 = time.time()
+    for i, node1 in enumerate(graph):
+        for j, node2 in enumerate(graph):
+            if i < j:
                 cn = common_neighbors(graph, node1, node2)
                 aa = adamic_adar(graph, node1, node2)
                 jc = jaccard_coefficient(graph, node1, node2)
                 pa = preferential_attachment(graph, node1, node2)
-                result = {
+                result1 = {
                     'Node1': node1,
                     'Node2': node2,
                     'Common Neighbours': cn,
@@ -34,11 +40,39 @@ def feature_vector_construction(filename):
                     'Jaccard Coefficient': jc,
                     'Preferential Attachment': pa
                 }
-                print(result)
-                results.append(result)
+                result2 = {
+                    'Node1': node2,
+                    'Node2': node1,
+                    'Common Neighbours': cn,
+                    'Adamic-Adar': aa,
+                    'Jaccard Coefficient': jc,
+                    'Preferential Attachment': pa
+                }
+                print(result1)
+                #print(result2)
+                results.append(result1)
+                results.append(result2)
+    
+
+    end_time1 = time.time()
+    
+    execution_time1 = end_time1 - start_time1
+    print(f"Время выполнения: {execution_time1} секунд")
 
     file = 'done/'+ filename + '_DONE.csv'   
     write_results_to_csv(results, file)
+
+
+def calc_temp_feature(filename):
+
+    file = 'datasets/'+ filename +'.csv'   
+     # Чтение ребер графа из CSV-файла
+    graph_edges = read_graph_edges_from_csv(file)
+    graph = defaultdict(list)
+    for edge in graph_edges: #Преобразуем ориентированный граф в неориентированный, добавляя обратные ребра
+        graph[edge[0]].append(edge[1])
+        graph[edge[1]].append(edge[0])
+    results = []
 
     print('----2.1.2----')
     aggregated_features = calculate_aggregated_features_for_edges(graph, graph_edges)

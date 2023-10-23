@@ -8,11 +8,12 @@ from math import log
 def common_neighbors(graph, node1, node2):
     neighbors1 = set(graph[node1])
     neighbors2 = set(graph[node2])
-    return len(neighbors1.intersection(neighbors2))
+    return len(neighbors1 & neighbors2)
+
 
 # Функция для вычисления Adamic-Adar
 def adamic_adar(graph, node1, node2):
-    common_neighbors = set(graph[node1]).intersection(set(graph[node2]))
+    common_neighbors = set(graph[node1]) & set(graph[node2])
     score = 0
     for neighbor in common_neighbors:
         degree = len(graph[neighbor])
@@ -24,8 +25,8 @@ def adamic_adar(graph, node1, node2):
 def jaccard_coefficient(graph, node1, node2):
     neighbors1 = set(graph[node1])
     neighbors2 = set(graph[node2])
-    intersection_size = len(neighbors1.intersection(neighbors2))
-    union_size = len(neighbors1.union(neighbors2))
+    intersection_size = len(neighbors1 & neighbors2)
+    union_size = len(neighbors1 | neighbors2)
     return intersection_size / union_size if union_size > 0 else 0
 
 # Функция для вычисления Preferential Attachment
