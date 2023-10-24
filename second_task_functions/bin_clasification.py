@@ -15,7 +15,7 @@ def bin_clasification(file):
     print('----2.2----')
     filename = 'datasets/' + file + '.csv'
     graph, count_node, count_edge, tmin, tmax = read_edge_for_bin(filename)
-    print (graph)
+    #print (graph)
 
     df = pd.DataFrame({'def': [], 'u': [], 'v': [],
                        'cnwl': [], 'aawl': [], 'jcwl': [], 'pawl': [],
