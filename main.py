@@ -12,7 +12,8 @@ if __name__ == '__main__':
 
 
 print('Выберите датасет (введите название): ')
-file = input()
+#file = input()
+file = 'RA_Rado_0prep'
 print('Вычисление...')
 
 

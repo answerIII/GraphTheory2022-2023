@@ -1,10 +1,15 @@
 from components.graph import Graph
-
-def testtt(filename):
-    filepath = 'datasets/'+ filename +'.csv'
+from components.calc_static_features import Static_calculator
+def testtt(file):
+    
     graph = Graph()
 
-    graph.read_from_file(filepath)
-    graph.print_edges() 
+    graph.read_from_file(file)
+    #graph.print_edges() 
+
+    c = Static_calculator()
+    c.calc(graph)
+    graph.write_results_to_csv()
+
 
 
