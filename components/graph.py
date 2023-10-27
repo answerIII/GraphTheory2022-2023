@@ -1,9 +1,9 @@
-
+import pandas as pd
 import csv
 
 class Graph():
 
-    static_features = [] # Статические признаки: Common Neighbours (CN); Adamic-Adar (AA); Jaccard Coefficient (JC); Preferential Attachment (PA)
+    static_features = [] # Статические признаки: Common Neighbours (CN); Adamic-Adar (AA); Jaccard Coefficient (JC); Preferential Attachment (PA). Учитываются все пары вершин, т.е. даже несуществующие ребра
     edges = []
     nodes = set()
     dataset = 'none'
@@ -37,7 +37,7 @@ class Graph():
                 #self.edges.append(edge)
                 #index += 1
 
-    def write_results_to_csv(self):
+    def write_static_results_to_csv(self):
         filepath = 'done/'+ self.dataset +'.csv'
         with open(filepath, 'w', newline='') as csvfile:
             fieldnames = ['Node1', 'Node2', 'Common Neighbours', 'Adamic-Adar', 'Jaccard Coefficient', 'Preferential Attachment']
@@ -52,3 +52,22 @@ class Graph():
             print(str(edge.index) + ' -- ' +str(edge.node1) + ' ' + str(edge.node2))
 
 
+    #Обработка файла с графом и сохранение в нужном нам виде
+    def prep(self, file):
+        if file[-4:] == "prep":
+            return file
+        else:
+            file_path = 'datasets/' + file + '.csv'
+            data = pd.read_csv(file_path, delim_whitespace=True, header=None, names=['in', 'out', 'weight', 'time'])
+            df = {'in': [], 'out': [], 'weight': [], 'time': []}
+            
+            for index, row in data.iterrows():
+                df['in'].append(row['in'])
+                df['out'].append(row['out'])
+                df['weight'].append(row['weight'])
+                df['time'].append(row['time'])
+
+            new_data = pd.DataFrame(df, columns=['in', 'out', 'weight', 'time'])
+            new_name = 'datasets/' + file + '_' + '0' + 'prep.csv'
+            new_data.to_csv(new_name, sep='\t', header=True, index=False)
+            return file + '_' + '0' + 'prep'
