@@ -17,7 +17,7 @@ class Temporal_calculator(Calculator):
                         'cnwe': [], 'aawe': [], 'jcwe': [], 'pawe': [], 'time': []})
         pos_counter = 0
         neg_counter = 0
-        max = 100000    
+        max = 10000    
 
 
 

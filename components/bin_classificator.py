@@ -1,8 +1,6 @@
 import pandas as pd
 import numpy as np
 import math
-from second_task_functions.data_preporating import read_edge_for_bin
-from second_task_functions.functions_for_bin_classification import weighted_topological_features_linear, weighted_topological_features_exp, weighted_topological_features_square
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn import metrics

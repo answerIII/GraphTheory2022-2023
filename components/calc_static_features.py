@@ -21,29 +21,34 @@ class Static_calculator(Calculator):
 
         pos_counter = 0
         neg_counter = 0
-        max = 10000
+        max = 100000
 
 
 
         for i, node1 in enumerate(graph_dict):
             for j, node2 in enumerate(graph_dict):
-                if (i < j) and ((pos_counter < max) or (neg_counter < max)):
+                if ((pos_counter > max) and (neg_counter > max)):
+                    break
+                if (i < j):
                     df = 0
-                    if (node1, node2) in edge_set or (node2, node1) in edge_set:
-                        pos_counter = pos_counter + 1
+                    if (node1, node2) in edge_set or (node2, node1) in edge_set:               
                         df = 1 
-                    else:
-                        neg_counter = neg_counter + 1
 
-                    if (df == 1) and not (pos_counter < max):
+
+                    if (df == 1) and(pos_counter > max):
                         continue
 
-                    if (df == 0) and not (neg_counter < max):
+                    if (df == 0) and (neg_counter > max):
                         continue
                     cn = self.common_neighbors(graph_dict, node1, node2)
                     aa = self.adamic_adar(graph_dict, node1, node2)
                     jc = self.jaccard_coefficient(graph_dict, node1, node2)
                     pa = self.preferential_attachment(graph_dict, node1, node2)
+
+                    if (df == 1):
+                        pos_counter = pos_counter + 1
+                    else:
+                        neg_counter = neg_counter + 1
 
                     result1 = {
                         'Def': df,
@@ -63,11 +68,12 @@ class Static_calculator(Calculator):
                         'Jaccard Coefficient': jc,
                         'Preferential Attachment': pa
                     }
-                    print(result1)
+                    #print(result1)
                     #print(result2)
-
+                    print(f"pos: {pos_counter} neg: {neg_counter}")
                     graph.static_features.append(result1)  #Для ускорения вычислений вычисляем за раз прямое и обратное ребро 
                     graph.static_features.append(result2)
+                
 
         end_time = time.time()   
         execution_time1 = end_time - start_time
