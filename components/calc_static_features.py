@@ -9,24 +9,44 @@ class Static_calculator(Calculator):
     def calc(self, graph):
         print('Начинаю статические вычисления')
         start_time = time.time()
+        edge_set = set()
 
         graph_dict = defaultdict(list)
         for edge in graph.edges: #Преобразуем ориентированный граф в неориентированный, добавляя обратные ребра
             graph_dict[edge.node1].append(edge.node2)
             graph_dict[edge.node2].append(edge.node1)
 
-        
+        for edge in graph.edges:
+            edge_set.add((edge.node1, edge.node2))
+
+        pos_counter = 0
+        neg_counter = 0
+        max = 10000
 
 
 
         for i, node1 in enumerate(graph_dict):
             for j, node2 in enumerate(graph_dict):
-                if i < j:
+                if (i < j) and ((pos_counter < max) or (neg_counter < max)):
+                    df = 0
+                    if (node1, node2) in edge_set or (node2, node1) in edge_set:
+                        pos_counter = pos_counter + 1
+                        df = 1 
+                    else:
+                        neg_counter = neg_counter + 1
+
+                    if (df == 1) and not (pos_counter < max):
+                        continue
+
+                    if (df == 0) and not (neg_counter < max):
+                        continue
                     cn = self.common_neighbors(graph_dict, node1, node2)
                     aa = self.adamic_adar(graph_dict, node1, node2)
                     jc = self.jaccard_coefficient(graph_dict, node1, node2)
                     pa = self.preferential_attachment(graph_dict, node1, node2)
+
                     result1 = {
+                        'Def': df,
                         'Node1': node1,
                         'Node2': node2,
                         'Common Neighbours': cn,
@@ -35,6 +55,7 @@ class Static_calculator(Calculator):
                         'Preferential Attachment': pa
                     }
                     result2 = {
+                        'Def': df,
                         'Node1': node2,
                         'Node2': node1,
                         'Common Neighbours': cn,
@@ -42,7 +63,7 @@ class Static_calculator(Calculator):
                         'Jaccard Coefficient': jc,
                         'Preferential Attachment': pa
                     }
-                    #print(result1)
+                    print(result1)
                     #print(result2)
 
                     graph.static_features.append(result1)  #Для ускорения вычислений вычисляем за раз прямое и обратное ребро 

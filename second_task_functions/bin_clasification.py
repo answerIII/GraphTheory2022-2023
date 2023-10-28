@@ -95,15 +95,13 @@ def bin_clasification(file):
                                 'cnws': [common_neigh_square], 'aaws': [adamic_square], 'jcws': [jaccard_square], 'paws': [preferential_square],
                                 'cnwe': [common_neigh_exp], 'aawe': [adamic_exp], 'jcwe': [jaccard_exp], 'pawe': [preferential_exp], 'time': [graph[j]['time'][graph[j]['neigh'].index(i)]]})
                 df = pd.concat([df, new_row], ignore_index=True)
-                #if (i == 1 and j == 2) or (i == 2 and j == 1):
-                    #print(new_row)
+
             else:
                 new_row = pd.DataFrame({'def': [0], 'u': [i], 'v': [j],
                                         'cnwl': [common_neigh_linear], 'aawl': [adamic_linear], 'jcwl': [jaccard_linear], 'pawl': [preferential_linear],
                                         'cnws': [common_neigh_square], 'aaws': [adamic_square], 'jcws': [jaccard_square], 'paws': [preferential_square],
                                         'cnwe': [common_neigh_exp], 'aawe': [adamic_exp], 'jcwe': [jaccard_exp], 'pawe': [preferential_exp], 'time': [0]})
-                #if (i == 1 and j == 2) or (i == 2 and j == 1):
-                    #print(new_row)
+
                 df = pd.concat([df, new_row], ignore_index=True)
             
     

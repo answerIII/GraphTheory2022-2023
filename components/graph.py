@@ -4,16 +4,88 @@ import csv
 class Graph():
 
     static_features = [] # Статические признаки: Common Neighbours (CN); Adamic-Adar (AA); Jaccard Coefficient (JC); Preferential Attachment (PA). Учитываются все пары вершин, т.е. даже несуществующие ребра
+    temporal_features = pd.DataFrame({'def': [], 'u': [], 'v': [],
+                        'cnwl': [], 'aawl': [], 'jcwl': [], 'pawl': [],
+                        'cnws': [], 'aaws': [], 'jcws': [], 'paws': [],
+                        'cnwe': [], 'aawe': [], 'jcwe': [], 'pawe': [], 'time': []})
     edges = []
     nodes = set()
-    dataset = 'none'
+    name = 'none'
+    tmin = float('inf')
+    tmax = float('-inf')
     
     #def __init__(self, file_path) -> None:
+
+
+    def edge_exist(self, node1, node2):
+        for edge in self.edges:
+            if ((edge.node1 == node1) and (edge.node2 == node2)) or ((edge.node1 == node2) and (edge.node2 == node1)):
+                return 1
+        
+        return 0
+    
+
+    def get_time(self):
+        for edge in self.edges:
+            time = edge.time
+            if time < self.tmin:
+                self.tmin = time
+
+            if time > self.tmax:
+                self.tmax = time
+        
+        print(f"tmin: {self.tmin}, tmax: {self.tmax}")
+
+    def find_max_edge_time(self, node1, node2):
+        tmax = -1
+        for edge in self.edges:
+            if (((edge.node1 == node1) and (edge.node2 == node2)) or ((edge.node1 == node2) and (edge.node2 == node1))) and (edge.time > tmax):
+                tmax = edge.time
+        
+        return tmax
+        
+
+
+
+    def def_edges_static(self): #Определить существует ли ребро в графе к моменту tmax для каждой пары вершин
+        edge_set = set()
+        static_features_with_def = []
+        for edge in self.edges:
+            edge_set.add((edge.node1, edge.node2))
+
+        for feature in self.static_features:
+            edge_exist = 0
+            node1 = feature['Node1']
+            node2 = feature['Node2']
+            if (node1, node2) in edge_set or (node2, node1) in edge_set:
+                edge_exist = 1
+
+            result = {
+                'Def': edge_exist,
+                'Node1': feature['Node1'],
+                'Node2': feature['Node2'],
+                'Common Neighbours': feature['Common Neighbours'],
+                'Adamic-Adar': feature['Adamic-Adar'],
+                'Jaccard Coefficient': feature['Jaccard Coefficient'],
+                'Preferential Attachment': feature['Preferential Attachment']
+            }
+            print (result)
+            static_features_with_def.append(result)
+        
+        self.static_features = static_features_with_def
+            
+
+
+
+
+
+
+
 
     def read_from_file(self, filename):
         filepath = 'datasets/'+ filename +'.csv'
         index = 0
-        self.dataset = filename
+        self.name = filename
         from components.edge import Edge
         with open(filepath, 'r') as csvfile:
             csvreader = csv.DictReader(csvfile, delimiter='\t')
@@ -38,13 +110,26 @@ class Graph():
                 #index += 1
 
     def write_static_results_to_csv(self):
-        filepath = 'done/'+ self.dataset +'.csv'
+        filepath = 'done/'+ self.name +'_DONE.csv'
         with open(filepath, 'w', newline='') as csvfile:
-            fieldnames = ['Node1', 'Node2', 'Common Neighbours', 'Adamic-Adar', 'Jaccard Coefficient', 'Preferential Attachment']
+            fieldnames = ['Def', 'Node1', 'Node2', 'Common Neighbours', 'Adamic-Adar', 'Jaccard Coefficient', 'Preferential Attachment']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             for result in self.static_features:
                 writer.writerow(result)
+
+
+    def read_static_results_from_csv(self):
+
+        filepath = 'done/'+ self.name +'_DONE.csv'
+        print('чтение из файла')
+        df = pd.read_csv(filepath)
+        print('конвертация в dataframe')
+        results = df.to_dict(orient='records')
+        self.static_features = results 
+
+
+
     
 
     def print_edges(self):

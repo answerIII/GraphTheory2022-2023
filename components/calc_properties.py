@@ -141,7 +141,7 @@ class Properties_calculator(Calculator):
         ratio = len(largest_component) / countVertex
         return ratio
 
-    def bfs_for_snow_subgraph(start_vertex, AllVertex):
+    def bfs_for_snow_subgraph(self, start_vertex, AllVertex):
         # Ищем подграф с помощью обхода в ширину (BFS)
         subgraph = []
         queue = deque()

@@ -16,6 +16,8 @@ class Edge(Graph):
         self.weight = weight
         self.time = time
 
+
+
     def calc_static_features():
         print ('')
 
