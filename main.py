@@ -5,7 +5,7 @@ from components.calc_static_features import Static_calculator
 from components.calc_temp_features import Temporal_calculator
 from components.calc_properties import Properties_calculator
 from components.bin_classificator import Bin_classificator
-from test_calc.nx_properties import test
+import random
 
 #1 Вычислений свойств графа
 def task1(file):
@@ -17,13 +17,26 @@ def task1(file):
 def task2_prep(graph, max):
   
   #В папке done находятся статические признаки для всех ребер датасетов (заархивировано чтобы можно было загрузить на гитхаб)
+  print('запускаем калькулятор')
+  static_features = Static_calculator()
+  static_features.calc(graph, max)  #случайный перебор
+  random.shuffle(graph.static_features) #перемешиваем случайным образом полученные признаки
+  graph.write_static_results_to_csv()
+  clasificator = Bin_classificator()
+
+  #75% данных используется для обучения и 25% данных используется для тестирования
+  clasificator.static(graph.static_features, graph.name) # Построение ROC кривой для статических признаков  Common Neighbours (CN); Adamic-Adar (AA); Jaccard Coefficient (JC); Preferential Attachment (PA)
+
+
+def task2_prep_with_distance(graph, max):
+  
+  #В папке done находятся статические признаки для всех ребер датасетов (заархивировано чтобы можно было загрузить на гитхаб)
   print('находим соседей на расстоянии 2')
   graph.find_neighbors_at_distance_2()
   print('запускаем калькулятор')
   static_features = Static_calculator()
-  static_features.calc(graph, max)  #случайный перебор
-  #static_features.calc2(graph, max) #на расстоянии 2
-  #graph.def_edges_static()
+  static_features.calc2(graph, max) #на расстоянии 2
+  random.shuffle(graph.static_features) #перемешиваем случайным образом полученные признаки
   graph.write_static_results_to_csv()
   clasificator = Bin_classificator()
 
@@ -35,6 +48,10 @@ def task2(graph):
   clasificator = Bin_classificator()
   clasificator.static(graph.static_features, graph.name)
 
+def task2(graph):
+  graph.read_static_results_from_csv()
+  clasificator = Bin_classificator()
+  clasificator.static(graph.static_features, graph.name)
 
 def task3_slow(graph):
   graph.get_time()
@@ -52,38 +69,33 @@ def task3(graph, file):
   clasificator.temporal(graph.temporal_features, graph.name)
 
 
-def test_first(file):
-  print('Методы из библиотеки')
-  test(file)
-  print('Мой метод')
-  task1(file)
-
-
 
 print('Выберите датасет (введите название): ')
-#file = input()          #edges     #nodes
+file = input()          #edges     #nodes
 #file = 'BA_bitA_0prep'  #24 186    #3 783
-file = 'BO_bitOt_0prep' #35 592    #5 881
+#file = 'BO_bitOt_0prep' #35 592    #5 881
 #file = 'RA_Rado_0prep'  #82 927    #167
 #file = 'UC_UC_0prep'    #59 835    #1 899
 
 
-max = 40400
+max = 10000
 
-print('Вычисление...')
+print('Чтение датасета...')
 
-graph = Graph()
-graph.prep(file)
-graph.read_from_file(file)
-print ('граф прочитан')
-#task1(file)
+graph = Graph()                       #Cоздаем обьект граф
+graph.prep(file)                      #Проверяем в нужном ли формате датасет и при необходимости подготавливаем csv
+graph.read_from_csv(file)             #Читаем данные из файла
+print ('Датасет прочитан')
 
-task2_prep(graph,max)
-#task2(graph)
 
-#task3(graph, file)
+#task1(file)                          # Задание 1, вычисление свойств графа
+#task2_prep(graph,max)                # Задание 2, вычисление статических признаков 
+#task2_prep_with_distance(graph,max)  # Задание 2, вычисление статических признаков на расстоянии 2
+#task2(graph)                         # Задание 2, чтение готовых статических признаков из done
+#task3(graph, file)                   # Задание 3, вычисление темпоральных признаков
 
-#test_first(file)
+
+
 
 
 

@@ -21,7 +21,7 @@ class Static_calculator(Calculator):
 
         pos_counter = 0
         neg_counter = 0
-        max = 99999999
+
 
 
 

@@ -83,7 +83,7 @@ class Graph():
 
 
 
-    def read_from_file(self, filename):
+    def read_from_csv(self, filename):
         filepath = 'datasets/'+ filename +'.csv'
         index = 0
         self.name = filename
@@ -110,6 +110,26 @@ class Graph():
                 #self.edges.append(edge)
                 #index += 1
 
+    def read_test_from_csv(self, filename):
+        filepath = 'datasets/test/'+ filename +'.csv'
+        index = 0
+        self.name = filename
+        print(filepath)
+        from components.edge import Edge
+        with open(filepath, 'r') as txtfile:
+            edges= txtfile.readlines()
+            for edge in edges:
+                node1, node2 = edge.split()
+                edge = Edge(index, int(node1), int(node2), 1, 1)
+
+
+                self.nodes.add(node1)
+                self.nodes.add(node2)
+                self.edges.append(edge)
+                index += 1
+
+
+
     def write_static_results_to_csv(self):
         filepath = 'done/'+ self.name +'_DONE.csv'
         with open(filepath, 'w', newline='') as csvfile:
@@ -135,7 +155,7 @@ class Graph():
 
     def print_edges(self):
         for edge in self.edges:
-            print(str(edge.index) + ' -- ' +str(edge.node1) + ' ' + str(edge.node2))
+            print(str(edge.node1) + ' ' + str(edge.node2))
 
 
     #Обработка файла с графом и сохранение в нужном нам виде
@@ -191,3 +211,10 @@ class Graph():
             #print(f"Соседи второго уровня для вершины {node}: {second_level_neighbors}")
 
         self.node_neigh_2 = node_neigh_2
+
+
+    def print_neigbours_2(self):
+        for node, second_level_neighbors in self.node_neigh_2.items():
+            print(f"Соседи второго уровня для вершины {node}: {second_level_neighbors}")
+
+
