@@ -10,6 +10,7 @@ class Graph():
                         'cnwe': [], 'aawe': [], 'jcwe': [], 'pawe': [], 'time': []})
     edges = []
     nodes = set()
+    node_neigh_2 = []
     name = 'none'
     tmin = float('inf')
     tmax = float('-inf')
@@ -156,3 +157,37 @@ class Graph():
             new_name = 'datasets/' + file + '_' + '0' + 'prep.csv'
             new_data.to_csv(new_name, sep='\t', header=True, index=False)
             return file + '_' + '0' + 'prep'
+        
+
+    def find_neighbors_at_distance_2(self):
+        # Создаем словарь, чтобы хранить информацию о соседях на расстоянии 2 для каждой вершины
+        node_neigh_2 = {}
+        
+        # Проходим по каждому ребру в графе
+        for edge in self.edges:
+            node1 = edge.node1
+            node2 = edge.node2
+            # Добавляем node2 в соседей node1
+            if node1 not in node_neigh_2:
+                node_neigh_2[node1] = set()
+            node_neigh_2[node1].add(node2)
+            
+            # Добавляем node1 в соседей node2
+            if node2 not in node_neigh_2:
+                node_neigh_2[node2] = set()
+            node_neigh_2[node2].add(node1)
+        
+        # Теперь находим соседей второго уровня для каждой вершины
+        for node in node_neigh_2:
+            second_level_neighbors = set()
+            for neighbor in node_neigh_2[node]:
+                # Для каждого соседа первого уровня, добавляем его соседей второго уровня
+                second_level_neighbors.update(node_neigh_2.get(neighbor, set()))
+            # Удаляем из множества соседей второго уровня вершины первого уровня и саму вершину
+            second_level_neighbors.discard(node)
+            node_neigh_2[node] = list(second_level_neighbors)
+        
+        #for node, second_level_neighbors in node_neigh_2.items():
+            #print(f"Соседи второго уровня для вершины {node}: {second_level_neighbors}")
+
+        self.node_neigh_2 = node_neigh_2

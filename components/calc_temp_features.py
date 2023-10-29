@@ -17,10 +17,10 @@ class Temporal_calculator(Calculator):
                         'cnwe': [], 'aawe': [], 'jcwe': [], 'pawe': [], 'time': []})
         pos_counter = 0
         neg_counter = 0
-        max = 10000    
+        max = 5000    
 
 
-
+        print('Начинаю вычислять признаки')
         for i in graph:
             if ((pos_counter >= max) and (neg_counter >= max)):
                     break
