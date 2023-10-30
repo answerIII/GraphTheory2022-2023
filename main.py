@@ -62,9 +62,9 @@ def task3_slow(graph):
   clasificator.temporal(graph.temporal_features, graph.name)
 
 
-def task3(graph, file):
+def task3(graph, file, max):
   temporal_features = Temporal_calculator()
-  temporal_features.calc(graph, file)
+  temporal_features.calc(graph, file, max)
   clasificator = Bin_classificator()
   clasificator.temporal(graph.temporal_features, graph.name)
 
@@ -92,8 +92,8 @@ print ('Датасет прочитан')
 #task2_prep(graph,max)                # Задание 2, вычисление статических признаков 
 #task2_prep_with_distance(graph,max)  # Задание 2, вычисление статических признаков на расстоянии 2
 #task2(graph)                         # Задание 2, чтение готовых статических признаков из done
-#task3(graph, file)                   # Задание 3, вычисление темпоральных признаков
-
+task3(graph, file, max)              # Задание 3, вычисление темпоральных признаков
+print(file)
 
 
 
