@@ -4,7 +4,6 @@ from collections import defaultdict
 import time
 import pandas as pd
 
-
 class Temporal_calculator(Calculator):
 
     def calc(self, current_graph, filename, max):
@@ -17,9 +16,6 @@ class Temporal_calculator(Calculator):
                         'cnwe': [], 'aawe': [], 'jcwe': [], 'pawe': [], 'time': []})
         pos_counter = 0
         neg_counter = 0
-      
-
-
         print('Начинаю вычислять признаки')
         for i in graph:
             if ((pos_counter >= max) and (neg_counter >= max)):
@@ -119,11 +115,6 @@ class Temporal_calculator(Calculator):
                 
         print('Вычисление темпоральных признаков закончено')
         current_graph.temporal_features = df
-
-
-
-
-
 
 def read_edge_for_bin(filename):
     f = open(filename)

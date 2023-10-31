@@ -18,7 +18,7 @@ class Properties_calculator(Calculator):
             RightVertex =set([])
             LeftVertex = set([])
 
-        AllVertex, LeftVertex, RightVertex = self.build_vertex_adjacency(data, dvudol) #вычисление вершин, учитывается двудольность графа
+        AllVertex, LeftVertex, RightVertex = self.build_vertex_adjacency(data, dvudol) #вычисление списка смежности
         countVertex = len(AllVertex)
 
         print('----1.1----')
@@ -100,7 +100,7 @@ class Properties_calculator(Calculator):
 
         return AllVertex, LeftVertex, RightVertex
             
-    def calculate_edge_count(self, AllVertex): # Вычисление кол-ва ребер
+    def calculate_edge_count(self, AllVertex): # Вычисление кол-ва ребер. Количество рёбер = (сумма длин списков смежности для всех вершин) / 2
         count = 0
         for vertex_neighbors in AllVertex.values():
             count += len(vertex_neighbors)
@@ -163,25 +163,25 @@ class Properties_calculator(Calculator):
 
     # Рассчитываем метрики графа, такие как диаметр, радиус и 90-процентиль расстояния
     def calculate_graph_metrics(self, graph, AllVertex):
-    
-        matrix = [[float('inf')] * len(graph) for _ in range(len(graph))]
+        # инициализируем матрицу с бесконечными значениями. имеет размерность, равную количеству вершин в графе. Эта матрица будет использоваться для хранения кратчайших расстояний между парами вершин.
+        matrix = [[float('inf')] * len(graph) for _ in range(len(graph))] 
         order_in_graph = {vertex: i for i, vertex in enumerate(graph)}
 
-        for i, vertex in enumerate(graph):
+        for i, vertex in enumerate(graph): #заполняем matrix с помощью данных о смежности, если вершины смежны то matrix[i][j] = 1
             neighbors = AllVertex.get(vertex)
             for neighbor in neighbors:
                 j = order_in_graph.get(neighbor)
                 if j is not None:
                     matrix[i][j] = 1
 
-        for k in range(len(graph)):
+        for k in range(len(graph)): #алгоритм Флойда-Уоршалла для вычисления кратчайших расстояний между всеми парами вершин в графе
             for i in range(len(graph)):
                 for j in range(len(graph)):
                     matrix[i][j] = min(matrix[i][j], matrix[i][k] + matrix[k][j])
 
-        radius = float('inf')
-        diameter = 0
-        distances = []
+        radius = float('inf') # минимальное из максимальных расстояний от одной вершины до всех остальных
+        diameter = 0  # максимальное из этих расстояний
+        distances = [] # тут хранятся все вычисленные расстояния между вершинами в графе
 
         for row in matrix:
             max_distance_in_row = -1

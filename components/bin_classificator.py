@@ -15,25 +15,19 @@ class Bin_classificator():
     #  y_train набор обучающих меток (целевой переменной), соответствующих обучающим признакам
     #  y_test  набор тестовых меток (целевой переменной), соответствующих тестовым признакам
 
-    
-
-
     def static(self,features, dataset_name):
-
         features_df = pd.DataFrame(features)
         X = features_df[['Common Neighbours', 'Adamic-Adar', 'Jaccard Coefficient', 'Preferential Attachment']]
         y = features_df['Def']
         self.plot(X,y, dataset_name)
 
     def temporal(self,features, dataset_name):
-
         features = features.sort_values(by='time')
         X = features[['cnwl', 'aawl', 'jcwl', 'pawl', 'cnws', 'aaws', 'jcws', 'paws', 'cnwe', 'aawe', 'jcwe', 'pawe']]
         y = features['def']
 
-
-        X = features[['cnwl', 'aawl', 'jcwl', 'pawl', 'cnws', 'aaws', 'jcws', 'paws', 'cnwe', 'aawe', 'jcwe', 'pawe']]
-        y = features['def']
+        #X = features[['cnwl', 'aawl', 'jcwl', 'pawl', 'cnws', 'aaws', 'jcws', 'paws', 'cnwe', 'aawe', 'jcwe', 'pawe']]
+        #y = features['def']
         self.plot(X,y, dataset_name)
 
 

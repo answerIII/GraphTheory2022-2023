@@ -5,12 +5,10 @@ import time
 
 class Temporal_calculator(Calculator):
 
-
     def __init__(self, l, tmin, tmax) -> None:
         self.l = l
         self.tmin = tmin
         self.tmax = tmax
-
 
     def calc(self, graph):
         print('Начинаю темпоральные вычисления')

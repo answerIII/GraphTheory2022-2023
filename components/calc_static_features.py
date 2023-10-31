@@ -22,9 +22,6 @@ class Static_calculator(Calculator):
         pos_counter = 0
         neg_counter = 0
 
-
-
-
         for i, node1 in enumerate(graph_dict):
             for j, node2 in enumerate(graph_dict):
                 if ((pos_counter > max) and (neg_counter > max)):
@@ -33,7 +30,6 @@ class Static_calculator(Calculator):
                     df = 0
                     if (node1, node2) in edge_set or (node2, node1) in edge_set:               
                         df = 1 
-
 
                     if (df == 1) and(pos_counter > max):
                         continue
@@ -85,7 +81,6 @@ class Static_calculator(Calculator):
         neighbors2 = set(graph[node2])
         return len(neighbors1 & neighbors2)
 
-
     # Функция для вычисления Adamic-Adar
     def adamic_adar(self, graph, node1, node2):
         common_neighbors = set(graph[node1]) & set(graph[node2])
@@ -108,8 +103,6 @@ class Static_calculator(Calculator):
     def preferential_attachment(self, graph, node1, node2):
         return len(graph[node1]) * len(graph[node2])
     
-
-
     def calc2(self, graph, max):
         print('Начинаю статические вычисления')
         start_time = time.time()
@@ -125,9 +118,6 @@ class Static_calculator(Calculator):
 
         pos_counter = 0
         neg_counter = 0
-
-
-
 
         for node1, neighbors in graph.node_neigh_2.items():
 

@@ -17,15 +17,12 @@ class Graph():
     
     #def __init__(self, file_path) -> None:
 
-
     def edge_exist(self, node1, node2):
         for edge in self.edges:
             if ((edge.node1 == node1) and (edge.node2 == node2)) or ((edge.node1 == node2) and (edge.node2 == node1)):
-                return 1
-        
+                return 1 
         return 0
     
-
     def get_time(self):
         for edge in self.edges:
             time = edge.time
@@ -33,21 +30,16 @@ class Graph():
                 self.tmin = time
 
             if time > self.tmax:
-                self.tmax = time
-        
+                self.tmax = time    
         print(f"tmin: {self.tmin}, tmax: {self.tmax}")
 
     def find_max_edge_time(self, node1, node2):
         tmax = -1
         for edge in self.edges:
             if (((edge.node1 == node1) and (edge.node2 == node2)) or ((edge.node1 == node2) and (edge.node2 == node1))) and (edge.time > tmax):
-                tmax = edge.time
-        
+                tmax = edge.time    
         return tmax
         
-
-
-
     def def_edges_static(self): #Определить существует ли ребро в графе к моменту tmax для каждой пары вершин
         edge_set = set()
         static_features_with_def = []
@@ -72,17 +64,8 @@ class Graph():
             }
             print (result)
             static_features_with_def.append(result)
-        
         self.static_features = static_features_with_def
             
-
-
-
-
-
-
-
-
     def read_from_csv(self, filename):
         filepath = 'datasets/'+ filename +'.csv'
         index = 0
@@ -100,7 +83,7 @@ class Graph():
                 self.nodes.add(node1)
                 self.nodes.add(node2)
 
-                    #Cтроим прямое ребро, у прямого ребра четный индекс
+                    #Cтроим прямое ребро
                 edge = Edge(index, node1, node2, weight, time)
                 self.edges.append(edge)
                 index += 1
@@ -121,14 +104,10 @@ class Graph():
             for edge in edges:
                 node1, node2 = edge.split()
                 edge = Edge(index, int(node1), int(node2), 1, 1)
-
-
                 self.nodes.add(node1)
                 self.nodes.add(node2)
                 self.edges.append(edge)
                 index += 1
-
-
 
     def write_static_results_to_csv(self):
         filepath = 'done/'+ self.name +'_DONE.csv'
@@ -141,7 +120,6 @@ class Graph():
 
 
     def read_static_results_from_csv(self):
-
         filepath = 'done/'+ self.name +'_DONE.csv'
         print('чтение из файла')
         df = pd.read_csv(filepath)
@@ -149,14 +127,9 @@ class Graph():
         results = df.to_dict(orient='records')
         self.static_features = results 
 
-
-
-    
-
     def print_edges(self):
         for edge in self.edges:
             print(str(edge.node1) + ' ' + str(edge.node2))
-
 
     #Обработка файла с графом и сохранение в нужном нам виде
     def prep(self, file):
@@ -166,23 +139,19 @@ class Graph():
             file_path = 'datasets/' + file + '.csv'
             data = pd.read_csv(file_path, delim_whitespace=True, header=None, names=['in', 'out', 'weight', 'time'])
             df = {'in': [], 'out': [], 'weight': [], 'time': []}
-            
             for index, row in data.iterrows():
                 df['in'].append(row['in'])
                 df['out'].append(row['out'])
                 df['weight'].append(row['weight'])
                 df['time'].append(row['time'])
-
             new_data = pd.DataFrame(df, columns=['in', 'out', 'weight', 'time'])
             new_name = 'datasets/' + file + '_' + '0' + 'prep.csv'
             new_data.to_csv(new_name, sep='\t', header=True, index=False)
             return file + '_' + '0' + 'prep'
         
-
     def find_neighbors_at_distance_2(self):
         # Создаем словарь, чтобы хранить информацию о соседях на расстоянии 2 для каждой вершины
         node_neigh_2 = {}
-        
         # Проходим по каждому ребру в графе
         for edge in self.edges:
             node1 = edge.node1
@@ -207,9 +176,6 @@ class Graph():
             second_level_neighbors.discard(node)
             node_neigh_2[node] = list(second_level_neighbors)
         
-        #for node, second_level_neighbors in node_neigh_2.items():
-            #print(f"Соседи второго уровня для вершины {node}: {second_level_neighbors}")
-
         self.node_neigh_2 = node_neigh_2
 
 

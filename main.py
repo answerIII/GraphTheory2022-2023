@@ -13,7 +13,7 @@ def task1(file):
   graph_properties.calc(file)
 
 
-#2.1 Вычисление статических признаков и построение ROC AUC кривой для статич. признаков
+#2.1 Вычисление статических признаков и построение ROC AUC кривой для статич. признаков, без дистанции 2
 def task2_prep(graph, max):
   
   #В папке done находятся статические признаки для всех ребер датасетов (заархивировано чтобы можно было загрузить на гитхаб)
@@ -27,7 +27,7 @@ def task2_prep(graph, max):
   #75% данных используется для обучения и 25% данных используется для тестирования
   clasificator.static(graph.static_features, graph.name) # Построение ROC кривой для статических признаков  Common Neighbours (CN); Adamic-Adar (AA); Jaccard Coefficient (JC); Preferential Attachment (PA)
 
-
+#2.1 Вычисление статических признаков и построение ROC AUC кривой для статич. признаков, с дистанцией 2
 def task2_prep_with_distance(graph, max):
   
   #В папке done находятся статические признаки для всех ребер датасетов (заархивировано чтобы можно было загрузить на гитхаб)
@@ -43,16 +43,13 @@ def task2_prep_with_distance(graph, max):
   #75% данных используется для обучения и 25% данных используется для тестирования
   clasificator.static(graph.static_features, graph.name) # Построение ROC кривой для статических признаков  Common Neighbours (CN); Adamic-Adar (AA); Jaccard Coefficient (JC); Preferential Attachment (PA)
 
+#2.1 Построение ROC AUC кривой используя уже вычисленные признаки из папки done
 def task2(graph):
   graph.read_static_results_from_csv()
   clasificator = Bin_classificator()
   clasificator.static(graph.static_features, graph.name)
 
-def task2(graph):
-  graph.read_static_results_from_csv()
-  clasificator = Bin_classificator()
-  clasificator.static(graph.static_features, graph.name)
-
+#2.2 Вычисление темпоральных признаков медленно
 def task3_slow(graph):
   graph.get_time()
   l = 0.2
@@ -61,7 +58,7 @@ def task3_slow(graph):
   clasificator = Bin_classificator()
   clasificator.temporal(graph.temporal_features, graph.name)
 
-
+#2.2 Вычисление темпоральных признаков с нормальной скоростью
 def task3(graph, file, max):
   temporal_features = Temporal_calculator()
   temporal_features.calc(graph, file, max)
@@ -69,24 +66,21 @@ def task3(graph, file, max):
   clasificator.temporal(graph.temporal_features, graph.name)
 
 
-
 print('Выберите датасет (введите название): ')
-file = input()          #edges     #nodes
+#file = input()          #edges     #nodes
 #file = 'BA_bitA_0prep'  #24 186    #3 783
 #file = 'BO_bitOt_0prep' #35 592    #5 881
-#file = 'RA_Rado_0prep'  #82 927    #167
+file = 'RA_Rado_0prep'  #82 927    #167
 #file = 'UC_UC_0prep'    #59 835    #1 899
 
-
-max = 10000
-
-print('Чтение датасета...')
+max = 10000 #максимальный размер доли для признаков
 
 graph = Graph()                       #Cоздаем обьект граф
+print('Проверяем формат датасета')
 graph.prep(file)                      #Проверяем в нужном ли формате датасет и при необходимости подготавливаем csv
+print('Чтение датасета...')
 graph.read_from_csv(file)             #Читаем данные из файла
 print ('Датасет прочитан')
-
 
 #task1(file)                          # Задание 1, вычисление свойств графа
 #task2_prep(graph,max)                # Задание 2, вычисление статических признаков 
@@ -94,57 +88,3 @@ print ('Датасет прочитан')
 #task2(graph)                         # Задание 2, чтение готовых статических признаков из done
 task3(graph, file, max)              # Задание 3, вычисление темпоральных признаков
 print(file)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#1 Вычисление статических признаков
-#file = prep(file)
-#calc_static_features(file)
-
-#2 Вычисление предсказания появления ребер в графе
-  # В папке done находятся статические признаки для всех ребер датасетов (заархивировано чтобы можно было загрузить на гитхаб)
-
-
-  # Задание 2.1.1 # Вычисление статических признаков
-#calc_static_feature(file)
-  # Задание 2.1.2 # Вычисление темпоральных признаков
-#calc_temp_feature(file)
-  # Задание 2.2 Построение ROC AUC кривой
-#bin_clasification(file)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

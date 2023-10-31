@@ -1,4 +1,4 @@
 
-
 class Calculator():
-    print('----')
+    def calc(self, graph, max):
+        print ('Базовая функция calc не определена')
